@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <UserSecretsId>dotnet-OpenGameMonitorWorker-5B5B6214-DD95-4298-AF2F-4AE7CEF3805B</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JKang.IpcServiceFramework.Server" Version="2.2.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.6" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.0.0-rc1.19456.10" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="3.0.0-rc1.19456.10" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.2.1-preview1-final" />
+    <PackageReference Include="sharpcompress" Version="0.24.0" />
+    <PackageReference Include="SteamKit2" Version="2.2.0" />
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="4.6.0-rc1.19456.4" />
+  </ItemGroup>
+
+  <Import Project="..\OpenGameMonitorLibraries\OpenGameMonitorLibraries.projitems" Label="Shared" />
+</Project>

@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>b82eaa51-96b0-4ead-9d5f-52343ea10a99</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>OpenGameMonitorLibraries</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Libraries\KeyValues.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Libraries\StreamHelpers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\GenericModels.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\MonitorDBContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MonitorComsInterface.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MonitorConfig.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils.cs" />
+  </ItemGroup>
+</Project>
