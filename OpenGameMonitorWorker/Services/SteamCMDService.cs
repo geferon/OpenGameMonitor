@@ -12,6 +12,7 @@ using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using OpenGameMonitorLibraries;
 
 namespace OpenGameMonitorWorker
 {
@@ -21,20 +22,20 @@ namespace OpenGameMonitorWorker
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly SteamAPIService _steamAPIService;
 
+		public event EventHandler SteamCMDInstalledEvent;
+
         public IBackgroundTaskQueue Queue { get; }
 
         //private Dictionary<int, Process> _processes = new Dictionary<int, Process>();
         private Process activeSteamCMD;
-        private List<Server> serversToUpdate = new List<Server>();
+
 
         public SteamCMDService(ILogger<SteamCMDService> logger,
-            IBackgroundTaskQueue queue,
             IServiceScopeFactory serviceScopeFactory,
             SteamAPIService steamAPIService)
         {
             _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
-            Queue = queue;
             _steamAPIService = steamAPIService;
 
             CheckSteamCMD();
@@ -135,150 +136,51 @@ namespace OpenGameMonitorWorker
                                 }
                             }
                         }
-                    };
+
+						EventHandler handler = SteamCMDInstalledEvent;
+						handler?.Invoke(this, new EventArgs());
+
+					};
                 }
             }
         }
 
-        private static Task RunAsyncProcess(Process process, bool shouldStart = true)
-        {
-            var tcs = new TaskCompletionSource<object>();
-            process.Exited += (s, e) => tcs.TrySetResult(null);
-            if (shouldStart && !process.Start()) tcs.SetException(new Exception("Failed to start process."));
-            return tcs.Task;
-        }
 
-        public void UpdateServer(Server server)
-        {
-            if (!SteamCMDInstalled || (activeSteamCMD != null || !activeSteamCMD.HasExited))
-            {
-                serversToUpdate.Add(server);
-                return;
-            }
+		public Process StartSteamCMD(string strparams)
+		{
+			if (activeSteamCMD != null && !activeSteamCMD.HasExited)
+			{
+				throw new Exception("Can't start a SteamCMD when one is already open!");
+			}
 
-            var serverPath = new DirectoryInfo(server.Path);
+			var steamCMDProc = new Process();
+			steamCMDProc.StartInfo.FileName = SteamCMDExe.FullName;
+			steamCMDProc.StartInfo.WorkingDirectory = SteamCMDFolder.FullName;
+			steamCMDProc.StartInfo.Arguments = strparams;
 
-            if (!serverPath.Exists)
-            {
-                serverPath.Create();
-            }
+			steamCMDProc.StartInfo.RedirectStandardError = true;
+			steamCMDProc.StartInfo.RedirectStandardOutput = true;
+			steamCMDProc.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+			steamCMDProc.StartInfo.CreateNoWindow = true;
+			steamCMDProc.StartInfo.UseShellExecute = true;
+			steamCMDProc.EnableRaisingEvents = true; // Investigate?
+													 //activeSteamCMD.EnableRaisingEvents = false;
+			// activeSteamCMD.OutputDataReceived += (sender, eventArgs) => outputStringBuilder.AppendLine(eventArgs.Data);
+			// activeSteamCMD.ErrorDataReceived += (sender, eventArgs) => outputStringBuilder.AppendLine(eventArgs.Data);
 
-            Queue.QueueBackgroundWorkItem(async token =>
-            {
-                using (var scope = _serviceScopeFactory.CreateScope())
-                {
-                    var scopedServices = scope.ServiceProvider;
+			steamCMDProc.Exited += (sender, e) =>
+			{
+				activeSteamCMD.Close();
+				activeSteamCMD = null;
+			};
 
-                    activeSteamCMD = new Process();
-                    StringBuilder outputStringBuilder = new StringBuilder();
+			steamCMDProc.Start();
 
-                    // Params stuff
-                    List<string[]> parameterBuilder = new List<string[]>();
-                    parameterBuilder.Add(new string[] { "+login", "anonymous" }); // TODO: Allow user logins
-                    parameterBuilder.Add(new string[] { "+force_install_dir", $"\"{serverPath.FullName}\"" });
+			activeSteamCMD = steamCMDProc;
 
-                    // Fucking dynamic shit param builder what the fuck
-                    List<string> updateText = new List<string>();
-                    updateText.Add(server.Game.SteamID.ToString());
-                    if (!String.IsNullOrEmpty(server.Branch))
-                    {
-                        updateText.Add("-beta");
-                        updateText.Add(server.Branch);
-                        if (!String.IsNullOrEmpty(server.BranchPassword))
-                        {
-                            updateText.Add("-betapassword");
-                            updateText.Add(server.BranchPassword);
-                        }
+			return activeSteamCMD;
+		}
 
-                        // TODO: Should add 'validate' param?
-                    }
-
-                    StringBuilder updateParams = new StringBuilder();
-                    if (updateText.Count > 1) updateParams.Append("\"");
-                    updateParams.Append(String.Join(" ", updateParams));
-                    if (updateText.Count > 1) updateParams.Append("\"");
-
-                    parameterBuilder.Add(new string[] { "+app_update", updateParams.ToString() });
-
-                    parameterBuilder.Add(new string[] { "+quit" });
-
-                    string steamCMDArguments = String.Join(" ", parameterBuilder.Select(param => String.Join(" ", param)).ToArray());
-
-                    // Start process
-                    try
-                    {
-                        activeSteamCMD.StartInfo.FileName = SteamCMDExe.FullName;
-                        activeSteamCMD.StartInfo.WorkingDirectory = SteamCMDFolder.FullName;
-                        activeSteamCMD.StartInfo.Arguments = steamCMDArguments;
-
-                        activeSteamCMD.StartInfo.RedirectStandardError = true;
-                        activeSteamCMD.StartInfo.RedirectStandardOutput = true;
-                        activeSteamCMD.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                        activeSteamCMD.StartInfo.CreateNoWindow = true;
-                        activeSteamCMD.StartInfo.UseShellExecute = true;
-                        activeSteamCMD.EnableRaisingEvents = true; // Investigate?
-                        //activeSteamCMD.EnableRaisingEvents = false;
-                        activeSteamCMD.OutputDataReceived += (sender, eventArgs) => outputStringBuilder.AppendLine(eventArgs.Data);
-                        activeSteamCMD.ErrorDataReceived += (sender, eventArgs) => outputStringBuilder.AppendLine(eventArgs.Data);
-
-                        activeSteamCMD.Start();
-
-                        server.UpdatePID = activeSteamCMD.Id;
-
-                        //activeSteamCMD.WaitForExit();
-                        await RunAsyncProcess(activeSteamCMD, false);
-
-                        if (activeSteamCMD.ExitCode != 0)
-                        {
-                            // TODO: Error on update?
-                        }
-
-                    }
-                    finally
-                    {
-                        activeSteamCMD.Close();
-
-                        activeSteamCMD = null;
-
-                        // Move on and start the next one?
-                        serversToUpdate.Remove(server);
-
-                        if (!token.IsCancellationRequested)
-                        {
-                            if (serversToUpdate.Count > 0)
-                            {
-                                UpdateServer(serversToUpdate[0]);
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        public async Task<bool> CheckUpdate(Server server)
-        {
-            uint appID = server.Game.SteamID;
-
-            string appManifestFile = Path.Combine(server.Path, "SteamApps", String.Format("appmanifest_{0}.acf", appID));
-            if (File.Exists(appManifestFile))
-            {
-                KeyValues manifestKv;
-                using (Stream s = File.OpenRead(appManifestFile))
-                {
-                    manifestKv = new KeyValues(s);
-                }
-
-                Dictionary<string, object> appState = (Dictionary<string, object>) manifestKv.Items["AppState"];
-
-                var serverData = await _steamAPIService.GetAppInfo(appID);
-
-                if (appState["buildid"] != serverData.KeyValues["depots"]["branches"][server.Branch]["buildid"])
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
+        
     }
 }

@@ -16,5 +16,9 @@
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="4.6.0-rc1.19456.4" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Handlers\GameHandlers\" />
+  </ItemGroup>
+
   <Import Project="..\OpenGameMonitorLibraries\OpenGameMonitorLibraries.projitems" Label="Shared" />
 </Project>

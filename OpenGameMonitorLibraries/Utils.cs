@@ -1,13 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace OpenGameMonitorLibraries
 {
-    class MonitorUtils
+    public static class MonitorUtils
     {
+		private static Task RunAsyncProcess(Process process, bool shouldStart = true)
+		{
+			var tcs = new TaskCompletionSource<object>();
+			process.Exited += (s, e) => tcs.TrySetResult(null);
+			if (shouldStart && !process.Start()) tcs.SetException(new Exception("Failed to start process."));
+			return tcs.Task;
+		}
+
+		public static async Task WaitForExitAsync(this Process proc)
+		{
+			await RunAsyncProcess(proc, false);
+
+			if (proc.ExitCode != 0)
+			{
+				throw new Exception($"Process exited with exit code {proc.ExitCode}");
+			}
+		}
+
         static byte[] Decompress(byte[] gzip)
         {
             // Create a GZIP stream with decompression mode.

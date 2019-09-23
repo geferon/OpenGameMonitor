@@ -12,6 +12,7 @@ namespace OpenGameMonitorLibraries
         public string Name { get; set; }
         public User Owner { get; set; }
         public Group Group { get; set; }
+		public bool Enabled { get; set; }
 
         public string Executable { get; set; }
         public string Path { get; set; }

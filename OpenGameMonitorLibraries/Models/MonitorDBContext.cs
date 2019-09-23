@@ -14,6 +14,9 @@ namespace OpenGameMonitorLibraries
         {
             modelBuilder.Entity<Server>(entity =>
             {
+				entity.Property(b => b.Enabled)
+					.HasDefaultValue(true);
+
                 entity.Property(b => b.Graceful)
                     .HasDefaultValue(true);
 
