@@ -50,6 +50,7 @@ namespace OpenGameMonitorWorker
 
                     services.AddSingleton<SteamAPIService>();
                     services.AddSingleton<SteamCMDService>();
+                    services.AddSingleton<GameHandler>();
 
                     services.AddEntityFrameworkMySql();
                     services.AddDbContext<MonitorDBContext>(options => options.UseMySql("")); // TODO: Connection String

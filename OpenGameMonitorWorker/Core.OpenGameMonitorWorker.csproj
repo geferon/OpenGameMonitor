@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Handlers\GameHandler.cs~RF10ad8dad.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="JKang.IpcServiceFramework.Server" Version="2.2.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.6" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.0.0-rc1.19456.10" />

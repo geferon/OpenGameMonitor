@@ -25,6 +25,9 @@ namespace OpenGameMonitorLibraries
         public int PID { get; set; }
         public int UpdatePID { get; set; }
 
+		public DateTime LastUpdate { get; set; }
+		public bool LastUpdateFailed { get; set; }
+
     }
 
     public class Game

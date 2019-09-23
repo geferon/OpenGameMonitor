@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,6 +12,7 @@ namespace OpenGameMonitorWorker
 {
 	abstract class SteamCMDBaseHandler : GameHandlerBase
 	{
+		private readonly IServiceProvider _serviceProvider;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
 		private readonly SteamCMDService _steamCMDService;
 		private readonly SteamAPIService _steamAPIService;
@@ -20,10 +22,12 @@ namespace OpenGameMonitorWorker
 
 		string GameHandlerBase.Game => throw new NotImplementedException();
 
-		public SteamCMDBaseHandler(IServiceScopeFactory serviceScopeFactory,
+		public SteamCMDBaseHandler(IServiceProvider serviceProvider,
+			IServiceScopeFactory serviceScopeFactory,
 			SteamCMDService steamCMDServ,
 			SteamAPIService steamAPIService)
 		{
+			_serviceProvider = serviceProvider;
 			_serviceScopeFactory = serviceScopeFactory;
 			_steamCMDService = steamCMDServ;
 			_steamAPIService = steamAPIService;
@@ -52,6 +56,7 @@ namespace OpenGameMonitorWorker
 			}
 
 			using (var scope = _serviceScopeFactory.CreateScope())
+			using (var db = _serviceProvider.GetService<MonitorDBContext>())
 			{
 				var scopedServices = scope.ServiceProvider;
 
@@ -112,6 +117,8 @@ namespace OpenGameMonitorWorker
 					};
 
 					server.UpdatePID = steamCMDProc.Id;
+
+					db.Update(server);
 
 					await steamCMDProc.WaitForExitAsync();
 
