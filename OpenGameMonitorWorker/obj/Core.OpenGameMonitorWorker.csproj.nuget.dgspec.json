@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "E:\\Trabajos\\Proyectos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj": {}
+    "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj": {}
   },
   "projects": {
-    "E:\\Trabajos\\Proyectos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj": {
+    "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\Trabajos\\Proyectos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj",
+        "projectUniqueName": "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj",
         "projectName": "Core.OpenGameMonitorWorker",
-        "projectPath": "E:\\Trabajos\\Proyectos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj",
-        "packagesPath": "C:\\Users\\gefer\\.nuget\\packages\\",
-        "outputPath": "E:\\Trabajos\\Proyectos\\OpenGameMonitor\\OpenGameMonitorWorker\\obj\\",
+        "projectPath": "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj",
+        "packagesPath": "C:\\Users\\Jorge\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\OpenGameMonitorWorker\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
         ],
         "configFilePaths": [
-          "C:\\Users\\gefer\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Jorge\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -95,7 +95,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.0.100-rc1-014190\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.0.100\\RuntimeIdentifierGraph.json"
         }
       }
     }

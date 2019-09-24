@@ -3,6 +3,7 @@ using OpenGameMonitorLibraries;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace OpenGameMonitorWorker
 {
-	abstract class SteamCMDBaseHandler : GameHandlerBase
+	abstract class SteamCMDBaseHandler : IGameHandlerBase
 	{
 		private readonly IServiceProvider _serviceProvider;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
@@ -20,7 +21,7 @@ namespace OpenGameMonitorWorker
 		public event EventHandler UpdateMessage;
 		public abstract event EventHandler ConsoleMessage;
 
-		string GameHandlerBase.Game => throw new NotImplementedException();
+		string IGameHandlerBase.Game => throw new NotImplementedException();
 
 		public SteamCMDBaseHandler(IServiceProvider serviceProvider,
 			IServiceScopeFactory serviceScopeFactory,
@@ -69,7 +70,7 @@ namespace OpenGameMonitorWorker
 
 				// Fucking dynamic shit param builder what the fuck
 				List<string> updateText = new List<string>();
-				updateText.Add(server.Game.SteamID.ToString());
+				updateText.Add(server.Game.SteamID.ToString(CultureInfo.InvariantCulture));
 				if (!String.IsNullOrEmpty(server.Branch))
 				{
 					updateText.Add("-beta");
@@ -136,7 +137,7 @@ namespace OpenGameMonitorWorker
 		{
 			uint appID = server.Game.SteamID;
 
-			string appManifestFile = Path.Combine(server.Path, "SteamApps", String.Format("appmanifest_{0}.acf", appID));
+			string appManifestFile = Path.Combine(server.Path, "SteamApps", string.Format(CultureInfo.InvariantCulture, "appmanifest_{0}.acf", appID));
 			if (File.Exists(appManifestFile))
 			{
 				KeyValues manifestKv;

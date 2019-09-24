@@ -1,0 +1,7 @@
+﻿[*.cs]
+
+# CA2007: Puede llamar a ConfigureAwait en la tarea esperada
+dotnet_diagnostic.CA2007.severity = none
+
+# CA1303: No pasar cadenas literal como parámetros localizados
+dotnet_diagnostic.CA1303.severity = none
