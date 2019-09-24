@@ -160,6 +160,7 @@ namespace OpenGameMonitorWorker
 
 		public abstract Task CloseServer(Server server);
 		public abstract Task OpenServer(Server server);
+		public abstract Task<bool> IsOpen(Server server);
 	}
 }
-}
+

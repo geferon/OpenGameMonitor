@@ -43,10 +43,13 @@ namespace OpenGameMonitorWorker
                     services.AddOptions();
                     services.Configure<MonitorConfig>(hostContext.Configuration.GetSection("AppConfig"));
 
-                    services.AddHostedService<Worker>();
+					services.AddSingleton<EventHandlerService>();
+
+					services.AddHostedService<Worker>();
 
                     services.AddHostedService<QueuedHostedService>();
                     services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
+
 
                     services.AddSingleton<SteamAPIService>();
                     services.AddSingleton<SteamCMDService>();

@@ -21,6 +21,7 @@ namespace OpenGameMonitorWorker
 		bool CanUpdate(Server server);
 		Task<bool> CheckUpdate(Server server);
 		Task<bool> UpdateServer(Server server);
+		Task<bool> IsOpen(Server server);
 		Task CloseServer(Server server);
 		Task OpenServer(Server server);
 
@@ -33,12 +34,15 @@ namespace OpenGameMonitorWorker
 		private Dictionary<string, GameHandlerBase> gameHandlers = new Dictionary<string, GameHandlerBase>();
 		private readonly IServiceProvider _serviceProvider;
 		private readonly ILogger _logger;
+		private readonly EventHandlerService _eventHandlerService;
 
 		public GameHandler(IServiceProvider serviceProvider,
-			ILogger logger)
+			ILogger logger,
+			EventHandlerService eventHandlerService)
 		{
 			_serviceProvider = serviceProvider;
-			logger = _logger;
+			_logger = logger;
+			_eventHandlerService = eventHandlerService;
 		}
 
 
@@ -54,6 +58,8 @@ namespace OpenGameMonitorWorker
 				{
 					GameHandlerBase gameHandler = (GameHandlerBase) ActivatorUtilities.CreateInstance(_serviceProvider, type);
 					gameHandlers.Add(gameHandler.Game, gameHandler);
+
+					_logger.LogInformation("Registered game handler {0}", gameHandler.Game);
 				}
 			}
 		}
@@ -75,14 +81,16 @@ namespace OpenGameMonitorWorker
 
 		public async Task UpdateServer(Server server)
 		{
-			try
-			{
-				GameHandlerBase handler = GetServerHandler(server);
+			GameHandlerBase handler = GetServerHandler(server);
 
-				if (handler.CanUpdate(server))
-				{
-					await handler.UpdateServer(server);
-				}
+			if (await handler.IsOpen(server).ConfigureAwait(true))
+			{
+				throw new Exception("Can't update the server while it's open");
+			}
+
+			if (handler.CanUpdate(server))
+			{
+				await handler.UpdateServer(server).ConfigureAwait(true);
 			}
 		}
 
@@ -106,7 +114,7 @@ namespace OpenGameMonitorWorker
 						if (handler.CanUpdate(server))
 						{
 							//await handler.UpdateServer(server);
-							bool needsUpdate = await handler.CheckUpdate(server);
+							bool needsUpdate = await handler.CheckUpdate(server).ConfigureAwait(true);
 
 							if (needsUpdate)
 							{
@@ -122,6 +130,38 @@ namespace OpenGameMonitorWorker
 			}
 
 			return outOfDateServers;
+		}
+
+		public async Task StartServer(Server server)
+		{
+			if (!server.Enabled)
+			{
+				throw new Exception("The server can't be started! It's disabled!");
+			}
+
+			GameHandlerBase handler = GetServerHandler(server);
+
+			if (await handler.IsOpen(server))
+			{
+				throw new Exception("Can't open an already opened server");
+			}
+
+			await handler.OpenServer(server);
+		}
+  
+		public async Task CloseServer(Server server)
+		{
+			// This is stupid, it should be able to be closed even if it's disabled
+			/*
+			if (!server.Enabled)
+			{
+				throw new Exception("The server can't be stopped! It's disabled!");
+			}
+			*/
+
+			GameHandlerBase handler = GetServerHandler(server);
+
+			await handler.CloseServer(server);
 		}
 	}
 }

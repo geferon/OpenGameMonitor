@@ -50,6 +50,7 @@ namespace OpenGameMonitorWorker
 					{
 						// Server has already been tried to update, stopping
 						serversToUpdate.RemoveAt(0);
+						continue;
 					}
 
 					try

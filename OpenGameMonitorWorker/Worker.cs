@@ -11,12 +11,10 @@ namespace OpenGameMonitorWorker
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
-        private readonly SteamAPIService _steamAPI;
 
-        public Worker(ILogger<Worker> logger, SteamAPIService steamAPI)
+        public Worker(ILogger<Worker> logger)
         {
             _logger = logger;
-            _steamAPI = steamAPI;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)

@@ -12,7 +12,6 @@ using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using OpenGameMonitorLibraries;
 
 namespace OpenGameMonitorWorker
 {
@@ -20,7 +19,6 @@ namespace OpenGameMonitorWorker
     {
         private readonly ILogger _logger;
         private readonly IServiceScopeFactory _serviceScopeFactory;
-        private readonly SteamAPIService _steamAPIService;
 
 		public event EventHandler SteamCMDInstalledEvent;
 
@@ -31,12 +29,10 @@ namespace OpenGameMonitorWorker
 
 
         public SteamCMDService(ILogger<SteamCMDService> logger,
-            IServiceScopeFactory serviceScopeFactory,
-            SteamAPIService steamAPIService)
+            IServiceScopeFactory serviceScopeFactory)
         {
             _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
-            _steamAPIService = steamAPIService;
 
             CheckSteamCMD();
         }
