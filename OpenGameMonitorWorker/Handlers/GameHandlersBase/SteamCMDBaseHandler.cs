@@ -21,9 +21,14 @@ namespace OpenGameMonitorWorker
 		public event EventHandler UpdateMessage;
 		public abstract event EventHandler ConsoleMessage;
 
-		string IGameHandlerBase.Game => throw new NotImplementedException();
+        public abstract string Engine { get; }
+        string IGameHandlerBase.Game => throw new NotImplementedException();
 
-		public SteamCMDBaseHandler(IServiceProvider serviceProvider,
+        EventHandler IGameHandlerBase.ConsoleMessage { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        EventHandler IGameHandlerBase.UpdateMessage { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        
+
+        public SteamCMDBaseHandler(IServiceProvider serviceProvider,
 			IServiceScopeFactory serviceScopeFactory,
 			SteamCMDService steamCMDServ,
 			SteamAPIService steamAPIService)
@@ -162,6 +167,7 @@ namespace OpenGameMonitorWorker
 		public abstract Task CloseServer(Server server);
 		public abstract Task OpenServer(Server server);
 		public abstract Task<bool> IsOpen(Server server);
-	}
+        public abstract Task InitServer(Server server);
+    }
 }
 

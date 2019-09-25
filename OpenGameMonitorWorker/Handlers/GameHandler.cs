@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using OpenGameMonitorLibraries;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -15,10 +16,12 @@ namespace OpenGameMonitorWorker
 		public string NewLine { get; set; }
 		public bool IsError { get; set; } = false;
 	}
-	public interface IGameHandlerBase
-	{
-		string Game { get; }
+    public interface IGameHandlerBase
+    {
+        string Engine { get; }
+        string Game { get; }
 		bool CanUpdate(Server server);
+        Task InitServer(Server server);
 		Task<bool> CheckUpdate(Server server);
 		Task<bool> UpdateServer(Server server);
 		Task<bool> IsOpen(Server server);
@@ -57,14 +60,42 @@ namespace OpenGameMonitorWorker
 				if (type is IGameHandlerBase)
 				{
 					IGameHandlerBase gameHandler = (IGameHandlerBase) ActivatorUtilities.CreateInstance(_serviceProvider, type);
-					gameHandlers.Add(gameHandler.Game, gameHandler);
+
+                    string identifier;
+                    try
+                    {
+                        identifier = string.Format(CultureInfo.CurrentCulture, "{0}:{1}", gameHandler.Engine, gameHandler.Game);
+                    }
+#pragma warning disable CA1031 // No capture tipos de excepción generales.
+                    catch
+#pragma warning restore CA1031 // No capture tipos de excepción generales.
+                    {
+                        identifier = gameHandler.Engine;
+                    }
+
+					gameHandlers.Add(identifier, gameHandler);
 
                     _eventHandlerService.RegisterHandler("Server:ConsoleMessage", gameHandler.ConsoleMessage);
+                    _eventHandlerService.RegisterHandler("Server:UpdateMessage", gameHandler.UpdateMessage);
 
 
-                    _logger.LogInformation("Registered game handler {0}", gameHandler.Game);
+                    _logger.LogInformation("Registered game handler {0}", identifier);
 				}
 			}
+
+            using (var db = _serviceProvider.GetService<MonitorDBContext>())
+            {
+                List<Server> servers = db.Servers
+                    .Where(r => r.PID != null && r.PID != 0)
+                    .ToList();
+
+
+                foreach (Server server in servers)
+                {
+                    IGameHandlerBase handler = GetServerHandler(server);
+                    handler.InitServer(server);
+                }
+            }
 		}
 
 		public IGameHandlerBase GetServerHandler(Server server)
@@ -73,14 +104,17 @@ namespace OpenGameMonitorWorker
                 throw new ArgumentNullException(nameof(server));
 
 			string engine = server.Game.Engine;
+            string game = server.Game.Id;
 
 			IGameHandlerBase handler;
-			gameHandlers.TryGetValue(engine, out handler);
+
+            gameHandlers.TryGetValue(String.Format(CultureInfo.InvariantCulture, "{0}:{1}", engine, game), out handler);
+
+            if (handler == null)
+                gameHandlers.TryGetValue(engine, out handler);
 
 			if (handler == null)
-			{
 				throw new Exception($"Engine {engine} doesn't have a proper handler!");
-			}
 
 			return handler;
 		}
@@ -99,6 +133,13 @@ namespace OpenGameMonitorWorker
 				await handler.UpdateServer(server);
 			}
 		}
+
+        public async Task<bool> IsServerOpen(Server server)
+        {
+            IGameHandlerBase handler = GetServerHandler(server);
+
+            return await handler.IsOpen(server);
+        }
 
 		public async Task<List<Server>> CheckServerUpdates()
 		{

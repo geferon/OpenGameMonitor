@@ -55,6 +55,13 @@ namespace OpenGameMonitorWorker
 
 					try
 					{
+                        if (await _gameHandler.IsServerOpen(server))
+                        {
+                            await _gameHandler.CloseServer(server);
+
+                            await Task.Delay(2000);
+                        }
+
 						await _gameHandler.UpdateServer(server);
 
 						server.LastUpdateFailed = false;
@@ -74,7 +81,9 @@ namespace OpenGameMonitorWorker
 					}
 
 					serversToUpdate.RemoveAt(0);
-				}
+
+                    await Task.Delay(2000);
+                }
 				else
 				{
 					serversToUpdate = await _gameHandler.CheckServerUpdates();
