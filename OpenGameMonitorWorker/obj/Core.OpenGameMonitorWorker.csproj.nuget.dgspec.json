@@ -1,24 +1,26 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj": {}
+    "E:\\Trabajos\\Proyectos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj": {
+    "E:\\Trabajos\\Proyectos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj",
+        "projectUniqueName": "E:\\Trabajos\\Proyectos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj",
         "projectName": "Core.OpenGameMonitorWorker",
-        "projectPath": "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj",
-        "packagesPath": "C:\\Users\\Jorge\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\OpenGameMonitorWorker\\obj\\",
+        "projectPath": "E:\\Trabajos\\Proyectos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj",
+        "packagesPath": "C:\\Users\\gefer\\.nuget\\packages\\",
+        "outputPath": "E:\\Trabajos\\Proyectos\\OpenGameMonitor\\OpenGameMonitorWorker\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
+          "C:\\Microsoft\\Xamarin\\NuGet\\",
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
         ],
         "configFilePaths": [
-          "C:\\Users\\Jorge\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\gefer\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
         ],
         "originalTargetFrameworks": [
           "netcoreapp3.0"
@@ -57,7 +59,7 @@
             },
             "Microsoft.Extensions.Hosting": {
               "target": "Package",
-              "version": "[3.0.0-rc1.19456.10, )"
+              "version": "[3.0.0, )"
             },
             "Microsoft.Extensions.Hosting.WindowsServices": {
               "target": "Package",
@@ -73,7 +75,7 @@
             },
             "System.ServiceProcess.ServiceController": {
               "target": "Package",
-              "version": "[4.6.0-rc1.19456.4, )"
+              "version": "[4.6.0, )"
             },
             "sharpcompress": {
               "target": "Package",
