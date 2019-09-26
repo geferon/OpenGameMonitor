@@ -86,7 +86,7 @@ namespace OpenGameMonitorWorker
             using (var db = _serviceProvider.GetService<MonitorDBContext>())
             {
                 List<Server> servers = db.Servers
-                    .Where(r => r.PID != null && r.PID != 0)
+                    .Where(r => r.PID != null && r.PID != default(int))
                     .ToList();
 
 

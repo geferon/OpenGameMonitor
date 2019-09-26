@@ -326,12 +326,12 @@
           "lib/netcoreapp3.0/Microsoft.Extensions.Hosting.Abstractions.dll": {}
         }
       },
-      "Microsoft.Extensions.Hosting.WindowsServices/3.0.0-rc1.19456.10": {
+      "Microsoft.Extensions.Hosting.WindowsServices/3.0.0": {
         "type": "package",
         "dependencies": {
-          "Microsoft.Extensions.Hosting": "3.0.0-rc1.19456.10",
-          "Microsoft.Extensions.Logging.EventLog": "3.0.0-rc1.19456.10",
-          "System.ServiceProcess.ServiceController": "4.6.0-rc1.19456.4"
+          "Microsoft.Extensions.Hosting": "3.0.0",
+          "Microsoft.Extensions.Logging.EventLog": "3.0.0",
+          "System.ServiceProcess.ServiceController": "4.6.0"
         },
         "compile": {
           "lib/netstandard2.0/Microsoft.Extensions.Hosting.WindowsServices.dll": {}
@@ -2452,16 +2452,16 @@
         "microsoft.extensions.hosting.abstractions.nuspec"
       ]
     },
-    "Microsoft.Extensions.Hosting.WindowsServices/3.0.0-rc1.19456.10": {
-      "sha512": "i1qrOLNEbes1lTme8Gg8XYxGeAaRu6wT03wdsFqTEE5kNnE5B99BiVV+flN1LjIpyvZMToGZMoNzYC4WZHr84Q==",
+    "Microsoft.Extensions.Hosting.WindowsServices/3.0.0": {
+      "sha512": "KH/waRWHG6gPrXAyWoXoiLq2gPBOMkr7Qqcdj+p1IWfGlw7iXTA13bmQh/IJHbwVse6GY6tJgw8jsEJc62Yq7A==",
       "type": "package",
-      "path": "microsoft.extensions.hosting.windowsservices/3.0.0-rc1.19456.10",
+      "path": "microsoft.extensions.hosting.windowsservices/3.0.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "lib/netstandard2.0/Microsoft.Extensions.Hosting.WindowsServices.dll",
         "lib/netstandard2.0/Microsoft.Extensions.Hosting.WindowsServices.xml",
-        "microsoft.extensions.hosting.windowsservices.3.0.0-rc1.19456.10.nupkg.sha512",
+        "microsoft.extensions.hosting.windowsservices.3.0.0.nupkg.sha512",
         "microsoft.extensions.hosting.windowsservices.nuspec"
       ]
     },
@@ -6558,7 +6558,7 @@
       "Microsoft.CodeAnalysis.FxCopAnalyzers >= 2.9.5-beta1.final",
       "Microsoft.EntityFrameworkCore >= 2.2.6",
       "Microsoft.Extensions.Hosting >= 3.0.0",
-      "Microsoft.Extensions.Hosting.WindowsServices >= 3.0.0-rc1.19456.10",
+      "Microsoft.Extensions.Hosting.WindowsServices >= 3.0.0",
       "Pomelo.EntityFrameworkCore.MySql >= 2.2.1-preview1-final",
       "SteamKit2 >= 2.2.0",
       "System.ServiceProcess.ServiceController >= 4.6.0",
@@ -6629,7 +6629,7 @@
           },
           "Microsoft.Extensions.Hosting.WindowsServices": {
             "target": "Package",
-            "version": "[3.0.0-rc1.19456.10, )"
+            "version": "[3.0.0, )"
           },
           "Pomelo.EntityFrameworkCore.MySql": {
             "target": "Package",

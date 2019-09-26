@@ -4,7 +4,8 @@ using System.Text;
 
 namespace OpenGameMonitorLibraries
 {
-    class IMonitorComsInterface
+    abstract class IMonitorComsInterface
     {
+        public abstract void ConfigReloaded();
     }
 }
