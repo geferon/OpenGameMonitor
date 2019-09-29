@@ -118,3 +118,4 @@ E:\Trabajos\Proyectos\OpenGameMonitor\OpenGameMonitorWorker\obj\Debug\netcoreapp
 E:\Trabajos\Proyectos\OpenGameMonitor\OpenGameMonitorWorker\obj\Debug\netcoreapp3.0\Core.OpenGameMonitorWorker.csproj.CopyComplete
 E:\Trabajos\Proyectos\OpenGameMonitor\OpenGameMonitorWorker\obj\Debug\netcoreapp3.0\Core.OpenGameMonitorWorker.dll
 E:\Trabajos\Proyectos\OpenGameMonitor\OpenGameMonitorWorker\obj\Debug\netcoreapp3.0\Core.OpenGameMonitorWorker.pdb
+C:\Users\Jorge\source\repos\OpenGameMonitor\OpenGameMonitorWorker\bin\Debug\netcoreapp3.0\Microsoft.EntityFrameworkCore.Design.dll

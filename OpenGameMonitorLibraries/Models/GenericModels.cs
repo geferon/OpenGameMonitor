@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace OpenGameMonitorLibraries
@@ -15,16 +16,20 @@ namespace OpenGameMonitorLibraries
         public User Owner { get; set; }
         [Required]
         public Group Group { get; set; }
-		public bool Enabled { get; set; }
+		public bool? Enabled { get; set; }
 
         [Required]
         public string Executable { get; set; }
         [Required]
         public string Path { get; set; }
-        public bool Graceful { get; set; }
+        public bool? Graceful { get; set; }
+
+        public string StartParams { get; set; }
+        public string StartParamsHidden { get; set; }
 
         [Required]
         public Game Game { get; set; }
+        [Column(TypeName="varchar(40)")]
         public string Branch { get; set; }
         public string BranchPassword { get; set; }
 
@@ -55,10 +60,11 @@ namespace OpenGameMonitorLibraries
         public string Username { get; set; }
         [Required]
         public string Email { get; set; }
+        [Column(TypeName = "varchar(2)")]
         public string Language { get; set; } // Maybe?
         public bool Admin { get; set; }
 
-        public List<Group> Groups { get; set; }
+        public List<GroupUser> Groups { get; set; }
     }
 
     public class Group
@@ -68,7 +74,15 @@ namespace OpenGameMonitorLibraries
         [Required]
         public string Name { get; set; }
 
-        public List<User> Members { get; set; }
+        public List<GroupUser> Members { get; set; }
+    }
+
+    public class GroupUser
+    {
+        public string UserID { get; set; }
+        public User User { get; set; }
+        public int GroupID { get; set; }
+        public Group Group { get; set; }
     }
 
     public class Setting

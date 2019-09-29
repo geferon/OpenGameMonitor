@@ -10,17 +10,22 @@ using Microsoft.Extensions.Configuration;
 using OpenGameMonitorLibraries;
 using JKang.IpcServiceFramework;
 using Microsoft.EntityFrameworkCore;
+using JKang.IpcServiceFramework.Services;
+using System.Threading;
+using System.IO;
+using System.Globalization;
+using Microsoft.Extensions.Logging;
 
 namespace OpenGameMonitorWorker
 {
-    public class Program
+    public static class Program
     {
         public static void Main(string[] args)
         {
-            IServiceCollection services = ConfigureServices(new ServiceCollection());
-
             var builder = CreateHostBuilder(args);
             var host = builder.Build();
+
+            host.CheckForUpdate();
 
             host.Run();
         }
@@ -41,11 +46,12 @@ namespace OpenGameMonitorWorker
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddOptions();
-                    services.Configure<MonitorConfig>(hostContext.Configuration.GetSection("AppConfig"));
+                    services.AddLogging();
+                    //services.Configure<MonitorConfig>(hostContext.Configuration.GetSection("AppConfig"));
 
-					services.AddSingleton<EventHandlerService>();
+                    services.AddSingleton<EventHandlerService>();
 
-					services.AddHostedService<Worker>();
+					// services.AddHostedService<Worker>();
 
                     services.AddHostedService<QueuedHostedService>();
                     services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
@@ -55,22 +61,77 @@ namespace OpenGameMonitorWorker
                     services.AddSingleton<SteamCMDService>();
                     services.AddSingleton<GameHandler>();
 
+                    services.AddSingleton<NamedPipeOptions>();
+
                     services.AddEntityFrameworkMySql();
-                    services.AddDbContext<MonitorDBContext>(options => options.UseMySql("")); // TODO: Connection String
+                    services.AddDbContext<MonitorDBContext>(options => options.UseMySql(hostContext.Configuration.GetConnectionString("MonitorDatabase")));
+
+                    services.AddIpc(builder =>
+                    {
+                        builder
+                            .AddNamedPipe(options =>
+                            {
+                                options.ThreadCount = 2;
+                            })
+                            .AddService<IMonitorComsInterface, MonitorComsService>();
+                    });
+                    //services.AddHostedService<IPCService>();
+
                 });
 
-        private static IServiceCollection ConfigureServices(IServiceCollection services)
+        public static void CheckForUpdate(this IHost host)
         {
-            return services
-                .AddIpc(builder =>
+            bool shouldMigrateDatabase = false;
+
+            try
+            {
+                var appData = File.ReadLines("application.dat").ToList();
+                int oldVer = Convert.ToInt32(appData[0], CultureInfo.InvariantCulture);
+                
+                if (oldVer < MonitorConfig.Version)
                 {
-                    builder
-                        .AddNamedPipe(options =>
-                        {
-                            options.ThreadCount = 2;
-                        })
-                        .AddService<IMonitorComsInterface, MonitorComsService>();
-                });
+                    shouldMigrateDatabase = true;
+                }
+            }
+            catch
+            {
+                shouldMigrateDatabase = true;
+            }
+
+            if (shouldMigrateDatabase)
+            {
+                ILoggerFactory loggerF = host.Services.GetService<ILoggerFactory>();
+
+                ILogger logger = loggerF.CreateLogger("Program");
+
+                logger.LogInformation("Version out of date or old, performing updating!");
+
+                IServiceScopeFactory serviceScopeFactory = host.Services.GetService<IServiceScopeFactory>();
+
+                using (var scope = serviceScopeFactory.CreateScope())
+                {
+                    MonitorDBContext db = scope.ServiceProvider.GetRequiredService<MonitorDBContext>();
+
+                    try
+                    {
+                        db.Database.Migrate();
+                    }
+                    catch (Exception err)
+                    {
+                        logger.LogError(err, "There has been an error while performing the Database upgrade! Err: {0}", err.Message);
+                        Environment.Exit(-1);
+                        return;
+                    }
+                }
+
+                // Write the version file
+                string[] data = new string[]
+                {
+                    MonitorConfig.Version.ToString(CultureInfo.InvariantCulture)
+                };
+
+                File.WriteAllLines("application.dat", data);
+            }
         }
     }
 }

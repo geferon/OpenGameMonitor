@@ -10,22 +10,23 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="CoreRCON" Version="3.0.0" />
     <PackageReference Include="JKang.IpcServiceFramework.Server" Version="2.2.2" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.5-beta1.final">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.2.6">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="3.0.0" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.2.1-preview1-final" />
     <PackageReference Include="sharpcompress" Version="0.24.0" />
     <PackageReference Include="SteamKit2" Version="2.2.0" />
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="4.6.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Handlers\GameHandlers\" />
   </ItemGroup>
 
   <Import Project="..\OpenGameMonitorLibraries\OpenGameMonitorLibraries.projitems" Label="Shared" />

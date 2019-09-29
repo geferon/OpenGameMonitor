@@ -13,7 +13,7 @@ namespace OpenGameMonitorWorker
         private readonly ILogger _logger;
         private readonly HostBuilderContext _hostBuilderContext;
 
-        public MonitorComsService(ILogger logger,
+        public MonitorComsService(ILogger<MonitorComsService> logger,
             HostBuilderContext hostBuilderContext)
         {
             _logger = logger;

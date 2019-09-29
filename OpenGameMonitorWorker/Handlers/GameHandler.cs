@@ -40,7 +40,7 @@ namespace OpenGameMonitorWorker
 		private readonly EventHandlerService _eventHandlerService;
 
 		public GameHandler(IServiceProvider serviceProvider,
-			ILogger logger,
+			ILogger<GameHandler> logger,
 			EventHandlerService eventHandlerService)
 		{
 			_serviceProvider = serviceProvider;
@@ -184,7 +184,9 @@ namespace OpenGameMonitorWorker
             if (server == null)
                 throw new ArgumentNullException(nameof(server));
 
-			if (!server.Enabled)
+            bool enabled = server.Enabled ?? false;
+
+			if (!enabled)
 			{
 				throw new Exception("The server can't be started! It's disabled!");
 			}

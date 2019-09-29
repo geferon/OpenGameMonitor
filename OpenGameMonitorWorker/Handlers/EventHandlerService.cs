@@ -11,7 +11,7 @@ namespace OpenGameMonitorWorker
 
 		private Dictionary<string, EventHandler> eventHandlers = new Dictionary<string, EventHandler>();
 		private Dictionary<string, List<EventHandler>> eventListeners = new Dictionary<string, List<EventHandler>>();
-		public EventHandlerService(ILogger logger)
+		public EventHandlerService(ILogger<EventHandlerService> logger)
 		{
 			_logger = logger;
 		}

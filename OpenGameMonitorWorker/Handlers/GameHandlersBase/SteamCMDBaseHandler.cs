@@ -13,10 +13,10 @@ namespace OpenGameMonitorWorker
 {
 	abstract class SteamCMDBaseHandler : IGameHandlerBase
 	{
-		private readonly IServiceProvider _serviceProvider;
-		private readonly IServiceScopeFactory _serviceScopeFactory;
-		private readonly SteamCMDService _steamCMDService;
-		private readonly SteamAPIService _steamAPIService;
+		protected readonly IServiceProvider _serviceProvider;
+        protected readonly IServiceScopeFactory _serviceScopeFactory;
+        protected readonly SteamCMDService _steamCMDService;
+        protected readonly SteamAPIService _steamAPIService;
 
 		public event EventHandler UpdateMessage;
 		public abstract event EventHandler ConsoleMessage;

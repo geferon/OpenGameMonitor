@@ -1,26 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "E:\\Trabajos\\Proyectos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj": {}
+    "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj": {}
   },
   "projects": {
-    "E:\\Trabajos\\Proyectos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj": {
+    "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\Trabajos\\Proyectos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj",
+        "projectUniqueName": "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj",
         "projectName": "Core.OpenGameMonitorWorker",
-        "projectPath": "E:\\Trabajos\\Proyectos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj",
-        "packagesPath": "C:\\Users\\gefer\\.nuget\\packages\\",
-        "outputPath": "E:\\Trabajos\\Proyectos\\OpenGameMonitor\\OpenGameMonitorWorker\\obj\\",
+        "projectPath": "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj",
+        "packagesPath": "C:\\Users\\Jorge\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\OpenGameMonitorWorker\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "C:\\Microsoft\\Xamarin\\NuGet\\",
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
         ],
         "configFilePaths": [
-          "C:\\Users\\gefer\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+          "C:\\Users\\Jorge\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "netcoreapp3.0"
@@ -43,6 +41,10 @@
       "frameworks": {
         "netcoreapp3.0": {
           "dependencies": {
+            "CoreRCON": {
+              "target": "Package",
+              "version": "[3.0.0, )"
+            },
             "JKang.IpcServiceFramework.Server": {
               "target": "Package",
               "version": "[2.2.2, )"
@@ -56,6 +58,15 @@
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
               "version": "[2.2.6, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.2.6, )"
+            },
+            "Microsoft.Extensions.DependencyInjection": {
+              "target": "Package",
+              "version": "[3.0.0, )"
             },
             "Microsoft.Extensions.Hosting": {
               "target": "Package",

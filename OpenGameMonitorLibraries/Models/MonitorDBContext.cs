@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting.Internal;
 
 namespace OpenGameMonitorLibraries
 {
-    class MonitorDBContext : DbContext
+    public class MonitorDBContext : DbContext
     {
         public MonitorDBContext(DbContextOptions<MonitorDBContext> options) : base(options)
         { }
@@ -33,6 +37,17 @@ namespace OpenGameMonitorLibraries
                 entity.Property(b => b.Admin)
                     .HasDefaultValue(false);
             });
+
+            modelBuilder.Entity<GroupUser>(entity =>
+            {
+                entity.HasKey(b => new { b.UserID, b.GroupID });
+                entity.HasOne(b => b.Group)
+                    .WithMany(b => b.Members)
+                    .HasForeignKey(b => b.GroupID);
+                entity.HasOne(b => b.User)
+                    .WithMany(b => b.Groups)
+                    .HasForeignKey(b => b.UserID);
+            });
         }
 
         public DbSet<Server> Servers { get; set; }
@@ -45,6 +60,34 @@ namespace OpenGameMonitorLibraries
         {
             optionsBuilder.UseMySql("");
         }*/
+    }
+
+    // Used for fucking testing
+
+    public class MonitorDBContextFactory : IDesignTimeDbContextFactory<MonitorDBContext>
+    {
+        public MonitorDBContext CreateDbContext(string[] args)
+        {
+            //var env = new HostingEnvironment();
+            string envName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
+            var configBuilder = new ConfigurationBuilder()
+                .SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "../OpenGameMonitorWorker"))
+                .AddJsonFile("appsettings.json",
+                    optional: false,
+                    reloadOnChange: true)
+                .AddJsonFile($"appsettings.{envName}.json",
+                    optional: true)
+                .AddEnvironmentVariables();
+
+            var config = configBuilder.Build();
+
+            var builder = new DbContextOptionsBuilder<MonitorDBContext>();
+            builder.UseMySql(config.GetConnectionString("MonitorDatabase"),
+                optionsBuilder => optionsBuilder.MigrationsAssembly(typeof(MonitorDBContext).GetTypeInfo().Assembly.GetName().Name));
+
+            return new MonitorDBContext(builder.Options);
+        }
     }
 
     public class MonitorDBConfigurationSource : IConfigurationSource
