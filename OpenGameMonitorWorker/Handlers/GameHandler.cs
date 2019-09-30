@@ -30,6 +30,7 @@ namespace OpenGameMonitorWorker
 
 		EventHandler ConsoleMessage { get; set; }
 		EventHandler UpdateMessage { get; set; }
+        EventHandler ServerClosed { get; set; }
 	}
 
 	public class GameHandler
@@ -51,6 +52,7 @@ namespace OpenGameMonitorWorker
 
 		public void RegisterGameHandlers()
 		{
+            // Register all game handlers in the folder GameHandlers
 			Type[] typeList = Assembly.GetExecutingAssembly().GetTypes()
 				.Where(t => String.Equals(t.Namespace, "OpenGameMonitorWorker.GameHandlers", StringComparison.Ordinal))
 				.ToArray();
@@ -77,12 +79,28 @@ namespace OpenGameMonitorWorker
 
                     _eventHandlerService.RegisterHandler("Server:ConsoleMessage", gameHandler.ConsoleMessage);
                     _eventHandlerService.RegisterHandler("Server:UpdateMessage", gameHandler.UpdateMessage);
+                    _eventHandlerService.RegisterHandler("Server:Closed", gameHandler.ServerClosed);
 
 
                     _logger.LogInformation("Registered game handler {0}", identifier);
 				}
 			}
 
+            // Listen to Server:Closed and check if the server should be restarted upon close
+            _eventHandlerService.ListenForEvent("Server:Closed", async (Object serverObj, EventArgs e) =>
+            {
+                Server server = (Server)serverObj;
+
+                if (server.RestartOnClose)
+                {
+                    await Task.Delay(1000);
+
+                    IGameHandlerBase handler = GetServerHandler(server);
+                    handler.OpenServer(server);
+                }
+            });
+
+            // Init every server and it's config, and check if the server is open and assign the PID and process to it
             using (var db = _serviceProvider.GetService<MonitorDBContext>())
             {
                 List<Server> servers = db.Servers

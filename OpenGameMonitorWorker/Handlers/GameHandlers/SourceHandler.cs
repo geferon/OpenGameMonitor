@@ -12,6 +12,8 @@ namespace OpenGameMonitorWorker
     internal class SourceHandler : SteamCMDBaseHandler
     {
         public override string Engine => "source";
+
+        public override event EventHandler ServerClosed;
         public override event EventHandler ConsoleMessage;
 
         private Process serverProcess;
@@ -50,6 +52,8 @@ namespace OpenGameMonitorWorker
                     {
                         serverProcess.Close();
                         serverProcess = null;
+
+                        ServerClosed?.Invoke(server, e);
                     };
 
                     serverProcess = ps;
@@ -114,6 +118,8 @@ namespace OpenGameMonitorWorker
             {
                 serverProcess.Close();
                 serverProcess = null;
+
+                ServerClosed?.Invoke(server, e);
             };
 
             proc.Start();

@@ -26,6 +26,9 @@ namespace OpenGameMonitorLibraries
                 entity.Property(b => b.Graceful)
                     .HasDefaultValue(true);
 
+                entity.Property(b => b.RestartOnClose)
+                    .HasDefaultValue(true);
+
                 entity.Property(b => b.Branch)
                     .HasDefaultValue("public");
             });
