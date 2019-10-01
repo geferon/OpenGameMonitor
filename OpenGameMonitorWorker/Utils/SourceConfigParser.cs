@@ -1,23 +1,38 @@
-﻿using System;
+﻿using OpenGameMonitorLibraries;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Core.OpenGameMonitorWorker.Utils
+namespace OpenGameMonitorWorker
 {
     class SourceConfigParser
     {
         private Dictionary<string, string> configData = new Dictionary<string, string>();
         private Dictionary<string, string> commandLineData = new Dictionary<string, string>();
 
+        public SourceConfigParser(Server server)
+        {
+            string[] startParamsUnparsed = new string[]
+            {
+                server.StartParams,
+                server.StartParamsHidden
+            };
+            string startParams = String.Join(" ", startParamsUnparsed.Where(s => !String.IsNullOrEmpty(s)));
+
+            ParseCommandline(startParams);
+            ParseConfigFile(Path.Combine(server.Path, server.Game.Id, "cfg", "server.cfg"));
+        }
+
         public void ParseConfigFile(string file)
         {
             string[] fileData = File.ReadAllLines(file);
 
             foreach (string line in fileData) {
-                string lineParse = line.Trim();
+                string lineParse = Regex.Replace(line.Trim(), @"\s*\/\/.+",
+                    "", RegexOptions.Singleline);
 
                 if (lineParse.Length == 0 || lineParse.StartsWith("//"))
                 {
@@ -52,6 +67,48 @@ namespace Core.OpenGameMonitorWorker.Utils
 
                 commandLineData.Add(key, value);
             }
+        }
+
+        public bool IsSet(string key)
+        {
+            bool isSet = false;
+            if (key.StartsWith("-") || key.StartsWith("+"))
+            {
+                isSet = commandLineData.ContainsKey(key);
+            }
+            
+            if (!isSet)
+            {
+                isSet = configData.ContainsKey(key);
+            }
+            
+            if (!isSet)
+            {
+                isSet = commandLineData.ContainsKey("+" + key);
+            }
+
+            return isSet;
+        }
+        
+        public string Get(string key)
+        {
+            string value = null;
+            if (key.StartsWith("-") || key.StartsWith("+"))
+            {
+                commandLineData.TryGetValue(key, out value);
+            }
+
+            if (String.IsNullOrEmpty(value))
+            {
+                configData.TryGetValue(key, out value);
+            }
+            
+            if (String.IsNullOrEmpty(value))
+            {
+                commandLineData.TryGetValue("+" + key, out value);
+            }
+
+            return value;
         }
     }
 }

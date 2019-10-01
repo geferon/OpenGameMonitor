@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using CoreRCON;
+using CoreRCON.PacketFormats;
 using Microsoft.Extensions.DependencyInjection;
 using OpenGameMonitorLibraries;
 
@@ -16,14 +19,26 @@ namespace OpenGameMonitorWorker
         public override event EventHandler ServerClosed;
         public override event EventHandler ConsoleMessage;
 
-        private Process serverProcess;
+        private Dictionary<int, Process> serverProcess;
 
-        public SourceHandler(IServiceProvider serviceProvider,
+        public SourceHandler(
+            IServiceProvider serviceProvider,
             IServiceScopeFactory serviceScopeFactory,
             SteamCMDService steamCMDServ,
-            SteamAPIService steamAPIService) : base(serviceProvider, serviceScopeFactory, steamCMDServ, steamAPIService)
+            SteamAPIService steamAPIService) :
+            base(serviceProvider, serviceScopeFactory, steamCMDServ, steamAPIService)
         {
 
+        }
+
+        private IPEndPoint GetServerEndpoint(Server server)
+        {
+            var endpoint = new IPEndPoint(
+                IPAddress.Parse(GameHandler.GetServerIP(server)),
+                server.Port
+            );
+
+            return endpoint;
         }
 
         public override async Task InitServer(Server server)
@@ -50,13 +65,13 @@ namespace OpenGameMonitorWorker
                     };
                     ps.Exited += (sender, e) =>
                     {
-                        serverProcess.Close();
-                        serverProcess = null;
+                        serverProcess[server.Id].Close();
+                        serverProcess.Remove(server.Id);
 
                         ServerClosed?.Invoke(server, e);
                     };
 
-                    serverProcess = ps;
+                    serverProcess[server.Id] = ps;
                 }
                 catch
                 {
@@ -73,12 +88,12 @@ namespace OpenGameMonitorWorker
 
         public override async Task<bool> IsOpen(Server server)
         {
-            return serverProcess != null && !serverProcess.HasExited;
+            return serverProcess.ContainsKey(server.Id) && !serverProcess[server.Id].HasExited;
         }
 
         public override async Task OpenServer(Server server)
         {
-            if (serverProcess != null && !serverProcess.HasExited)
+            if (serverProcess.ContainsKey(server.Id) && !serverProcess[server.Id].HasExited)
             {
                 return; // Server is open?
             }
@@ -116,20 +131,54 @@ namespace OpenGameMonitorWorker
 
             proc.Exited += (sender, e) =>
             {
-                serverProcess.Close();
-                serverProcess = null;
+                serverProcess[server.Id].Close();
+                serverProcess.Remove(server.Id);
 
                 ServerClosed?.Invoke(server, e);
             };
 
             proc.Start();
 
-            serverProcess = proc;
+            serverProcess[server.Id] = proc;
         }
 
         public override Task CloseServer(Server server)
         {
+            var endpoint = GetServerEndpoint(server);
+            var config = new SourceConfigParser(server);
+
+            if (server.Graceful)
+            {
+                string rconPass = config.Get("rcon_password");
+
+                if (!String.IsNullOrEmpty(rconPass)) {
+                    var rcon = new RCON(endpoint, rconPass);
+                }
+            }
+
+            
+
+
+            // TODO: Implement RCON with timeout, and then force close
             throw new NotImplementedException();
+        }
+
+        public override async Task<object> GetServerInfo(Server server)
+        {
+            var endpoint = GetServerEndpoint(server);
+
+            var info = await ServerQuery.Info(endpoint, ServerQuery.ServerType.Source) as SourceQueryInfo;
+
+            return info;
+        }
+        
+        public override async Task<object> GetServerPlayers(Server server)
+        {
+            var endpoint = GetServerEndpoint(server);
+
+            var players = await ServerQuery.Players(endpoint);
+
+            return players;
         }
     }
 }

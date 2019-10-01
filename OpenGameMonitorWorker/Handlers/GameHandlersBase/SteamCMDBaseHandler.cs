@@ -169,6 +169,8 @@ namespace OpenGameMonitorWorker
 		public abstract Task OpenServer(Server server);
 		public abstract Task<bool> IsOpen(Server server);
         public abstract Task InitServer(Server server);
+        public abstract Task<object> GetServerInfo(Server server);
+        public abstract Task<object> GetServerPlayers(Server server);
     }
 }
 

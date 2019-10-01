@@ -28,6 +28,9 @@ namespace OpenGameMonitorWorker
 		Task CloseServer(Server server);
 		Task OpenServer(Server server);
 
+        Task<object> GetServerInfo(Server server);
+        Task<object> GetServerPlayers(Server server);
+
 		EventHandler ConsoleMessage { get; set; }
 		EventHandler UpdateMessage { get; set; }
         EventHandler ServerClosed { get; set; }
@@ -47,6 +50,8 @@ namespace OpenGameMonitorWorker
 			_serviceProvider = serviceProvider;
 			_logger = logger;
 			_eventHandlerService = eventHandlerService;
+
+            RegisterGameHandlers();
 		}
 
 
@@ -233,5 +238,13 @@ namespace OpenGameMonitorWorker
 
 			await handler.CloseServer(server);
 		}
+
+        public static string GetServerIP(Server server)
+        {
+            if (server == null)
+                throw new ArgumentNullException(nameof(server));
+
+            return String.IsNullOrEmpty(server.IP) ? server.IP : "127.0.0.1";
+        }
 	}
 }

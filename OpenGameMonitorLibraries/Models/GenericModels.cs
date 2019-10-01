@@ -28,6 +28,10 @@ namespace OpenGameMonitorLibraries
         public string StartParams { get; set; }
         public string StartParamsHidden { get; set; }
 
+        public string IP { get; set; }
+        public string DisplayIP { get; set; }
+        public int Port { get; set; }
+
         [Required]
         public Game Game { get; set; }
         [Column(TypeName="varchar(40)")]
