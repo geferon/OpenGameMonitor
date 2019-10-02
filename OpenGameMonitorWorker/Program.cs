@@ -8,9 +8,9 @@ using Microsoft.Extensions.Hosting;
 using System.ServiceProcess;
 using Microsoft.Extensions.Configuration;
 using OpenGameMonitorLibraries;
-using JKang.IpcServiceFramework;
+//using JKang.IpcServiceFramework;
+//using JKang.IpcServiceFramework.Services;
 using Microsoft.EntityFrameworkCore;
-using JKang.IpcServiceFramework.Services;
 using System.Threading;
 using System.IO;
 using System.Globalization;
@@ -51,7 +51,7 @@ namespace OpenGameMonitorWorker
 
                     services.AddSingleton<EventHandlerService>();
 
-					// services.AddHostedService<Worker>();
+                    // services.AddHostedService<Worker>();
 
                     services.AddHostedService<QueuedHostedService>();
                     services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
@@ -61,11 +61,15 @@ namespace OpenGameMonitorWorker
                     services.AddSingleton<SteamCMDService>();
                     services.AddSingleton<GameHandler>();
 
-                    services.AddSingleton<NamedPipeOptions>();
+                    //services.AddSingleton<NamedPipeOptions>();
 
                     services.AddEntityFrameworkMySql();
                     services.AddDbContext<MonitorDBContext>(options => options.UseMySql(hostContext.Configuration.GetConnectionString("MonitorDatabase")));
 
+                    // Todo: implement https://docs.microsoft.com/en-us/aspnet/core/tutorials/grpc/grpc-start?view=aspnetcore-3.0&tabs=visual-studio
+                    services.AddGrpc();
+
+                    /*
                     services.AddIpc(builder =>
                     {
                         builder
@@ -76,6 +80,7 @@ namespace OpenGameMonitorWorker
                             .AddService<IMonitorComsInterface, MonitorComsService>();
                     });
                     //services.AddHostedService<IPCService>();
+                    */
 
                 });
 

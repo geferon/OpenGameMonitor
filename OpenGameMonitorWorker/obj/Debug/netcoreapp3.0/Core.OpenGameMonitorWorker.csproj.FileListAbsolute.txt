@@ -119,3 +119,13 @@ E:\Trabajos\Proyectos\OpenGameMonitor\OpenGameMonitorWorker\obj\Debug\netcoreapp
 E:\Trabajos\Proyectos\OpenGameMonitor\OpenGameMonitorWorker\obj\Debug\netcoreapp3.0\Core.OpenGameMonitorWorker.dll
 E:\Trabajos\Proyectos\OpenGameMonitor\OpenGameMonitorWorker\obj\Debug\netcoreapp3.0\Core.OpenGameMonitorWorker.pdb
 C:\Users\Jorge\source\repos\OpenGameMonitor\OpenGameMonitorWorker\bin\Debug\netcoreapp3.0\Microsoft.EntityFrameworkCore.Design.dll
+E:\Trabajos\Proyectos\OpenGameMonitor\OpenGameMonitorWorker\bin\Debug\netcoreapp3.0\Microsoft.EntityFrameworkCore.Design.dll
+E:\Trabajos\Proyectos\OpenGameMonitor\OpenGameMonitorWorker\bin\Debug\netcoreapp3.0\CoreRCON.dll
+E:\Trabajos\Proyectos\OpenGameMonitor\OpenGameMonitorWorker\bin\Debug\netcoreapp3.0\Grpc.Core.dll
+E:\Trabajos\Proyectos\OpenGameMonitor\OpenGameMonitorWorker\bin\Debug\netcoreapp3.0\Grpc.Core.Api.dll
+E:\Trabajos\Proyectos\OpenGameMonitor\OpenGameMonitorWorker\bin\Debug\netcoreapp3.0\runtimes\linux\native\libgrpc_csharp_ext.x64.so
+E:\Trabajos\Proyectos\OpenGameMonitor\OpenGameMonitorWorker\bin\Debug\netcoreapp3.0\runtimes\linux\native\libgrpc_csharp_ext.x86.so
+E:\Trabajos\Proyectos\OpenGameMonitor\OpenGameMonitorWorker\bin\Debug\netcoreapp3.0\runtimes\osx\native\libgrpc_csharp_ext.x64.dylib
+E:\Trabajos\Proyectos\OpenGameMonitor\OpenGameMonitorWorker\bin\Debug\netcoreapp3.0\runtimes\osx\native\libgrpc_csharp_ext.x86.dylib
+E:\Trabajos\Proyectos\OpenGameMonitor\OpenGameMonitorWorker\bin\Debug\netcoreapp3.0\runtimes\win\native\grpc_csharp_ext.x64.dll
+E:\Trabajos\Proyectos\OpenGameMonitor\OpenGameMonitorWorker\bin\Debug\netcoreapp3.0\runtimes\win\native\grpc_csharp_ext.x86.dll

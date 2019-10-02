@@ -19,15 +19,18 @@ namespace OpenGameMonitorLibraries
 			return tcs.Task;
 		}
 
-		public static async Task WaitForExitAsync(this Process proc)
+		public static Task WaitForExitAsync(this Process process,
+            CancellationToken cancellationToken = default(CancellationToken))
 		{
-			await RunAsyncProcess(proc, false);
+            var tcs = new TaskCompletionSource<object>();
+            process.EnableRaisingEvents = true;
+            process.Exited += (s, e) => tcs.TrySetResult(null);
 
-			if (proc.ExitCode != 0)
-			{
-				throw new Exception($"Process exited with exit code {proc.ExitCode}");
-			}
-		}
+            if (cancellationToken != default(CancellationToken))
+                cancellationToken.Register(tcs.SetCanceled);
+
+            return tcs.Task;
+        }
 
         static byte[] Decompress(byte[] gzip)
         {

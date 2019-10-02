@@ -129,6 +129,10 @@ namespace OpenGameMonitorWorker
 
 					await steamCMDProc.WaitForExitAsync();
 
+                    if (steamCMDProc.ExitCode != 0)
+                    {
+                        throw new Exception();
+                    }
 				}
 				catch
 				{

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -244,7 +245,12 @@ namespace OpenGameMonitorWorker
             if (server == null)
                 throw new ArgumentNullException(nameof(server));
 
-            return String.IsNullOrEmpty(server.IP) ? server.IP : "127.0.0.1";
+            if (!String.IsNullOrEmpty(server.IP))
+            {
+                return server.IP;
+            }
+
+            return IPAddress.Loopback.ToString();
         }
 	}
 }

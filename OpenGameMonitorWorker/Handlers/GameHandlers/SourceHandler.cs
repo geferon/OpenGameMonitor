@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using CoreRCON;
 using CoreRCON.PacketFormats;
@@ -142,25 +143,71 @@ namespace OpenGameMonitorWorker
             serverProcess[server.Id] = proc;
         }
 
-        public override Task CloseServer(Server server)
+        public async override Task CloseServer(Server server)
         {
             var endpoint = GetServerEndpoint(server);
             var config = new SourceConfigParser(server);
+            Process serverProc = serverProcess[server.Id];
+
+            bool succesfulShutdown = false;
 
             if (server.Graceful)
             {
                 string rconPass = config.Get("rcon_password");
 
                 if (!String.IsNullOrEmpty(rconPass)) {
-                    var rcon = new RCON(endpoint, rconPass);
+                    try
+                    {
+                        using (var rcon = new RCON(endpoint, rconPass))
+                        {
+                            await rcon.ConnectAsync();
+
+                            await rcon.SendCommandAsync("quit");
+
+                            succesfulShutdown = true;
+                        }
+                    }
+                    catch (TimeoutException) { }
+                    catch (AuthenticationException) { }
+                }
+
+                if (succesfulShutdown)
+                {
+                    using (var cts = new CancellationTokenSource())
+                    {
+                        cts.CancelAfter(30 * 1000);
+
+                        await serverProc.WaitForExitAsync(cts.Token);
+
+                        if (!serverProc.HasExited)
+                        {
+                            succesfulShutdown = false;
+                        }
+                    }
+                }
+            }
+
+            if (!succesfulShutdown)
+            {
+                bool success = serverProc.CloseMainWindow();
+
+                if (success)
+                {
+                    using (var cts = new CancellationTokenSource())
+                    {
+                        cts.CancelAfter(10 * 1000);
+
+                        await serverProc.WaitForExitAsync(cts.Token);
+                    }
+                }
+
+                if (!serverProc.HasExited)
+                {
+                    serverProc.Kill();
                 }
             }
 
             
-
-
-            // TODO: Implement RCON with timeout, and then force close
-            throw new NotImplementedException();
         }
 
         public override async Task<object> GetServerInfo(Server server)
