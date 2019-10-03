@@ -15,6 +15,8 @@ using System.Threading;
 using System.IO;
 using System.Globalization;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Hosting;
+using System.Net;
 
 namespace OpenGameMonitorWorker
 {
@@ -82,6 +84,18 @@ namespace OpenGameMonitorWorker
                     //services.AddHostedService<IPCService>();
                     */
 
+                })
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.ConfigureKestrel(options =>
+                    {
+                        options.Listen(IPAddress.Any, 5030, listenOptions =>
+                        {
+                            listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2;
+                            // listenOptions.UseHttps(); // TODO
+                        });
+                    });
+                    webBuilder.UseStartup<gRPCStartup>();
                 });
 
         public static void CheckForUpdate(this IHost host)
