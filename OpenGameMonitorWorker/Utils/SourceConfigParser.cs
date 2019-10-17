@@ -10,8 +10,8 @@ namespace OpenGameMonitorWorker
 {
     class SourceConfigParser
     {
-        private Dictionary<string, string> configData = new Dictionary<string, string>();
-        private Dictionary<string, string> commandLineData = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> configData = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> commandLineData = new Dictionary<string, string>();
 
         public SourceConfigParser(Server server)
         {
@@ -34,7 +34,7 @@ namespace OpenGameMonitorWorker
                 string lineParse = Regex.Replace(line.Trim(), @"\s*\/\/.+",
                     "", RegexOptions.Singleline);
 
-                if (lineParse.Length == 0 || lineParse.StartsWith("//"))
+                if (lineParse.Length == 0 || lineParse.StartsWith("//", true, System.Globalization.CultureInfo.InvariantCulture))
                 {
                     continue;
                 }
@@ -44,7 +44,8 @@ namespace OpenGameMonitorWorker
                 string key = lineParsedSplit.First();
                 lineParsedSplit.RemoveAt(0);
                 string value = String.Join(" ", lineParsedSplit);
-                if (value.StartsWith("\"") && value.EndsWith("\""))
+                if (value.StartsWith("\"", true, System.Globalization.CultureInfo.InvariantCulture) &&
+                    value.EndsWith("\"", true, System.Globalization.CultureInfo.InvariantCulture))
                 {
                     value = value.Substring(1, value.Length - 1);
                 }
@@ -72,7 +73,8 @@ namespace OpenGameMonitorWorker
         public bool IsSet(string key)
         {
             bool isSet = false;
-            if (key.StartsWith("-") || key.StartsWith("+"))
+            if (key.StartsWith("-", true, System.Globalization.CultureInfo.InvariantCulture) ||
+                key.StartsWith("+", true, System.Globalization.CultureInfo.InvariantCulture))
             {
                 isSet = commandLineData.ContainsKey(key);
             }
@@ -93,7 +95,8 @@ namespace OpenGameMonitorWorker
         public string Get(string key)
         {
             string value = null;
-            if (key.StartsWith("-") || key.StartsWith("+"))
+            if (key.StartsWith("-", true, System.Globalization.CultureInfo.InvariantCulture) ||
+                key.StartsWith("+", true, System.Globalization.CultureInfo.InvariantCulture))
             {
                 commandLineData.TryGetValue(key, out value);
             }

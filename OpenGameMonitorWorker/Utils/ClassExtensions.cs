@@ -1,4 +1,4 @@
-﻿using JKang.IpcServiceFramework;
+﻿//using JKang.IpcServiceFramework;
 using System;
 using System.Collections.Generic;
 using System.Text;

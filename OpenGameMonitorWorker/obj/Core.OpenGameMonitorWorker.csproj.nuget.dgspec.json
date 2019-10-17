@@ -104,13 +104,21 @@
       "frameworks": {
         "netcoreapp3.0": {
           "dependencies": {
+            "Google.Protobuf": {
+              "target": "Package",
+              "version": "[3.10.0, )"
+            },
             "Grpc": {
               "target": "Package",
               "version": "[2.24.0, )"
             },
+            "Grpc.AspNetCore": {
+              "target": "Package",
+              "version": "[2.24.0-pre1, )"
+            },
             "Grpc.AspNetCore.Server": {
               "target": "Package",
-              "version": "[2.23.2, )"
+              "version": "[2.24.0-pre1, )"
             },
             "Grpc.Tools": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
@@ -122,16 +130,16 @@
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[2.9.5, )"
+              "version": "[2.9.6, )"
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[2.2.6, )"
+              "version": "[3.0.0, )"
             },
             "Microsoft.EntityFrameworkCore.Design": {
               "suppressParent": "All",
               "target": "Package",
-              "version": "[2.2.6, )"
+              "version": "[3.0.0, )"
             },
             "Microsoft.Extensions.DependencyInjection": {
               "target": "Package",
@@ -147,7 +155,7 @@
             },
             "Pomelo.EntityFrameworkCore.MySql": {
               "target": "Package",
-              "version": "[2.2.1-preview1-final, )"
+              "version": "[3.0.0-rc1.final, )"
             },
             "SteamKit2": {
               "target": "Package",

@@ -1,0 +1,37 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "OpenGameMonitorLibraries";
+
+package OpenGameMonitorComs;
+
+import "google/protobuf/empty.proto";
+
+service MonitorComs {
+	rpc PanelConfigReloaded (ConfigReloadedParams) returns (google.protobuf.Empty);
+	rpc ServerOpened (ServerID) returns (google.protobuf.Empty);
+	rpc ServerClosed (ServerID) returns (google.protobuf.Empty);
+	rpc ServerOpen (ServerID) returns (ServerActionResult);
+	rpc ServerClose (ServerID) returns (ServerActionResult);
+	rpc ServerUpdated (ServerID) returns (google.protobuf.Empty);
+	rpc ServerUpdate (ServerID) returns (ServerActionResult);
+	rpc ServerConsoleMessage (ServerMessage) returns (google.protobuf.Empty);
+	rpc ServerUpdateMessage (ServerMessage) returns (google.protobuf.Empty);
+}
+
+message ConfigReloadedParams {
+	// Empty for now
+}
+
+message ServerID {
+	int32 id = 1;
+}
+
+message ServerMessage {
+	int32 serverId = 1;
+	string message = 2;
+}
+
+message ServerActionResult {
+	int32 serverId = 1;
+	bool result = 2;
+}

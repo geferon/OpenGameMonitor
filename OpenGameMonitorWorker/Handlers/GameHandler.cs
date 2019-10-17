@@ -39,14 +39,14 @@ namespace OpenGameMonitorWorker
 
 	public class GameHandler
 	{
-		private Dictionary<string, IGameHandlerBase> gameHandlers = new Dictionary<string, IGameHandlerBase>();
-		private readonly IServiceProvider _serviceProvider;
+        private readonly Dictionary<string, IGameHandlerBase> gameHandlers = new Dictionary<string, IGameHandlerBase>();
 		private readonly ILogger _logger;
-		private readonly EventHandlerService _eventHandlerService;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly EventHandlerService _eventHandlerService;
 
-		public GameHandler(IServiceProvider serviceProvider,
-			ILogger<GameHandler> logger,
-			EventHandlerService eventHandlerService)
+		public GameHandler(ILogger<GameHandler> logger,
+            IServiceProvider serviceProvider,
+            EventHandlerService eventHandlerService)
 		{
 			_serviceProvider = serviceProvider;
 			_logger = logger;
@@ -102,7 +102,7 @@ namespace OpenGameMonitorWorker
                     await Task.Delay(1000);
 
                     IGameHandlerBase handler = GetServerHandler(server);
-                    handler.OpenServer(server);
+                    await handler.OpenServer(server).ConfigureAwait(false);
                 }
             });
 
@@ -110,7 +110,7 @@ namespace OpenGameMonitorWorker
             using (var db = _serviceProvider.GetService<MonitorDBContext>())
             {
                 List<Server> servers = db.Servers
-                    .Where(r => r.PID != null && r.PID != default(int))
+                    .Where(r => r.PID != null && r.PID != default)
                     .ToList();
 
 

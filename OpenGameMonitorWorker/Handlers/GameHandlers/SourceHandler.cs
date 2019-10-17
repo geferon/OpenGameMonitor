@@ -20,7 +20,7 @@ namespace OpenGameMonitorWorker
         public override event EventHandler ServerClosed;
         public override event EventHandler ConsoleMessage;
 
-        private Dictionary<int, Process> serverProcess;
+        private readonly Dictionary<int, Process> serverProcess;
 
         public SourceHandler(
             IServiceProvider serviceProvider,
@@ -44,11 +44,11 @@ namespace OpenGameMonitorWorker
 
         public override async Task InitServer(Server server)
         {
-            if (server.PID != default(int))
+            if (server.PID != null && server.PID != default)
             {
                 try
                 {
-                    Process ps = Process.GetProcessById(server.PID);
+                    Process ps = Process.GetProcessById((int) server.PID);
                     ps.OutputDataReceived += (sender, e) =>
                     {
                         ConsoleMessage?.Invoke(server, new ConsoleEventArgs()
@@ -76,7 +76,7 @@ namespace OpenGameMonitorWorker
                 }
                 catch
                 {
-                    server.PID = default(int);
+                    server.PID = default;
                     using (var db = _serviceProvider.GetService<MonitorDBContext>())
                     {
                         db.Update(server);

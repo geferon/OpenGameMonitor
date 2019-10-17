@@ -19,19 +19,19 @@ namespace CoreRCON
 
 		private bool _connected = false;
 
-		private IPEndPoint _endpoint;
+		private readonly IPEndPoint _endpoint;
 
 		// When generating the packet ID, use a never-been-used (for automatic packets) ID.
 		private int _packetId = 1;
 
-		private string _password;
-		private uint _reconnectDelay;
-		private int _timeout;
+		private readonly string _password;
+		private readonly uint _reconnectDelay;
+		private readonly int _timeout;
 
 		// Map of pending command references.  These are called when a command with the matching Id (key) is received.  Commands are called only once.
-		private Dictionary<int, Action<string>> _pendingCommands { get; } = new Dictionary<int, Action<string>>();
+		private Dictionary<int, Action<string>> PendingCommands { get; } = new Dictionary<int, Action<string>>();
 
-		private Socket _tcp { get; set; }
+		private Socket Tcp { get; set; }
 
 		public event Action OnDisconnected;
 
@@ -62,23 +62,25 @@ namespace CoreRCON
 		/// <returns>Awaitable which will complete when a successful connection is made and authentication is successful.</returns>
 		public async Task ConnectAsync()
 		{
-			_tcp = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+			Tcp = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             // Connect to the socket but with a timeout
             var cancellationCompletionSource = new TaskCompletionSource<bool>();
 
-            var cts = new CancellationTokenSource();
-            cts.CancelAfter(_timeout);
-
-            var connectAsync = _tcp.ConnectAsync(_endpoint);
-
-            using (cts.Token.Register(() => cancellationCompletionSource.TrySetResult(true)))
+            using (var cts = new CancellationTokenSource())
             {
-                if (connectAsync != await Task.WhenAny(connectAsync, cancellationCompletionSource.Task))
+                cts.CancelAfter(_timeout);
+
+                var connectAsync = Tcp.ConnectAsync(_endpoint);
+
+                using (cts.Token.Register(() => cancellationCompletionSource.TrySetResult(true)))
                 {
-                    _tcp.Close();
-                    _connected = false;
-                    throw new TimeoutException();
+                    if (connectAsync != await Task.WhenAny(connectAsync, cancellationCompletionSource.Task))
+                    {
+                        Tcp.Close();
+                        _connected = false;
+                        throw new TimeoutException();
+                    }
                 }
             }
 
@@ -91,7 +93,7 @@ namespace CoreRCON
 			e.SetBuffer(new byte[Constants.MAX_PACKET_SIZE], 0, Constants.MAX_PACKET_SIZE);
 
 			// Start listening for responses
-			_tcp.ReceiveAsync(e);
+			Tcp.ReceiveAsync(e);
 
 			// Wait for successful authentication
 			_authenticationTask = new TaskCompletionSource<bool>();
@@ -104,8 +106,8 @@ namespace CoreRCON
 		public void Dispose()
 		{
 			_connected = false;
-			_tcp.Shutdown(SocketShutdown.Both);
-			_tcp.Dispose();
+			Tcp.Shutdown(SocketShutdown.Both);
+			Tcp.Dispose();
 		}
 
 		/// <summary>
@@ -127,7 +129,7 @@ namespace CoreRCON
 				Callback = parsed => source.SetResult((T)parsed)
 			};
 
-			_pendingCommands.Add(++_packetId, container.TryCallback);
+			PendingCommands.Add(++_packetId, container.TryCallback);
 			var packet = new RCONPacket(_packetId, PacketType.ExecCommand, command);
 			Monitor.Exit(_lock);
 
@@ -143,7 +145,7 @@ namespace CoreRCON
 		{
 			Monitor.Enter(_lock);
 			var source = new TaskCompletionSource<string>();
-			_pendingCommands.Add(++_packetId, source.SetResult);
+			PendingCommands.Add(++_packetId, source.SetResult);
 			var packet = new RCONPacket(_packetId, PacketType.ExecCommand, command);
 			Monitor.Exit(_lock);
 
@@ -153,14 +155,13 @@ namespace CoreRCON
 
 		private void RCONPacketReceived(RCONPacket packet)
 		{
-			// Call pending result and remove from map
-			Action<string> action;
-			if (_pendingCommands.TryGetValue(packet.Id, out action))
-			{
-				action?.Invoke(packet.Body);
-				_pendingCommands.Remove(packet.Id);
-			}
-		}
+            // Call pending result and remove from map
+            if (PendingCommands.TryGetValue(packet.Id, out Action<string> action))
+            {
+                action?.Invoke(packet.Body);
+                PendingCommands.Remove(packet.Id);
+            }
+        }
 
 		/// <summary>
 		/// Send a packet to the server.
@@ -169,7 +170,7 @@ namespace CoreRCON
 		private async Task SendPacketAsync(RCONPacket packet)
 		{
 			if (!_connected) throw new InvalidOperationException("Connection is closed.");
-			await _tcp.SendAsync(new ArraySegment<byte>(packet.ToBytes()), SocketFlags.None);
+			await Tcp.SendAsync(new ArraySegment<byte>(packet.ToBytes()), SocketFlags.None);
 		}
 
 		/// <summary>
@@ -185,7 +186,7 @@ namespace CoreRCON
 				// Failed auth responses return with an ID of -1
 				if (packet.Id == -1)
 				{
-					throw new AuthenticationException($"Authentication failed for {_tcp.RemoteEndPoint}.");
+					throw new AuthenticationException($"Authentication failed for {Tcp.RemoteEndPoint}.");
 				}
 
 				// Tell Connect that authentication succeeded
@@ -197,7 +198,7 @@ namespace CoreRCON
 
 			// Continue listening
 			if (!_connected) return;
-			_tcp.ReceiveAsync(e);
+			Tcp.ReceiveAsync(e);
 		}
 
 		/// <summary>
@@ -215,7 +216,7 @@ namespace CoreRCON
 					Identifier = Guid.NewGuid().ToString().Substring(0, 5);
 					await SendCommandAsync(Constants.CHECK_STR + Identifier);
 				}
-				catch (Exception ex)
+				catch (Exception)
 				{
 					Dispose();
 					OnDisconnected();

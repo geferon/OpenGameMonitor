@@ -7,10 +7,10 @@ namespace OpenGameMonitorWorker
 {
 	public class EventHandlerService
 	{
-		private ILogger _logger;
+		private readonly ILogger _logger;
 
-		private Dictionary<string, EventHandler> eventHandlers = new Dictionary<string, EventHandler>();
-		private Dictionary<string, List<EventHandler>> eventListeners = new Dictionary<string, List<EventHandler>>();
+		private readonly Dictionary<string, EventHandler> eventHandlers = new Dictionary<string, EventHandler>();
+		private readonly Dictionary<string, List<EventHandler>> eventListeners = new Dictionary<string, List<EventHandler>>();
 		public EventHandlerService(ILogger<EventHandlerService> logger)
 		{
 			_logger = logger;
@@ -31,11 +31,9 @@ namespace OpenGameMonitorWorker
 
 		public EventHandler GetEvent(string key)
 		{
-			EventHandler handler;
+            eventHandlers.TryGetValue(key, out EventHandler handler);
 
-			eventHandlers.TryGetValue(key, out handler);
-
-			if (handler == null)
+            if (handler == null)
 			{
 				throw new Exception($"No event found with key {key}");
 			}

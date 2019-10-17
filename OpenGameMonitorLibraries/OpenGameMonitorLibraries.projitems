@@ -17,4 +17,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)MonitorConfig.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)Protos\MonitorComs.proto" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Protos\" />
+  </ItemGroup>
 </Project>

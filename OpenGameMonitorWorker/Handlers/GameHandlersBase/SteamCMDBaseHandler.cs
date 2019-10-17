@@ -69,15 +69,19 @@ namespace OpenGameMonitorWorker
 
 				StringBuilder outputStringBuilder = new StringBuilder();
 
-				// Params stuff
-				List<string[]> parameterBuilder = new List<string[]>();
-				parameterBuilder.Add(new string[] { "+login", "anonymous" }); // TODO: Allow user logins
-				parameterBuilder.Add(new string[] { "+force_install_dir", $"\"{serverPath.FullName}\"" });
+                // Params stuff
+                List<string[]> parameterBuilder = new List<string[]>
+                {
+                    new string[] { "+login", "anonymous" }, // TODO: Allow user logins
+                    new string[] { "+force_install_dir", $"\"{serverPath.FullName}\"" }
+                };
 
-				// Fucking dynamic shit param builder what the fuck
-				List<string> updateText = new List<string>();
-				updateText.Add(server.Game.SteamID.ToString(CultureInfo.InvariantCulture));
-				if (!String.IsNullOrEmpty(server.Branch))
+                // Fucking dynamic shit param builder what the fuck
+                List<string> updateText = new List<string>
+                {
+                    server.Game.SteamID.ToString(CultureInfo.InvariantCulture)
+                };
+                if (!String.IsNullOrEmpty(server.Branch))
 				{
 					updateText.Add("-beta");
 					updateText.Add(server.Branch);
