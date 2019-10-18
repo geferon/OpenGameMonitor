@@ -7,15 +7,32 @@ package OpenGameMonitorComs;
 import "google/protobuf/empty.proto";
 
 service MonitorComs {
+	rpc ServerOpen (ServerID) returns (ServerActionResult);
+	rpc ServerClose (ServerID) returns (ServerActionResult);
+	rpc ServerUpdate (ServerID) returns (ServerActionResult);
+
+	rpc MasterServerConnect (MasterServerData) returns (stream MasterServerEvent);
+
+	// These are all client requests
+	/*
+	rpc ServerConsoleMessage (ServerMessage) returns (google.protobuf.Empty);
+	rpc ServerUpdateMessage (ServerMessage) returns (google.protobuf.Empty);
+
+	
 	rpc PanelConfigReloaded (ConfigReloadedParams) returns (google.protobuf.Empty);
 	rpc ServerOpened (ServerID) returns (google.protobuf.Empty);
 	rpc ServerClosed (ServerID) returns (google.protobuf.Empty);
-	rpc ServerOpen (ServerID) returns (ServerActionResult);
-	rpc ServerClose (ServerID) returns (ServerActionResult);
 	rpc ServerUpdated (ServerID) returns (google.protobuf.Empty);
-	rpc ServerUpdate (ServerID) returns (ServerActionResult);
-	rpc ServerConsoleMessage (ServerMessage) returns (google.protobuf.Empty);
-	rpc ServerUpdateMessage (ServerMessage) returns (google.protobuf.Empty);
+	*/
+}
+
+// Some kind of auth or something might be required later on if multiple servers are planned
+message MasterServerData {
+	int32 id = 1;
+}
+
+message MasterServerEvent {
+
 }
 
 message ConfigReloadedParams {
