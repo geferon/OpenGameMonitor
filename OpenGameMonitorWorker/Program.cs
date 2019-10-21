@@ -15,7 +15,7 @@ using System.Threading;
 using System.IO;
 using System.Globalization;
 using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Hosting;
+//using Microsoft.AspNetCore.Hosting;
 using System.Net;
 
 namespace OpenGameMonitorWorker
@@ -69,7 +69,7 @@ namespace OpenGameMonitorWorker
                     services.AddDbContext<MonitorDBContext>(options => options.UseMySql(hostContext.Configuration.GetConnectionString("MonitorDatabase")));
 
                     // Todo: implement https://docs.microsoft.com/en-us/aspnet/core/tutorials/grpc/grpc-start?view=aspnetcore-3.0&tabs=visual-studio
-                    services.AddGrpc();
+                    //services.AddGrpc();
 
                     /*
                     services.AddIpc(builder =>
@@ -81,10 +81,11 @@ namespace OpenGameMonitorWorker
                             })
                             .AddService<IMonitorComsInterface, MonitorComsService>();
                     });
-                    //services.AddHostedService<IPCService>();
                     */
+                    services.AddHostedService<IPCService>();
 
-                })
+                });
+                /*
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.ConfigureKestrel(options =>
@@ -97,6 +98,7 @@ namespace OpenGameMonitorWorker
                     });
                     webBuilder.UseStartup<gRPCStartup>();
                 });
+                */
 
         public static void CheckForUpdate(this IHost host)
         {

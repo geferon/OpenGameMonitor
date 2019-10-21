@@ -35,158 +35,6 @@
           "lib/netstandard2.0/Google.Protobuf.dll": {}
         }
       },
-      "Grpc/2.24.0": {
-        "type": "package",
-        "dependencies": {
-          "Grpc.Core": "2.24.0"
-        }
-      },
-      "Grpc.AspNetCore/2.24.0-pre1": {
-        "type": "package",
-        "dependencies": {
-          "Google.Protobuf": "3.10.0",
-          "Grpc.AspNetCore.Server.ClientFactory": "2.24.0-pre1",
-          "Grpc.Tools": "2.23.0"
-        },
-        "compile": {
-          "lib/netcoreapp3.0/_._": {}
-        },
-        "runtime": {
-          "lib/netcoreapp3.0/_._": {}
-        }
-      },
-      "Grpc.AspNetCore.Server/2.24.0-pre1": {
-        "type": "package",
-        "dependencies": {
-          "Grpc.Core.Api": "2.23.0",
-          "Grpc.Net.Common": "2.24.0-pre1"
-        },
-        "compile": {
-          "lib/netcoreapp3.0/Grpc.AspNetCore.Server.dll": {}
-        },
-        "runtime": {
-          "lib/netcoreapp3.0/Grpc.AspNetCore.Server.dll": {}
-        },
-        "frameworkReferences": [
-          "Microsoft.AspNetCore.App"
-        ]
-      },
-      "Grpc.AspNetCore.Server.ClientFactory/2.24.0-pre1": {
-        "type": "package",
-        "dependencies": {
-          "Grpc.AspNetCore.Server": "2.24.0-pre1",
-          "Grpc.Core.Api": "2.23.0",
-          "Grpc.Net.ClientFactory": "2.24.0-pre1"
-        },
-        "compile": {
-          "lib/netcoreapp3.0/Grpc.AspNetCore.Server.ClientFactory.dll": {}
-        },
-        "runtime": {
-          "lib/netcoreapp3.0/Grpc.AspNetCore.Server.ClientFactory.dll": {}
-        },
-        "frameworkReferences": [
-          "Microsoft.AspNetCore.App"
-        ]
-      },
-      "Grpc.Core/2.24.0": {
-        "type": "package",
-        "dependencies": {
-          "Grpc.Core.Api": "2.24.0",
-          "System.Memory": "4.5.3"
-        },
-        "compile": {
-          "lib/netstandard2.0/Grpc.Core.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard2.0/Grpc.Core.dll": {}
-        },
-        "runtimeTargets": {
-          "runtimes/linux/native/libgrpc_csharp_ext.x64.so": {
-            "assetType": "native",
-            "rid": "linux"
-          },
-          "runtimes/linux/native/libgrpc_csharp_ext.x86.so": {
-            "assetType": "native",
-            "rid": "linux"
-          },
-          "runtimes/osx/native/libgrpc_csharp_ext.x64.dylib": {
-            "assetType": "native",
-            "rid": "osx"
-          },
-          "runtimes/osx/native/libgrpc_csharp_ext.x86.dylib": {
-            "assetType": "native",
-            "rid": "osx"
-          },
-          "runtimes/win/native/grpc_csharp_ext.x64.dll": {
-            "assetType": "native",
-            "rid": "win"
-          },
-          "runtimes/win/native/grpc_csharp_ext.x86.dll": {
-            "assetType": "native",
-            "rid": "win"
-          }
-        }
-      },
-      "Grpc.Core.Api/2.24.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Memory": "4.5.3"
-        },
-        "compile": {
-          "lib/netstandard2.0/Grpc.Core.Api.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard2.0/Grpc.Core.Api.dll": {}
-        }
-      },
-      "Grpc.Net.Client/2.24.0-pre1": {
-        "type": "package",
-        "dependencies": {
-          "Grpc.Core.Api": "2.23.0",
-          "Grpc.Net.Common": "2.24.0-pre1",
-          "Microsoft.Extensions.Logging.Abstractions": "2.1.1",
-          "System.Diagnostics.DiagnosticSource": "4.5.1"
-        },
-        "compile": {
-          "lib/netstandard2.1/Grpc.Net.Client.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard2.1/Grpc.Net.Client.dll": {}
-        }
-      },
-      "Grpc.Net.ClientFactory/2.24.0-pre1": {
-        "type": "package",
-        "dependencies": {
-          "Grpc.Core.Api": "2.23.0",
-          "Grpc.Net.Client": "2.24.0-pre1",
-          "Microsoft.Extensions.Http": "2.1.1"
-        },
-        "compile": {
-          "lib/netstandard2.1/Grpc.Net.ClientFactory.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard2.1/Grpc.Net.ClientFactory.dll": {}
-        }
-      },
-      "Grpc.Net.Common/2.24.0-pre1": {
-        "type": "package",
-        "dependencies": {
-          "Grpc.Core.Api": "2.23.0"
-        },
-        "compile": {
-          "lib/netstandard2.1/Grpc.Net.Common.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard2.1/Grpc.Net.Common.dll": {}
-        }
-      },
-      "Grpc.Tools/2.24.0": {
-        "type": "package",
-        "build": {
-          "build/Grpc.Tools.props": {},
-          "build/Grpc.Tools.targets": {}
-        }
-      },
       "Microsoft.CodeAnalysis.FxCopAnalyzers/2.9.6": {
         "type": "package",
         "dependencies": {
@@ -515,20 +363,6 @@
           "lib/netstandard2.0/Microsoft.Extensions.Hosting.WindowsServices.dll": {}
         }
       },
-      "Microsoft.Extensions.Http/2.1.1": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "2.1.1",
-          "Microsoft.Extensions.Logging": "2.1.1",
-          "Microsoft.Extensions.Options": "2.1.1"
-        },
-        "compile": {
-          "lib/netstandard2.0/Microsoft.Extensions.Http.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard2.0/Microsoft.Extensions.Http.dll": {}
-        }
-      },
       "Microsoft.Extensions.Logging/3.0.0": {
         "type": "package",
         "dependencies": {
@@ -716,6 +550,44 @@
             "assetType": "runtime",
             "rid": "win"
           }
+        }
+      },
+      "MsgPack.Cli/0.9.2": {
+        "type": "package",
+        "dependencies": {
+          "System.Collections": "4.0.11",
+          "System.Collections.Concurrent": "4.0.12",
+          "System.Collections.NonGeneric": "4.0.1",
+          "System.Collections.Specialized": "4.0.1",
+          "System.Data.Common": "4.1.0",
+          "System.Diagnostics.Contracts": "4.0.1",
+          "System.Diagnostics.Debug": "4.0.11",
+          "System.Diagnostics.Tools": "4.0.1",
+          "System.Globalization": "4.0.11",
+          "System.IO": "4.1.0",
+          "System.Linq": "4.1.0",
+          "System.Linq.Expressions": "4.1.0",
+          "System.Numerics.Vectors": "4.1.1",
+          "System.ObjectModel": "4.0.12",
+          "System.Reflection": "4.1.0",
+          "System.Reflection.Extensions": "4.0.1",
+          "System.Reflection.Primitives": "4.0.1",
+          "System.Resources.ResourceManager": "4.0.1",
+          "System.Runtime": "4.1.0",
+          "System.Runtime.Extensions": "4.1.0",
+          "System.Runtime.InteropServices": "4.1.0",
+          "System.Runtime.Numerics": "4.0.1",
+          "System.Runtime.Serialization.Primitives": "4.1.1",
+          "System.Text.Encoding": "4.0.11",
+          "System.Text.Encoding.Extensions": "4.0.11",
+          "System.Text.RegularExpressions": "4.1.0",
+          "System.Threading": "4.0.11"
+        },
+        "compile": {
+          "lib/netstandard1.3/MsgPack.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard1.3/MsgPack.dll": {}
         }
       },
       "MySqlConnector/0.59.2": {
@@ -1040,20 +912,13 @@
           "lib/netstandard1.6/System.AppContext.dll": {}
         }
       },
-      "System.Buffers/4.3.0": {
+      "System.Buffers/4.4.0": {
         "type": "package",
-        "dependencies": {
-          "System.Diagnostics.Debug": "4.3.0",
-          "System.Diagnostics.Tracing": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Threading": "4.3.0"
-        },
         "compile": {
-          "lib/netstandard1.1/_._": {}
+          "ref/netcoreapp2.0/_._": {}
         },
         "runtime": {
-          "lib/netstandard1.1/System.Buffers.dll": {}
+          "lib/netcoreapp2.0/_._": {}
         }
       },
       "System.Collections/4.3.0": {
@@ -1204,6 +1069,37 @@
         },
         "compile": {
           "ref/netstandard1.3/System.Console.dll": {}
+        }
+      },
+      "System.Data.Common/4.1.0": {
+        "type": "package",
+        "dependencies": {
+          "System.Collections": "4.0.11",
+          "System.Globalization": "4.0.11",
+          "System.IO": "4.1.0",
+          "System.Resources.ResourceManager": "4.0.1",
+          "System.Runtime": "4.1.0",
+          "System.Runtime.Extensions": "4.1.0",
+          "System.Text.RegularExpressions": "4.1.0",
+          "System.Threading.Tasks": "4.0.11"
+        },
+        "compile": {
+          "ref/netstandard1.2/System.Data.Common.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard1.2/System.Data.Common.dll": {}
+        }
+      },
+      "System.Diagnostics.Contracts/4.0.1": {
+        "type": "package",
+        "dependencies": {
+          "System.Runtime": "4.1.0"
+        },
+        "compile": {
+          "ref/netstandard1.0/System.Diagnostics.Contracts.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard1.0/System.Diagnostics.Contracts.dll": {}
         }
       },
       "System.Diagnostics.Debug/4.3.0": {
@@ -1505,7 +1401,7 @@
           "lib/netstandard1.6/System.Linq.Expressions.dll": {}
         }
       },
-      "System.Memory/4.5.3": {
+      "System.Memory/4.5.2": {
         "type": "package",
         "compile": {
           "ref/netcoreapp2.1/_._": {}
@@ -1582,6 +1478,21 @@
         },
         "compile": {
           "ref/netstandard1.3/System.Net.Sockets.dll": {}
+        }
+      },
+      "System.Numerics.Vectors/4.1.1": {
+        "type": "package",
+        "dependencies": {
+          "System.Globalization": "4.0.11",
+          "System.Resources.ResourceManager": "4.0.1",
+          "System.Runtime": "4.1.0",
+          "System.Runtime.Extensions": "4.1.0"
+        },
+        "compile": {
+          "ref/netstandard1.0/System.Numerics.Vectors.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard1.0/System.Numerics.Vectors.dll": {}
         }
       },
       "System.ObjectModel/4.3.0": {
@@ -2287,6 +2198,77 @@
           "lib/netstandard1.3/System.Xml.XmlSerializer.dll": {}
         }
       },
+      "Xeeny/1.3.0": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.CSharp": "4.4.1",
+          "Microsoft.Extensions.Logging": "2.0.0",
+          "MsgPack.Cli": "0.9.2",
+          "System.Reflection.Emit": "4.3.0",
+          "Xeeny.Sockets": "1.3.0",
+          "Xeeny.Transports": "1.3.0"
+        },
+        "compile": {
+          "lib/netstandard2.0/Xeeny.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/Xeeny.dll": {}
+        }
+      },
+      "Xeeny.Extensions.Loggers/1.0.0": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.Extensions.Logging.Console": "2.0.0",
+          "Microsoft.Extensions.Logging.Debug": "2.0.0",
+          "Xeeny": "1.0.0"
+        },
+        "compile": {
+          "lib/netstandard2.0/Xeeny.Extensions.Loggers.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/Xeeny.Extensions.Loggers.dll": {}
+        }
+      },
+      "Xeeny.Serialization.JsonSerializer/1.1.0": {
+        "type": "package",
+        "dependencies": {
+          "Newtonsoft.Json": "10.0.3",
+          "Xeeny": "1.3.0"
+        },
+        "compile": {
+          "lib/netstandard2.0/Xeeny.Serialization.JsonSerializer.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/Xeeny.Serialization.JsonSerializer.dll": {}
+        }
+      },
+      "Xeeny.Sockets/1.3.0": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.Extensions.Logging.Abstractions": "2.0.0",
+          "System.Buffers": "4.4.0",
+          "Xeeny.Transports": "1.3.0"
+        },
+        "compile": {
+          "lib/netstandard2.0/Xeeny.Sockets.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/Xeeny.Sockets.dll": {}
+        }
+      },
+      "Xeeny.Transports/1.3.0": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.Extensions.Logging.Abstractions": "2.0.0",
+          "System.Buffers": "4.4.0"
+        },
+        "compile": {
+          "lib/netstandard2.0/Xeeny.Transports.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/Xeeny.Transports.dll": {}
+        }
+      },
       "CoreRCON/3.0.0": {
         "type": "project",
         "framework": ".NETStandard,Version=v2.1",
@@ -2343,205 +2325,6 @@
         "lib/netstandard2.0/Google.Protobuf.dll",
         "lib/netstandard2.0/Google.Protobuf.pdb",
         "lib/netstandard2.0/Google.Protobuf.xml"
-      ]
-    },
-    "Grpc/2.24.0": {
-      "sha512": "fNuzL91uTvZgo/9fh+np4A/I3IV2fEbnGOC7kFygQYn5hA5nW9pO0+U/vf/5h+Yo1DxdU7schqgWlsqKbo0IJg==",
-      "type": "package",
-      "path": "grpc/2.24.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "grpc.2.24.0.nupkg.sha512",
-        "grpc.nuspec"
-      ]
-    },
-    "Grpc.AspNetCore/2.24.0-pre1": {
-      "sha512": "YzL7ItHYODS8xLkaE7GoCfd6lQH3DCqk4CzvRvRinzVTxAhreuCKllzpD5agDljrb5AO7Nzzfr0dpuo1ouq8hg==",
-      "type": "package",
-      "path": "grpc.aspnetcore/2.24.0-pre1",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "grpc.aspnetcore.2.24.0-pre1.nupkg.sha512",
-        "grpc.aspnetcore.nuspec",
-        "lib/netcoreapp3.0/_._",
-        "packageIcon.png"
-      ]
-    },
-    "Grpc.AspNetCore.Server/2.24.0-pre1": {
-      "sha512": "O7STpL2cPkESrG1ZqH5GNTR6IsbXSuuo4f6GzDw5dotvwbFruUNn2yCFGddAZy8iYC6oihfdKivfD2BaxnD/OA==",
-      "type": "package",
-      "path": "grpc.aspnetcore.server/2.24.0-pre1",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "grpc.aspnetcore.server.2.24.0-pre1.nupkg.sha512",
-        "grpc.aspnetcore.server.nuspec",
-        "lib/netcoreapp3.0/Grpc.AspNetCore.Server.dll",
-        "lib/netcoreapp3.0/Grpc.AspNetCore.Server.pdb",
-        "lib/netcoreapp3.0/Grpc.AspNetCore.Server.xml",
-        "packageIcon.png"
-      ]
-    },
-    "Grpc.AspNetCore.Server.ClientFactory/2.24.0-pre1": {
-      "sha512": "uGOk07yL2yg82gJkf8TPitOvQZBzqo8N/1TG54Trt7YY1rXiPchVqsMBWT2hG86IirKfOcrjZuht+Tph7F/Vgg==",
-      "type": "package",
-      "path": "grpc.aspnetcore.server.clientfactory/2.24.0-pre1",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "grpc.aspnetcore.server.clientfactory.2.24.0-pre1.nupkg.sha512",
-        "grpc.aspnetcore.server.clientfactory.nuspec",
-        "lib/netcoreapp3.0/Grpc.AspNetCore.Server.ClientFactory.dll",
-        "lib/netcoreapp3.0/Grpc.AspNetCore.Server.ClientFactory.pdb",
-        "lib/netcoreapp3.0/Grpc.AspNetCore.Server.ClientFactory.xml",
-        "packageIcon.png"
-      ]
-    },
-    "Grpc.Core/2.24.0": {
-      "sha512": "BY81HFrX1dIHRzRXx1L2wIgqrL+47lEdTKf3RJQU1JVBXVScOT1V1VdpTSJCEs2/Sa0ii2QD3gr0j+uDp8CMBg==",
-      "type": "package",
-      "path": "grpc.core/2.24.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "build/MonoAndroid10/Grpc.Core.targets",
-        "build/Xamarin.iOS10/Grpc.Core.targets",
-        "build/net45/Grpc.Core.targets",
-        "grpc.core.2.24.0.nupkg.sha512",
-        "grpc.core.nuspec",
-        "lib/net45/Grpc.Core.dll",
-        "lib/net45/Grpc.Core.pdb",
-        "lib/net45/Grpc.Core.xml",
-        "lib/netstandard1.5/Grpc.Core.dll",
-        "lib/netstandard1.5/Grpc.Core.pdb",
-        "lib/netstandard1.5/Grpc.Core.xml",
-        "lib/netstandard2.0/Grpc.Core.dll",
-        "lib/netstandard2.0/Grpc.Core.pdb",
-        "lib/netstandard2.0/Grpc.Core.xml",
-        "native/android/arm64-v8a/libgrpc_csharp_ext.so",
-        "native/android/armeabi-v7a/libgrpc_csharp_ext.so",
-        "native/android/x86/libgrpc_csharp_ext.so",
-        "native/ios/universal/libgrpc.a",
-        "native/ios/universal/libgrpc_csharp_ext.a",
-        "runtimes/linux/native/libgrpc_csharp_ext.x64.so",
-        "runtimes/linux/native/libgrpc_csharp_ext.x86.so",
-        "runtimes/osx/native/libgrpc_csharp_ext.x64.dylib",
-        "runtimes/osx/native/libgrpc_csharp_ext.x86.dylib",
-        "runtimes/win/native/grpc_csharp_ext.x64.dll",
-        "runtimes/win/native/grpc_csharp_ext.x86.dll"
-      ]
-    },
-    "Grpc.Core.Api/2.24.0": {
-      "sha512": "ngf/VbnX8+yD+BtQUVPjMqid64qqrQDij3DclmLCRfDBMD/X2fOHC9N+E6ckfjyfm8cG1iU+s4oHdjO08yjoeQ==",
-      "type": "package",
-      "path": "grpc.core.api/2.24.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "grpc.core.api.2.24.0.nupkg.sha512",
-        "grpc.core.api.nuspec",
-        "lib/net45/Grpc.Core.Api.dll",
-        "lib/net45/Grpc.Core.Api.pdb",
-        "lib/net45/Grpc.Core.Api.xml",
-        "lib/netstandard1.5/Grpc.Core.Api.dll",
-        "lib/netstandard1.5/Grpc.Core.Api.pdb",
-        "lib/netstandard1.5/Grpc.Core.Api.xml",
-        "lib/netstandard2.0/Grpc.Core.Api.dll",
-        "lib/netstandard2.0/Grpc.Core.Api.pdb",
-        "lib/netstandard2.0/Grpc.Core.Api.xml"
-      ]
-    },
-    "Grpc.Net.Client/2.24.0-pre1": {
-      "sha512": "c7aZfTkUB2NhDMH54FHrFa67s712G/ATLFjzoI83UaH9HwI4/u3CXImFdDsoSwO/yhrgZmgvwp8k81zt1LU4cQ==",
-      "type": "package",
-      "path": "grpc.net.client/2.24.0-pre1",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "grpc.net.client.2.24.0-pre1.nupkg.sha512",
-        "grpc.net.client.nuspec",
-        "lib/netstandard2.1/Grpc.Net.Client.dll",
-        "lib/netstandard2.1/Grpc.Net.Client.pdb",
-        "lib/netstandard2.1/Grpc.Net.Client.xml",
-        "packageIcon.png"
-      ]
-    },
-    "Grpc.Net.ClientFactory/2.24.0-pre1": {
-      "sha512": "QUfhgqkTVsXdjnKVsMrkP9iXRX0ypVE2YAQYpmO+uIhEiqDoGjdBR5tolMsueiPBWEzqXkKXS86fA6JlBU5ktQ==",
-      "type": "package",
-      "path": "grpc.net.clientfactory/2.24.0-pre1",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "grpc.net.clientfactory.2.24.0-pre1.nupkg.sha512",
-        "grpc.net.clientfactory.nuspec",
-        "lib/netstandard2.1/Grpc.Net.ClientFactory.dll",
-        "lib/netstandard2.1/Grpc.Net.ClientFactory.pdb",
-        "lib/netstandard2.1/Grpc.Net.ClientFactory.xml",
-        "packageIcon.png"
-      ]
-    },
-    "Grpc.Net.Common/2.24.0-pre1": {
-      "sha512": "cBy7jKjv+1KM6qyS5LLot8xFtMcwfyjNDex8ZulrmkY6kQ+7UWlJzk+OxU98s3hjBu7uyLIteT+qp8dWXzUdqw==",
-      "type": "package",
-      "path": "grpc.net.common/2.24.0-pre1",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "grpc.net.common.2.24.0-pre1.nupkg.sha512",
-        "grpc.net.common.nuspec",
-        "lib/netstandard2.1/Grpc.Net.Common.dll",
-        "lib/netstandard2.1/Grpc.Net.Common.pdb",
-        "lib/netstandard2.1/Grpc.Net.Common.xml",
-        "packageIcon.png"
-      ]
-    },
-    "Grpc.Tools/2.24.0": {
-      "sha512": "X9xfXTr0kZ2Vsw9iy8hH61xd0hD756/VEgw+9MJ8r3/nQLWy77nGscQyDYdreyvU2BmWr7MGzBGbl2xY4PxKlg==",
-      "type": "package",
-      "path": "grpc.tools/2.24.0",
-      "hasTools": true,
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "build/Grpc.Tools.props",
-        "build/Grpc.Tools.targets",
-        "build/_grpc/Grpc.CSharp.xml",
-        "build/_grpc/_Grpc.Tools.props",
-        "build/_grpc/_Grpc.Tools.targets",
-        "build/_protobuf/Google.Protobuf.Tools.props",
-        "build/_protobuf/Google.Protobuf.Tools.targets",
-        "build/_protobuf/Protobuf.CSharp.xml",
-        "build/_protobuf/net45/Protobuf.MSBuild.dll",
-        "build/_protobuf/netstandard1.3/Protobuf.MSBuild.dll",
-        "build/native/Grpc.Tools.props",
-        "build/native/include/google/protobuf/any.proto",
-        "build/native/include/google/protobuf/api.proto",
-        "build/native/include/google/protobuf/descriptor.proto",
-        "build/native/include/google/protobuf/duration.proto",
-        "build/native/include/google/protobuf/empty.proto",
-        "build/native/include/google/protobuf/field_mask.proto",
-        "build/native/include/google/protobuf/source_context.proto",
-        "build/native/include/google/protobuf/struct.proto",
-        "build/native/include/google/protobuf/timestamp.proto",
-        "build/native/include/google/protobuf/type.proto",
-        "build/native/include/google/protobuf/wrappers.proto",
-        "grpc.tools.2.24.0.nupkg.sha512",
-        "grpc.tools.nuspec",
-        "tools/linux_x64/grpc_csharp_plugin",
-        "tools/linux_x64/protoc",
-        "tools/linux_x86/grpc_csharp_plugin",
-        "tools/linux_x86/protoc",
-        "tools/macosx_x64/grpc_csharp_plugin",
-        "tools/macosx_x64/protoc",
-        "tools/macosx_x86/grpc_csharp_plugin",
-        "tools/macosx_x86/protoc",
-        "tools/windows_x64/grpc_csharp_plugin.exe",
-        "tools/windows_x64/protoc.exe",
-        "tools/windows_x86/grpc_csharp_plugin.exe",
-        "tools/windows_x86/protoc.exe"
       ]
     },
     "Microsoft.CodeAnalysis.FxCopAnalyzers/2.9.6": {
@@ -3180,19 +2963,6 @@
         "microsoft.extensions.hosting.windowsservices.nuspec"
       ]
     },
-    "Microsoft.Extensions.Http/2.1.1": {
-      "sha512": "GOly249seL3HL2+lgfLWHirsggRwK4EmSa6zUb+sPbgXHN+f9w/y/6XV3DPjYjtyt3v38FkPTD6odPcJJKtvlg==",
-      "type": "package",
-      "path": "microsoft.extensions.http/2.1.1",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "lib/netstandard2.0/Microsoft.Extensions.Http.dll",
-        "lib/netstandard2.0/Microsoft.Extensions.Http.xml",
-        "microsoft.extensions.http.2.1.1.nupkg.sha512",
-        "microsoft.extensions.http.nuspec"
-      ]
-    },
     "Microsoft.Extensions.Logging/3.0.0": {
       "sha512": "rxs1i2denq0Sv0XMvAeISK7AskV5x7aihvlIlepJKFfkbE6PgbeXfPOElD0kf3Wr2Roo57ASQa5xUL9LTHWChA==",
       "type": "package",
@@ -3619,6 +3389,37 @@
         "version.txt"
       ]
     },
+    "MsgPack.Cli/0.9.2": {
+      "sha512": "qXpeRNaa0hwH4h0nmoQ8VpKCscN4aPJqK3u88PCWiUsaDrZNA+LG47s1aeBVk26POLDBt+X2M1gdKKCwGJhTYQ==",
+      "type": "package",
+      "path": "msgpack.cli/0.9.2",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/MonoAndroid10/MsgPack.XML",
+        "lib/MonoAndroid10/MsgPack.dll",
+        "lib/Xamarin.iOS10/MsgPack.XML",
+        "lib/Xamarin.iOS10/MsgPack.dll",
+        "lib/net35/MsgPack.XML",
+        "lib/net35/MsgPack.dll",
+        "lib/net45/MsgPack.XML",
+        "lib/net45/MsgPack.dll",
+        "lib/net46/MsgPack.XML",
+        "lib/net46/MsgPack.dll",
+        "lib/netstandard1.1/MsgPack.XML",
+        "lib/netstandard1.1/MsgPack.dll",
+        "lib/netstandard1.3/MsgPack.XML",
+        "lib/netstandard1.3/MsgPack.dll",
+        "lib/sl5/MsgPack.XML",
+        "lib/sl5/MsgPack.dll",
+        "lib/uap10/MsgPack.XML",
+        "lib/uap10/MsgPack.dll",
+        "lib/windowsphone8/MsgPack.XML",
+        "lib/windowsphone8/MsgPack.dll",
+        "msgpack.cli.0.9.2.nupkg.sha512",
+        "msgpack.cli.nuspec"
+      ]
+    },
     "MySqlConnector/0.59.2": {
       "sha512": "GU999Wx9wpsjP2GANNn0WKp1iTb9drHh0fgn+7nCefS4KWYQoYAuvWvhD65dm09pqL0aa1mXPT4wWGrRMoN+gg==",
       "type": "package",
@@ -4017,18 +3818,29 @@
         "system.appcontext.nuspec"
       ]
     },
-    "System.Buffers/4.3.0": {
-      "sha512": "ratu44uTIHgeBeI0dE8DWvmXVBSo4u7ozRZZHOMmK/JPpYyo0dAfgSiHlpiObMQ5lEtEyIXA40sKRYg5J6A8uQ==",
+    "System.Buffers/4.4.0": {
+      "sha512": "AwarXzzoDwX6BgrhjoJsk6tUezZEozOT5Y9QKF94Gl4JK91I4PIIBkBco9068Y9/Dra8Dkbie99kXB8+1BaYKw==",
       "type": "package",
-      "path": "system.buffers/4.3.0",
+      "path": "system.buffers/4.4.0",
       "files": [
         ".nupkg.metadata",
-        "ThirdPartyNotices.txt",
-        "dotnet_library_license.txt",
-        "lib/netstandard1.1/.xml",
+        ".signature.p7s",
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT",
+        "lib/netcoreapp2.0/_._",
         "lib/netstandard1.1/System.Buffers.dll",
-        "system.buffers.4.3.0.nupkg.sha512",
-        "system.buffers.nuspec"
+        "lib/netstandard1.1/System.Buffers.xml",
+        "lib/netstandard2.0/System.Buffers.dll",
+        "lib/netstandard2.0/System.Buffers.xml",
+        "ref/netcoreapp2.0/_._",
+        "ref/netstandard1.1/System.Buffers.dll",
+        "ref/netstandard1.1/System.Buffers.xml",
+        "ref/netstandard2.0/System.Buffers.dll",
+        "ref/netstandard2.0/System.Buffers.xml",
+        "system.buffers.4.4.0.nupkg.sha512",
+        "system.buffers.nuspec",
+        "useSharedDesignerContext.txt",
+        "version.txt"
       ]
     },
     "System.Collections/4.3.0": {
@@ -4536,6 +4348,115 @@
         "ref/xamarinwatchos10/_._",
         "system.console.4.3.0.nupkg.sha512",
         "system.console.nuspec"
+      ]
+    },
+    "System.Data.Common/4.1.0": {
+      "sha512": "epU8jeTe7aE7RqGHq9rZ8b0Q4Ah7DgubzHQblgZMSqgW1saW868WmooSyC5ywf8upLBkcVLDu93W9GPWUYsU2Q==",
+      "type": "package",
+      "path": "system.data.common/4.1.0",
+      "files": [
+        ".nupkg.metadata",
+        "ThirdPartyNotices.txt",
+        "dotnet_library_license.txt",
+        "lib/MonoAndroid10/_._",
+        "lib/MonoTouch10/_._",
+        "lib/net451/System.Data.Common.dll",
+        "lib/netstandard1.2/System.Data.Common.dll",
+        "lib/portable-net451+win8+wp8+wpa81/System.Data.Common.dll",
+        "lib/xamarinios10/_._",
+        "lib/xamarinmac20/_._",
+        "lib/xamarintvos10/_._",
+        "lib/xamarinwatchos10/_._",
+        "ref/MonoAndroid10/_._",
+        "ref/MonoTouch10/_._",
+        "ref/net451/System.Data.Common.dll",
+        "ref/netstandard1.2/System.Data.Common.dll",
+        "ref/netstandard1.2/System.Data.Common.xml",
+        "ref/netstandard1.2/de/System.Data.Common.xml",
+        "ref/netstandard1.2/es/System.Data.Common.xml",
+        "ref/netstandard1.2/fr/System.Data.Common.xml",
+        "ref/netstandard1.2/it/System.Data.Common.xml",
+        "ref/netstandard1.2/ja/System.Data.Common.xml",
+        "ref/netstandard1.2/ko/System.Data.Common.xml",
+        "ref/netstandard1.2/ru/System.Data.Common.xml",
+        "ref/netstandard1.2/zh-hans/System.Data.Common.xml",
+        "ref/netstandard1.2/zh-hant/System.Data.Common.xml",
+        "ref/portable-net451+win8+wp8+wpa81/System.Data.Common.dll",
+        "ref/portable-net451+win8+wp8+wpa81/System.Data.Common.xml",
+        "ref/portable-net451+win8+wp8+wpa81/de/System.Data.Common.xml",
+        "ref/portable-net451+win8+wp8+wpa81/es/System.Data.Common.xml",
+        "ref/portable-net451+win8+wp8+wpa81/fr/System.Data.Common.xml",
+        "ref/portable-net451+win8+wp8+wpa81/it/System.Data.Common.xml",
+        "ref/portable-net451+win8+wp8+wpa81/ja/System.Data.Common.xml",
+        "ref/portable-net451+win8+wp8+wpa81/ko/System.Data.Common.xml",
+        "ref/portable-net451+win8+wp8+wpa81/ru/System.Data.Common.xml",
+        "ref/portable-net451+win8+wp8+wpa81/zh-hans/System.Data.Common.xml",
+        "ref/portable-net451+win8+wp8+wpa81/zh-hant/System.Data.Common.xml",
+        "ref/xamarinios10/_._",
+        "ref/xamarinmac20/_._",
+        "ref/xamarintvos10/_._",
+        "ref/xamarinwatchos10/_._",
+        "system.data.common.4.1.0.nupkg.sha512",
+        "system.data.common.nuspec"
+      ]
+    },
+    "System.Diagnostics.Contracts/4.0.1": {
+      "sha512": "HvQQjy712vnlpPxaloZYkuE78Gn353L0SJLJVeLcNASeg9c4qla2a1Xq8I7B3jZoDzKPtHTkyVO7AZ5tpeQGuA==",
+      "type": "package",
+      "path": "system.diagnostics.contracts/4.0.1",
+      "files": [
+        ".nupkg.metadata",
+        "ThirdPartyNotices.txt",
+        "dotnet_library_license.txt",
+        "lib/MonoAndroid10/_._",
+        "lib/MonoTouch10/_._",
+        "lib/net45/_._",
+        "lib/netcore50/System.Diagnostics.Contracts.dll",
+        "lib/netstandard1.0/System.Diagnostics.Contracts.dll",
+        "lib/portable-net45+win8+wp8+wpa81/_._",
+        "lib/win8/_._",
+        "lib/wp80/_._",
+        "lib/wpa81/_._",
+        "lib/xamarinios10/_._",
+        "lib/xamarinmac20/_._",
+        "lib/xamarintvos10/_._",
+        "lib/xamarinwatchos10/_._",
+        "ref/MonoAndroid10/_._",
+        "ref/MonoTouch10/_._",
+        "ref/net45/_._",
+        "ref/netcore50/System.Diagnostics.Contracts.dll",
+        "ref/netcore50/System.Diagnostics.Contracts.xml",
+        "ref/netcore50/de/System.Diagnostics.Contracts.xml",
+        "ref/netcore50/es/System.Diagnostics.Contracts.xml",
+        "ref/netcore50/fr/System.Diagnostics.Contracts.xml",
+        "ref/netcore50/it/System.Diagnostics.Contracts.xml",
+        "ref/netcore50/ja/System.Diagnostics.Contracts.xml",
+        "ref/netcore50/ko/System.Diagnostics.Contracts.xml",
+        "ref/netcore50/ru/System.Diagnostics.Contracts.xml",
+        "ref/netcore50/zh-hans/System.Diagnostics.Contracts.xml",
+        "ref/netcore50/zh-hant/System.Diagnostics.Contracts.xml",
+        "ref/netstandard1.0/System.Diagnostics.Contracts.dll",
+        "ref/netstandard1.0/System.Diagnostics.Contracts.xml",
+        "ref/netstandard1.0/de/System.Diagnostics.Contracts.xml",
+        "ref/netstandard1.0/es/System.Diagnostics.Contracts.xml",
+        "ref/netstandard1.0/fr/System.Diagnostics.Contracts.xml",
+        "ref/netstandard1.0/it/System.Diagnostics.Contracts.xml",
+        "ref/netstandard1.0/ja/System.Diagnostics.Contracts.xml",
+        "ref/netstandard1.0/ko/System.Diagnostics.Contracts.xml",
+        "ref/netstandard1.0/ru/System.Diagnostics.Contracts.xml",
+        "ref/netstandard1.0/zh-hans/System.Diagnostics.Contracts.xml",
+        "ref/netstandard1.0/zh-hant/System.Diagnostics.Contracts.xml",
+        "ref/portable-net45+win8+wp8+wpa81/_._",
+        "ref/win8/_._",
+        "ref/wp80/_._",
+        "ref/wpa81/_._",
+        "ref/xamarinios10/_._",
+        "ref/xamarinmac20/_._",
+        "ref/xamarintvos10/_._",
+        "ref/xamarinwatchos10/_._",
+        "runtimes/aot/lib/netcore50/System.Diagnostics.Contracts.dll",
+        "system.diagnostics.contracts.4.0.1.nupkg.sha512",
+        "system.diagnostics.contracts.nuspec"
       ]
     },
     "System.Diagnostics.Debug/4.3.0": {
@@ -5474,10 +5395,10 @@
         "system.linq.expressions.nuspec"
       ]
     },
-    "System.Memory/4.5.3": {
-      "sha512": "3oDzvc/zzetpTKWMShs1AADwZjQ/36HnsufHRPcOjyRAAMLDlu2iD33MBI2opxnezcVUtXyqDXXjoFMOU9c7SA==",
+    "System.Memory/4.5.2": {
+      "sha512": "fvq1GNmUFwbKv+aLVYYdgu/+gc8Nu9oFujOxIjPrsf+meis9JBzTPDL6aP/eeGOz9yPj6rRLUbOjKMpsMEWpNg==",
       "type": "package",
-      "path": "system.memory/4.5.3",
+      "path": "system.memory/4.5.2",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -5489,7 +5410,7 @@
         "lib/netstandard2.0/System.Memory.dll",
         "lib/netstandard2.0/System.Memory.xml",
         "ref/netcoreapp2.1/_._",
-        "system.memory.4.5.3.nupkg.sha512",
+        "system.memory.4.5.2.nupkg.sha512",
         "system.memory.nuspec",
         "useSharedDesignerContext.txt",
         "version.txt"
@@ -5690,6 +5611,40 @@
         "ref/xamarinwatchos10/_._",
         "system.net.sockets.4.3.0.nupkg.sha512",
         "system.net.sockets.nuspec"
+      ]
+    },
+    "System.Numerics.Vectors/4.1.1": {
+      "sha512": "Ex1NSKycC2wi5XBMWUGWPc3lumh6OQWFFmmpZFZz0oLht5lQ+wWPHVZumOrMJuckfUiVMd4p67BrkBos8lcF+Q==",
+      "type": "package",
+      "path": "system.numerics.vectors/4.1.1",
+      "files": [
+        ".nupkg.metadata",
+        "ThirdPartyNotices.txt",
+        "dotnet_library_license.txt",
+        "lib/MonoAndroid10/_._",
+        "lib/MonoTouch10/_._",
+        "lib/net46/System.Numerics.Vectors.dll",
+        "lib/net46/System.Numerics.Vectors.xml",
+        "lib/netstandard1.0/System.Numerics.Vectors.dll",
+        "lib/netstandard1.0/System.Numerics.Vectors.xml",
+        "lib/portable-net45+win8+wp8+wpa81/System.Numerics.Vectors.dll",
+        "lib/portable-net45+win8+wp8+wpa81/System.Numerics.Vectors.xml",
+        "lib/xamarinios10/_._",
+        "lib/xamarinmac20/_._",
+        "lib/xamarintvos10/_._",
+        "lib/xamarinwatchos10/_._",
+        "ref/MonoAndroid10/_._",
+        "ref/MonoTouch10/_._",
+        "ref/net46/System.Numerics.Vectors.dll",
+        "ref/net46/System.Numerics.Vectors.xml",
+        "ref/netstandard1.0/System.Numerics.Vectors.dll",
+        "ref/netstandard1.0/System.Numerics.Vectors.xml",
+        "ref/xamarinios10/_._",
+        "ref/xamarinmac20/_._",
+        "ref/xamarintvos10/_._",
+        "ref/xamarinwatchos10/_._",
+        "system.numerics.vectors.4.1.1.nupkg.sha512",
+        "system.numerics.vectors.nuspec"
       ]
     },
     "System.ObjectModel/4.3.0": {
@@ -7776,6 +7731,66 @@
         "system.xml.xmlserializer.nuspec"
       ]
     },
+    "Xeeny/1.3.0": {
+      "sha512": "qrF3qjxKHCtNWLNQnaT0fGKQh/qJeiFh1lMEbULOO1YczM+xUa6U2rH/ZeqSKZiBi7y2dMq8KK1QXTJ3q8MUFw==",
+      "type": "package",
+      "path": "xeeny/1.3.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/netstandard2.0/Xeeny.dll",
+        "xeeny.1.3.0.nupkg.sha512",
+        "xeeny.nuspec"
+      ]
+    },
+    "Xeeny.Extensions.Loggers/1.0.0": {
+      "sha512": "N9SlSScDL/8I4K74bBbsiM2xYYTSCkZolQo1KXYMVfceLoWzXrOPinwc15i5HcZfIX5UsljfXMjE8nseO2qr3g==",
+      "type": "package",
+      "path": "xeeny.extensions.loggers/1.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/netstandard2.0/Xeeny.Extensions.Loggers.dll",
+        "xeeny.extensions.loggers.1.0.0.nupkg.sha512",
+        "xeeny.extensions.loggers.nuspec"
+      ]
+    },
+    "Xeeny.Serialization.JsonSerializer/1.1.0": {
+      "sha512": "zmGRCQYpvkzvtm0SHTdQ6aZOqNoBbaJ/lxa768L4mxuHk4710RLTlL+gfxr1WyyqrPBdtgw0oCYvr+6SXwAw0A==",
+      "type": "package",
+      "path": "xeeny.serialization.jsonserializer/1.1.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/netstandard2.0/Xeeny.Serialization.JsonSerializer.dll",
+        "xeeny.serialization.jsonserializer.1.1.0.nupkg.sha512",
+        "xeeny.serialization.jsonserializer.nuspec"
+      ]
+    },
+    "Xeeny.Sockets/1.3.0": {
+      "sha512": "8LcRoPuxxrfNrOYgUYwyDqnxsCy449Z/zkDrG70J8zbywPU1tYONEdGAEBs9p2CQy0rEWJcjMCcHI3kjTxZ+fg==",
+      "type": "package",
+      "path": "xeeny.sockets/1.3.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/netstandard2.0/Xeeny.Sockets.dll",
+        "xeeny.sockets.1.3.0.nupkg.sha512",
+        "xeeny.sockets.nuspec"
+      ]
+    },
+    "Xeeny.Transports/1.3.0": {
+      "sha512": "lVinkTVWdS9BOQnZBFDvo8yT9Jvxbfio/zhPfvo04KT30Mo9oVFG7uQNv5CUpoZsp8WlTIz6tgTToMD7MbBVpQ==",
+      "type": "package",
+      "path": "xeeny.transports/1.3.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/netstandard2.0/Xeeny.Transports.dll",
+        "xeeny.transports.1.3.0.nupkg.sha512",
+        "xeeny.transports.nuspec"
+      ]
+    },
     "CoreRCON/3.0.0": {
       "type": "project",
       "path": "../CoreRCON/CoreRCON.csproj",
@@ -7786,10 +7801,6 @@
     ".NETCoreApp,Version=v3.0": [
       "CoreRCON >= 3.0.0",
       "Google.Protobuf >= 3.10.0",
-      "Grpc >= 2.24.0",
-      "Grpc.AspNetCore >= 2.24.0-pre1",
-      "Grpc.AspNetCore.Server >= 2.24.0-pre1",
-      "Grpc.Tools >= 2.24.0",
       "Microsoft.CodeAnalysis.FxCopAnalyzers >= 2.9.6",
       "Microsoft.EntityFrameworkCore >= 3.0.0",
       "Microsoft.EntityFrameworkCore.Design >= 3.0.0",
@@ -7799,6 +7810,9 @@
       "Pomelo.EntityFrameworkCore.MySql >= 3.0.0-rc1.final",
       "SteamKit2 >= 2.2.0",
       "System.ServiceProcess.ServiceController >= 4.6.0",
+      "Xeeny >= 1.3.0",
+      "Xeeny.Extensions.Loggers >= 1.0.0",
+      "Xeeny.Serialization.JsonSerializer >= 1.1.0",
       "sharpcompress >= 0.24.0"
     ]
   },
@@ -7854,24 +7868,6 @@
             "target": "Package",
             "version": "[3.10.0, )"
           },
-          "Grpc": {
-            "target": "Package",
-            "version": "[2.24.0, )"
-          },
-          "Grpc.AspNetCore": {
-            "target": "Package",
-            "version": "[2.24.0-pre1, )"
-          },
-          "Grpc.AspNetCore.Server": {
-            "target": "Package",
-            "version": "[2.24.0-pre1, )"
-          },
-          "Grpc.Tools": {
-            "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
-            "suppressParent": "All",
-            "target": "Package",
-            "version": "[2.24.0, )"
-          },
           "Microsoft.CodeAnalysis.FxCopAnalyzers": {
             "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
             "suppressParent": "All",
@@ -7911,6 +7907,18 @@
             "target": "Package",
             "version": "[4.6.0, )"
           },
+          "Xeeny": {
+            "target": "Package",
+            "version": "[1.3.0, )"
+          },
+          "Xeeny.Extensions.Loggers": {
+            "target": "Package",
+            "version": "[1.0.0, )"
+          },
+          "Xeeny.Serialization.JsonSerializer": {
+            "target": "Package",
+            "version": "[1.1.0, )"
+          },
           "sharpcompress": {
             "target": "Package",
             "version": "[0.24.0, )"
@@ -7927,9 +7935,6 @@
         "assetTargetFallback": true,
         "warn": true,
         "frameworkReferences": {
-          "Microsoft.AspNetCore.App": {
-            "privateAssets": "none"
-          },
           "Microsoft.NETCore.App": {
             "privateAssets": "all"
           }

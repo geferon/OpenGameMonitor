@@ -20,10 +20,6 @@ namespace OpenGameMonitor
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>()
-                .ConfigureServices((hostContext, services) =>
-                {
-                    services.AddSingleton<gRPCClient>();
-                });
+                .UseStartup<Startup>();
     }
 }

@@ -19,7 +19,6 @@
     <Import Project="$(NuGetPackageRoot)microsoft.codequality.analyzers\2.9.6\build\Microsoft.CodeQuality.Analyzers.props" Condition="Exists('$(NuGetPackageRoot)microsoft.codequality.analyzers\2.9.6\build\Microsoft.CodeQuality.Analyzers.props')" />
     <Import Project="$(NuGetPackageRoot)microsoft.codeanalysis.versioncheckanalyzer\2.9.6\build\Microsoft.CodeAnalysis.VersionCheckAnalyzer.props" Condition="Exists('$(NuGetPackageRoot)microsoft.codeanalysis.versioncheckanalyzer\2.9.6\build\Microsoft.CodeAnalysis.VersionCheckAnalyzer.props')" />
     <Import Project="$(NuGetPackageRoot)microsoft.codeanalysis.fxcopanalyzers\2.9.6\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props" Condition="Exists('$(NuGetPackageRoot)microsoft.codeanalysis.fxcopanalyzers\2.9.6\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props')" />
-    <Import Project="$(NuGetPackageRoot)grpc.tools\2.24.0\build\Grpc.Tools.props" Condition="Exists('$(NuGetPackageRoot)grpc.tools\2.24.0\build\Grpc.Tools.props')" />
   </ImportGroup>
   <PropertyGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
     <PkgMicrosoft_NetFramework_Analyzers Condition=" '$(PkgMicrosoft_NetFramework_Analyzers)' == '' ">C:\Users\gefer\.nuget\packages\microsoft.netframework.analyzers\2.9.6</PkgMicrosoft_NetFramework_Analyzers>
@@ -27,6 +26,5 @@
     <PkgMicrosoft_CodeQuality_Analyzers Condition=" '$(PkgMicrosoft_CodeQuality_Analyzers)' == '' ">C:\Users\gefer\.nuget\packages\microsoft.codequality.analyzers\2.9.6</PkgMicrosoft_CodeQuality_Analyzers>
     <PkgMicrosoft_CodeAnalysis_VersionCheckAnalyzer Condition=" '$(PkgMicrosoft_CodeAnalysis_VersionCheckAnalyzer)' == '' ">C:\Users\gefer\.nuget\packages\microsoft.codeanalysis.versioncheckanalyzer\2.9.6</PkgMicrosoft_CodeAnalysis_VersionCheckAnalyzer>
     <PkgMicrosoft_CodeAnalysis_FxCopAnalyzers Condition=" '$(PkgMicrosoft_CodeAnalysis_FxCopAnalyzers)' == '' ">C:\Users\gefer\.nuget\packages\microsoft.codeanalysis.fxcopanalyzers\2.9.6</PkgMicrosoft_CodeAnalysis_FxCopAnalyzers>
-    <PkgGrpc_Tools Condition=" '$(PkgGrpc_Tools)' == '' ">C:\Users\gefer\.nuget\packages\grpc.tools\2.24.0</PkgGrpc_Tools>
   </PropertyGroup>
 </Project>
