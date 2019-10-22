@@ -18,16 +18,14 @@ namespace OpenGameMonitorWorker
         protected readonly SteamCMDService _steamCMDService;
         protected readonly SteamAPIService _steamAPIService;
 
-		public event EventHandler UpdateMessage;
-		public abstract event EventHandler ConsoleMessage;
-        public abstract event EventHandler ServerClosed;
+		public event EventHandler<ConsoleEventArgs> UpdateMessage;
+        public event EventHandler<ServerUpdateEventArgs> ServerUpdated;
+		public override event EventHandler<ConsoleEventArgs> ConsoleMessage;
+        public override event EventHandler ServerClosed;
+        public override event EventHandler ServerOpened;
 
         public abstract string Engine { get; }
         string IGameHandlerBase.Game => throw new NotImplementedException();
-
-        EventHandler IGameHandlerBase.ConsoleMessage { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        EventHandler IGameHandlerBase.UpdateMessage { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        EventHandler IGameHandlerBase.ServerClosed { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public SteamCMDBaseHandler(IServiceProvider serviceProvider,
 			IServiceScopeFactory serviceScopeFactory,
@@ -108,19 +106,17 @@ namespace OpenGameMonitorWorker
 				// Start process
 				try
 				{
-					EventHandler updateEvent = UpdateMessage;
-
 					var steamCMDProc = _steamCMDService.StartSteamCMD(steamCMDArguments);
 					steamCMDProc.OutputDataReceived += (sender, e) =>
 					{
-						updateEvent?.Invoke(server, new ConsoleEventArgs()
+                        UpdateMessage?.Invoke(server, new ConsoleEventArgs()
 						{
 							NewLine = e.Data
 						});
 					};
 					steamCMDProc.ErrorDataReceived += (sender, e) =>
 					{
-						updateEvent?.Invoke(server, new ConsoleEventArgs()
+                        UpdateMessage?.Invoke(server, new ConsoleEventArgs()
 						{
 							NewLine = e.Data,
 							IsError = true
@@ -132,6 +128,11 @@ namespace OpenGameMonitorWorker
 					db.Update(server);
 
 					await steamCMDProc.WaitForExitAsync();
+
+                    server.UpdatePID = null;
+                    db.Update(server);
+
+                    ServerUpdated?.Invoke(server, new ServerUpdateEventArgs() { Error = steamCMDProc.ExitCode != 0 });
 
                     if (steamCMDProc.ExitCode != 0)
                     {

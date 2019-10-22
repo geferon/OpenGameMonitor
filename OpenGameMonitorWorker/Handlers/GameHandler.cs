@@ -12,6 +12,10 @@ using System.Threading.Tasks;
 
 namespace OpenGameMonitorWorker
 {
+    public class ServerUpdateEventArgs : EventArgs
+    {
+        public bool Error { get; set; } = false;
+    }
 	public class ConsoleEventArgs : EventArgs
 	{
 		public string NewLine { get; set; }
@@ -32,10 +36,12 @@ namespace OpenGameMonitorWorker
         Task<object> GetServerInfo(Server server);
         Task<object> GetServerPlayers(Server server);
 
-		EventHandler ConsoleMessage { get; set; }
-		EventHandler UpdateMessage { get; set; }
-        EventHandler ServerClosed { get; set; }
-	}
+        event EventHandler<ConsoleEventArgs> ConsoleMessage;
+        event EventHandler<ConsoleEventArgs> UpdateMessage;
+        event EventHandler ServerClosed;
+        event EventHandler ServerOpened;
+        event EventHandler ServerUpdated;
+    }
 
 	public class GameHandler
 	{
@@ -86,6 +92,7 @@ namespace OpenGameMonitorWorker
                     _eventHandlerService.RegisterHandler("Server:ConsoleMessage", gameHandler.ConsoleMessage);
                     _eventHandlerService.RegisterHandler("Server:UpdateMessage", gameHandler.UpdateMessage);
                     _eventHandlerService.RegisterHandler("Server:Closed", gameHandler.ServerClosed);
+                    _eventHandlerService.RegisterHandler("Server:Opened", gameHandler.ServerOpened);
 
 
                     _logger.LogInformation("Registered game handler {0}", identifier);

@@ -18,7 +18,8 @@ namespace OpenGameMonitorWorker
         public override string Engine => "source";
 
         public override event EventHandler ServerClosed;
-        public override event EventHandler ConsoleMessage;
+        public override event EventHandler ServerOpened;
+        public override event EventHandler<ConsoleEventArgs> ConsoleMessage;
 
         private readonly Dictionary<int, Process> serverProcess;
 
@@ -141,6 +142,8 @@ namespace OpenGameMonitorWorker
             proc.Start();
 
             serverProcess[server.Id] = proc;
+
+            ServerOpened?.Invoke(server, new EventArgs());
         }
 
         public async override Task CloseServer(Server server)

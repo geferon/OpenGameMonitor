@@ -52,6 +52,8 @@ namespace OpenGameMonitorWorker
 
             await service.Open();
 
+            
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 // wait till the server stops
@@ -66,24 +68,70 @@ namespace OpenGameMonitorWorker
         private readonly IServiceProvider _serviceProvider;
         private readonly HostBuilderContext _hostBuilderContext;
         private readonly GameHandler _gameHandler;
+        private readonly EventHandlerService _eventHandlerService;
 
         public ConcurrentDictionary<string, IMonitorComsCallback> _clients = new ConcurrentDictionary<string, IMonitorComsCallback>();
 
-        ICallback GetCaller() => OperationContext.Current.GetCallback<ICallback>();
+        IMonitorComsCallback GetCaller() => OperationContext.Current.GetCallback<IMonitorComsCallback>();
 
         // Gotta make a constructor with cero parameters... even tho I create the object myself :/
         public MonitorComsService()
         {
-
+            throw new Exception("Unsupported constructor");
         }
 
         public MonitorComsService(IServiceProvider serviceProvider,
             HostBuilderContext hostBuilderContext,
-            GameHandler gameHandler)
+            GameHandler gameHandler,
+            EventHandlerService eventHandlerService)
         {
             _serviceProvider = serviceProvider;
             _hostBuilderContext = hostBuilderContext;
             _gameHandler = gameHandler;
+            _eventHandlerService = eventHandlerService;
+
+            Init();
+        }
+
+        private void Init()
+        {
+            _eventHandlerService.ListenForEvent("Server:ConsoleMessage", async (Object serverObj, EventArgs e) =>
+            {
+                ConsoleEventArgs args = (ConsoleEventArgs)e;
+                foreach (KeyValuePair<string, IMonitorComsCallback> client in _clients)
+                {
+                    await client.Value.ServerMessageConsole(args.NewLine).ConfigureAwait(false);
+                }
+            });
+            _eventHandlerService.ListenForEvent("Server:UpdateMessage", async (Object serverObj, EventArgs e) =>
+            {
+                ConsoleEventArgs args = (ConsoleEventArgs)e;
+                foreach (KeyValuePair<string, IMonitorComsCallback> client in _clients)
+                {
+                    await client.Value.ServerMessageConsole(args.NewLine).ConfigureAwait(false);
+                }
+            });
+            _eventHandlerService.ListenForEvent("Server:Opened", async (Object serverObj, EventArgs e) =>
+            {
+                foreach (KeyValuePair<string, IMonitorComsCallback> client in _clients)
+                {
+                    await client.Value.ServerOpened(((Server) serverObj).Id).ConfigureAwait(false);
+                }
+            });
+            _eventHandlerService.ListenForEvent("Server:Closed", async (Object serverObj, EventArgs e) =>
+            {
+                foreach (KeyValuePair<string, IMonitorComsCallback> client in _clients)
+                {
+                    await client.Value.ServerClosed(((Server) serverObj).Id).ConfigureAwait(false);
+                }
+            });
+            _eventHandlerService.ListenForEvent("Server:Updated", async (Object serverObj, EventArgs e) =>
+            {
+                foreach (KeyValuePair<string, IMonitorComsCallback> client in _clients)
+                {
+                    await client.Value.ServerUpdated(((Server)serverObj).Id).ConfigureAwait(false);
+                }
+            });
         }
 
         public async Task Connected()

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace OpenGameMonitorLibraries
 {
-    interface IMonitorComsInterface
+    public interface IMonitorComsInterface
     {
         Task<bool> ServerOpen(int server);
         Task<bool> ServerClose(int server);
@@ -14,11 +14,13 @@ namespace OpenGameMonitorLibraries
         Task Connected();
     }
 
-    interface IMonitorComsCallback
+    public interface IMonitorComsCallback
     {
         Task PanelConfigReloaded();
         Task ServerOpened(int server);
         Task ServerClosed(int server);
         Task ServerUpdated(int server);
+        Task ServerMessageConsole(string message);
+        Task ServerMessageUpdate(string message);
     }
 }
