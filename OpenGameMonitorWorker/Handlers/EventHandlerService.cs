@@ -5,17 +5,61 @@ using System.Text;
 
 namespace OpenGameMonitorWorker
 {
+    public static class EventMockupHandlerBase
+    {
+        public static EventHandler Subscribe(this EventHandler kHandler, EventMockupHandler kElement)
+        {
+            kHandler += kElement.Listener;
+            return kHandler;
+        }
+    }
+
+    public class EventMockupHandler
+    {
+        public event EventHandler InternalEvent;
+
+        public void Listener(object sender, EventArgs e)
+        {
+            InternalEvent?.Invoke(sender, e);
+        }
+
+        public static EventMockupHandler operator +(EventHandler kHandler, EventMockupHandler kElement)
+        {
+            kHandler += kElement.Listener;
+            return kElement;
+        }
+
+        public static EventMockupHandler operator -(EventHandler kHandler, EventMockupHandler kElement)
+        {
+            kHandler -= kElement.Listener;
+            return kElement;
+        }
+
+        public static EventMockupHandler operator +(EventMockupHandler kElement, EventHandler kHandler)
+        {
+            kElement.InternalEvent += kHandler;
+            return kElement;
+        }
+        
+        public static EventMockupHandler operator -(EventMockupHandler kElement, EventHandler kHandler)
+        {
+            kElement.InternalEvent -= kHandler;
+            return kElement;
+        }
+    }
+
 	public class EventHandlerService
 	{
 		private readonly ILogger _logger;
 
-		private readonly Dictionary<string, EventHandler> eventHandlers = new Dictionary<string, EventHandler>();
+		private readonly Dictionary<string, EventMockupHandler> eventHandlers = new Dictionary<string, EventMockupHandler>();
 		private readonly Dictionary<string, List<EventHandler>> eventListeners = new Dictionary<string, List<EventHandler>>();
 		public EventHandlerService(ILogger<EventHandlerService> logger)
 		{
 			_logger = logger;
 		}
 
+        /*
 		public void RegisterHandler(string key, EventHandler handler)
 		{
 			eventHandlers.Add(key, handler);
@@ -28,10 +72,35 @@ namespace OpenGameMonitorWorker
 				}
 			}
 		}
+        */
 
-		public EventHandler GetEvent(string key)
+        public void RegisterHandler(string key, Action<EventMockupHandler> handler)
+        {
+            if (handler == null)
+                throw new ArgumentNullException(nameof(handler));
+
+            //eventHandlers.Add(key, handler);
+            if (!eventHandlers.ContainsKey(key))
+            {
+                eventHandlers.Add(key, new EventMockupHandler());
+            }
+
+            var mainHandler = eventHandlers[key];
+
+            handler(mainHandler);
+
+            if (eventListeners.ContainsKey(key))
+            {
+                foreach (EventHandler evHandler in eventListeners[key])
+                {
+                    mainHandler += evHandler;
+                }
+            }
+        }
+
+        public EventMockupHandler GetEvent(string key)
 		{
-            eventHandlers.TryGetValue(key, out EventHandler handler);
+            eventHandlers.TryGetValue(key, out EventMockupHandler handler);
 
             if (handler == null)
 			{
@@ -41,15 +110,11 @@ namespace OpenGameMonitorWorker
 			return handler;
 		}
 
-		public EventHandler this[string key]
+		public EventMockupHandler this[string key]
 		{
 			get
 			{
 				return GetEvent(key);
-			}
-			set
-			{
-				RegisterHandler(key, value);
 			}
 		}
 

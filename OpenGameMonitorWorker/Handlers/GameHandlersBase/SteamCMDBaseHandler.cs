@@ -19,10 +19,10 @@ namespace OpenGameMonitorWorker
         protected readonly SteamAPIService _steamAPIService;
 
 		public event EventHandler<ConsoleEventArgs> UpdateMessage;
+		public abstract event EventHandler<ConsoleEventArgs> ConsoleMessage;
+        public abstract event EventHandler ServerClosed;
+        public abstract event EventHandler ServerOpened;
         public event EventHandler<ServerUpdateEventArgs> ServerUpdated;
-		public override event EventHandler<ConsoleEventArgs> ConsoleMessage;
-        public override event EventHandler ServerClosed;
-        public override event EventHandler ServerOpened;
 
         public abstract string Engine { get; }
         string IGameHandlerBase.Game => throw new NotImplementedException();

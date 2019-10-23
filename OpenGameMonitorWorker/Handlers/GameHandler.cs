@@ -40,7 +40,7 @@ namespace OpenGameMonitorWorker
         event EventHandler<ConsoleEventArgs> UpdateMessage;
         event EventHandler ServerClosed;
         event EventHandler ServerOpened;
-        event EventHandler ServerUpdated;
+        event EventHandler<ServerUpdateEventArgs> ServerUpdated;
     }
 
 	public class GameHandler
@@ -89,10 +89,11 @@ namespace OpenGameMonitorWorker
 
 					gameHandlers.Add(identifier, gameHandler);
 
-                    _eventHandlerService.RegisterHandler("Server:ConsoleMessage", gameHandler.ConsoleMessage);
-                    _eventHandlerService.RegisterHandler("Server:UpdateMessage", gameHandler.UpdateMessage);
-                    _eventHandlerService.RegisterHandler("Server:Closed", gameHandler.ServerClosed);
-                    _eventHandlerService.RegisterHandler("Server:Opened", gameHandler.ServerOpened);
+                    // Small quirk, will try to change on later updates...
+                    _eventHandlerService.RegisterHandler("Server:ConsoleMessage", (handler) => gameHandler.ConsoleMessage += handler.Listener);
+                    _eventHandlerService.RegisterHandler("Server:UpdateMessage", (handler) => gameHandler.UpdateMessage += handler.Listener);
+                    _eventHandlerService.RegisterHandler("Server:Closed", (handler) => gameHandler.ServerClosed += handler.Listener);
+                    _eventHandlerService.RegisterHandler("Server:Opened", (handler) => gameHandler.ServerOpened += handler.Listener);
 
 
                     _logger.LogInformation("Registered game handler {0}", identifier);

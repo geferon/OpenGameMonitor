@@ -20,7 +20,7 @@ namespace OpenGameMonitorWorker
     public class IPCService : BackgroundService
     {
         private readonly ILogger<IPCService> _logger;
-        private readonly IServiceScope _serviceScope;
+        //private readonly IServiceScope _serviceScope;
         private readonly IServiceProvider _serviceProvider;
 
         private ServiceHost<MonitorComsService> service;
@@ -28,11 +28,11 @@ namespace OpenGameMonitorWorker
         private MonitorComsService serviceInstance;
 
         public IPCService(ILogger<IPCService> logger,
-            IServiceScope serviceScope,
+            //IServiceScope serviceScope,
             IServiceProvider serviceProvider)
         {
             _logger = logger;
-            _serviceScope = serviceScope;
+            //_serviceScope = serviceScope;
             _serviceProvider = serviceProvider;
         }
 

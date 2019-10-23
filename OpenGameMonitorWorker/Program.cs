@@ -17,6 +17,7 @@ using System.Globalization;
 using Microsoft.Extensions.Logging;
 //using Microsoft.AspNetCore.Hosting;
 using System.Net;
+using MySql.Data.MySqlClient;
 
 namespace OpenGameMonitorWorker
 {
@@ -27,9 +28,22 @@ namespace OpenGameMonitorWorker
             var builder = CreateHostBuilder(args);
             var host = builder.Build();
 
-            host.CheckForUpdate();
+            host.TestConnection();
 
-            host.Run();
+            try
+            {
+                host.CheckForUpdate();
+
+                host.Run();
+            }
+            catch (Exception err)
+            {
+                ILoggerFactory loggerF = host.Services.GetService<ILoggerFactory>();
+
+                ILogger logger = loggerF.CreateLogger("Program");
+
+                logger.LogError(err, $"An error has occured while starting! {0}", err.Message);
+            }
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -37,7 +51,11 @@ namespace OpenGameMonitorWorker
                 .UseWindowsService()
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
+                    var env = hostingContext.HostingEnvironment;
+
                     config.AddJsonFile("appsettings.json", optional: false);
+                    config.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
+
                     config.AddEnvironmentVariables();
 
                     if (args != null)
@@ -66,10 +84,16 @@ namespace OpenGameMonitorWorker
                     //services.AddSingleton<NamedPipeOptions>();
 
                     services.AddEntityFrameworkMySql();
-                    services.AddDbContext<MonitorDBContext>(options => options.UseMySql(hostContext.Configuration.GetConnectionString("MonitorDatabase")));
 
-                    // Todo: implement https://docs.microsoft.com/en-us/aspnet/core/tutorials/grpc/grpc-start?view=aspnetcore-3.0&tabs=visual-studio
-                    //services.AddGrpc();
+                    var connectionStr = hostContext.Configuration.GetConnectionString("MonitorDatabase");
+
+                    if (String.IsNullOrEmpty(connectionStr))
+                    {
+                        throw new Exception("No connection string has been found!");
+                        //return;
+                    }
+
+                    services.AddDbContext<MonitorDBContext>(options => options.UseMySql(connectionStr));
 
                     /*
                     services.AddIpc(builder =>
@@ -99,6 +123,39 @@ namespace OpenGameMonitorWorker
                     webBuilder.UseStartup<gRPCStartup>();
                 });
                 */
+
+        public static void TestConnection(this IHost host)
+        {
+            ILoggerFactory loggerF = host.Services.GetService<ILoggerFactory>();
+
+            ILogger logger = loggerF.CreateLogger("Program");
+
+            IServiceScopeFactory serviceScopeFactory = host.Services.GetService<IServiceScopeFactory>();
+
+            using (var scope = serviceScopeFactory.CreateScope())
+            {
+                MonitorDBContext db = scope.ServiceProvider.GetRequiredService<MonitorDBContext>();
+
+                try
+                {
+                    if (!db.Database.CanConnect())
+                    {
+                        logger.LogError("The database connection settings is invalid, or the server can't connect to the database");
+                        Environment.Exit(-1);
+                    }
+                }
+                catch (MySqlException err)
+                {
+                    logger.LogError(err, "The database connection settings is invalid, or the server can't connect to the database");
+                    Environment.Exit(-1);
+                }
+                catch (InvalidOperationException err)
+                {
+                    logger.LogError(err, "The database connection settings is invalid, or the server can't connect to the database");
+                    Environment.Exit(-1);
+                }
+            }
+        }
 
         public static void CheckForUpdate(this IHost host)
         {
