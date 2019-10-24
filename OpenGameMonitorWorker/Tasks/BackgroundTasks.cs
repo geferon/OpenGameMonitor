@@ -17,7 +17,7 @@ namespace OpenGameMonitorWorker
             CancellationToken cancellationToken);
     }
 
-    public class BackgroundTaskQueue : IBackgroundTaskQueue
+    public class BackgroundTaskQueue : IBackgroundTaskQueue, IDisposable
     {
         private ConcurrentQueue<Func<CancellationToken, Task>> _workItems =
             new ConcurrentQueue<Func<CancellationToken, Task>>();
@@ -43,6 +43,21 @@ namespace OpenGameMonitorWorker
 
             return workItem;
         }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_signal != null)
+            {
+                _signal.Dispose();
+                _signal = null;
+            }
+        }
     }
 
     public class QueuedHostedService : BackgroundService
@@ -61,7 +76,7 @@ namespace OpenGameMonitorWorker
         protected async override Task ExecuteAsync(
             CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Queued Hosted Service is starting.");
+            //_logger.LogInformation("Queued Hosted Service is starting.");
 
             while (!cancellationToken.IsCancellationRequested)
             {

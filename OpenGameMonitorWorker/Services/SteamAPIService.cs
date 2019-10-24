@@ -51,7 +51,20 @@ namespace OpenGameMonitorWorker
 
         public void Dispose()
         {
-            steamClient.Disconnect();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (steamClient != null)
+                {
+                    steamClient.Disconnect();
+                    steamClient = null;
+                }
+            }
         }
 
         private void OnConnected(SteamClient.ConnectedCallback callback)

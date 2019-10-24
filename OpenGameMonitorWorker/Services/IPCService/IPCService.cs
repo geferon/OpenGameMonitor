@@ -22,6 +22,7 @@ namespace OpenGameMonitorWorker
         private readonly ILogger<IPCService> _logger;
         //private readonly IServiceScope _serviceScope;
         private readonly IServiceProvider _serviceProvider;
+        private readonly IConfiguration _config;
 
         private ServiceHost<MonitorComsService> service;
         //public MonitorComsService serviceInstance;
@@ -29,11 +30,13 @@ namespace OpenGameMonitorWorker
 
         public IPCService(ILogger<IPCService> logger,
             //IServiceScope serviceScope,
-            IServiceProvider serviceProvider)
+            IServiceProvider serviceProvider,
+            IConfiguration config)
         {
             _logger = logger;
             //_serviceScope = serviceScope;
             _serviceProvider = serviceProvider;
+            _config = config;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -45,18 +48,27 @@ namespace OpenGameMonitorWorker
 
             serviceInstance = ActivatorUtilities.CreateInstance<MonitorComsService>(_serviceProvider);
 
+            var ip = _config.GetValue<String>("MonitorSettings:Address", "localhost");
+            var port = _config.GetValue<int>("MonitorSettings:Port", 5001);
+            var address = $"tcp://{ip}:{port}/opengameserver";
+
             service = new ServiceHostBuilder<MonitorComsService>(serviceInstance)
                 .WithCallback<IMonitorComsCallback>()
-                .AddTcpServer("tcp://myhost/opengameserver")
+                .AddTcpServer("tcp://localhost:5001/opengameserver")
                 .CreateHost();
 
             await service.Open();
 
+            service.ServiceInstanceCreated += (callback) =>
+            {
+                callback.InitServices(_serviceProvider);
+            };
             
 
             while (!stoppingToken.IsCancellationRequested)
             {
                 // wait till the server stops
+                await Task.Delay(60000, stoppingToken);
             }
 
             await service.Close();
@@ -65,19 +77,21 @@ namespace OpenGameMonitorWorker
 
     public class MonitorComsService : IMonitorComsInterface
     {
-        private readonly IServiceProvider _serviceProvider;
-        private readonly HostBuilderContext _hostBuilderContext;
-        private readonly GameHandler _gameHandler;
-        private readonly EventHandlerService _eventHandlerService;
+        private IServiceProvider _serviceProvider;
+        private HostBuilderContext _hostBuilderContext;
+        private GameHandler _gameHandler;
+        private EventHandlerService _eventHandlerService;
 
-        public ConcurrentDictionary<string, IMonitorComsCallback> _clients = new ConcurrentDictionary<string, IMonitorComsCallback>();
+        private bool parametersInit = false;
+
+        private ConcurrentDictionary<string, IMonitorComsCallback> _clients = new ConcurrentDictionary<string, IMonitorComsCallback>();
 
         IMonitorComsCallback GetCaller() => OperationContext.Current.GetCallback<IMonitorComsCallback>();
 
         // Gotta make a constructor with cero parameters... even tho I create the object myself :/
         public MonitorComsService()
         {
-            throw new Exception("Unsupported constructor");
+            //throw new Exception("Unsupported constructor");
         }
 
         public MonitorComsService(IServiceProvider serviceProvider,
@@ -85,10 +99,29 @@ namespace OpenGameMonitorWorker
             GameHandler gameHandler,
             EventHandlerService eventHandlerService)
         {
+
             _serviceProvider = serviceProvider;
             _hostBuilderContext = hostBuilderContext;
             _gameHandler = gameHandler;
             _eventHandlerService = eventHandlerService;
+            parametersInit = true;
+
+            Init();
+        }
+
+        public void InitServices(IServiceProvider services)
+        {
+            if (parametersInit)
+            {
+                return;
+            }
+
+            _serviceProvider = services;
+            _hostBuilderContext = services.GetService<HostBuilderContext>();
+            _gameHandler = services.GetService<GameHandler>();
+            _eventHandlerService = services.GetService<EventHandlerService>();
+
+            parametersInit = true;
 
             Init();
         }
@@ -180,8 +213,6 @@ namespace OpenGameMonitorWorker
             {
                 if (provider is MonitorDBConfigurationProvider)
                 {
-                    //_logger.LogInformation(":D");
-
                     dbProv = (MonitorDBConfigurationProvider) provider;
                     break;
                 }

@@ -154,7 +154,7 @@ namespace OpenGameMonitorWorker
 
             bool succesfulShutdown = false;
 
-            if (server.Graceful)
+            if (server.Graceful ?? true)
             {
                 string rconPass = config.Get("rcon_password");
 

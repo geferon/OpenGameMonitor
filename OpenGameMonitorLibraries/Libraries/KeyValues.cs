@@ -9,7 +9,9 @@ namespace OpenGameMonitorLibraries
 {
     public class KeyValues
     {
+#pragma warning disable CA1051 // Do not declare visible instance fields
         public Dictionary<string, object> Items = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
+#pragma warning restore CA1051 // Do not declare visible instance fields
         public KeyValues(Stream s)
         {
             using (StreamReader sr = new StreamReader(s))

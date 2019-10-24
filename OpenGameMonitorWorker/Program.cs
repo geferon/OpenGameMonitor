@@ -38,11 +38,10 @@ namespace OpenGameMonitorWorker
             }
             catch (Exception err)
             {
-                ILoggerFactory loggerF = host.Services.GetService<ILoggerFactory>();
-
-                ILogger logger = loggerF.CreateLogger("Program");
-
-                logger.LogError(err, $"An error has occured while starting! {0}", err.Message);
+                Console.WriteLine("An error has occurred while starting the application!");
+                Console.WriteLine("Note: This is NOT a normal error, if you see this, please report this error!");
+                Console.WriteLine("{0}", err.Message);
+                Console.WriteLine("{0}", err.StackTrace);
             }
         }
 
@@ -126,6 +125,8 @@ namespace OpenGameMonitorWorker
 
         public static void TestConnection(this IHost host)
         {
+            if (host == null) throw new ArgumentNullException(nameof(host));
+
             ILoggerFactory loggerF = host.Services.GetService<ILoggerFactory>();
 
             ILogger logger = loggerF.CreateLogger("Program");
@@ -159,6 +160,8 @@ namespace OpenGameMonitorWorker
 
         public static void CheckForUpdate(this IHost host)
         {
+            if (host == null) throw new ArgumentNullException(nameof(host));
+
             bool shouldMigrateDatabase = false;
 
             try

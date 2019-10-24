@@ -105,7 +105,7 @@ namespace OpenGameMonitorWorker
             {
                 Server server = (Server)serverObj;
 
-                if (server.RestartOnClose)
+                if (server.RestartOnClose ?? true)
                 {
                     await Task.Delay(1000);
 

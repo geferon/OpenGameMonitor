@@ -17,6 +17,8 @@ namespace OpenGameMonitorLibraries
 
         public static T ReadStruct<T>(this Stream stream, int length)
         {
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
+
             byte[] data = new byte[length];
             stream.Read(data, 0, data.Length);
 
@@ -30,6 +32,8 @@ namespace OpenGameMonitorLibraries
 
         public static void WriteStruct<T>(this Stream stream, T structToWrite)
         {
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
+
             int size = Marshal.SizeOf(structToWrite);
             byte[] data = new byte[size];
 
@@ -45,11 +49,13 @@ namespace OpenGameMonitorLibraries
         #region Signed integer helpers
         public static SByte ReadInt8(this Stream stream)
         {
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
             return (SByte)stream.ReadByte();
         }
 
         public static Int16 ReadInt16(this Stream stream)
         {
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
             byte[] data = new byte[2];
             stream.Read(data, 0, 2);
             return BitConverter.ToInt16(data, 0);
@@ -57,6 +63,7 @@ namespace OpenGameMonitorLibraries
 
         public static Int32 ReadInt32(this Stream stream)
         {
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
             byte[] data = new byte[4];
             stream.Read(data, 0, 4);
             return BitConverter.ToInt32(data, 0);
@@ -64,17 +71,20 @@ namespace OpenGameMonitorLibraries
 
         public static void WriteInt8(this Stream stream, SByte value)
         {
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
             stream.WriteByte((byte)value);
         }
 
         public static void WriteInt16(this Stream stream, Int16 value)
         {
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
             byte[] data = BitConverter.GetBytes(value);
             stream.Write(data, 0, 2);
         }
 
         public static void WriteInt32(this Stream stream, Int32 value)
         {
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
             byte[] data = BitConverter.GetBytes(value);
             stream.Write(data, 0, 4);
         }
@@ -83,11 +93,13 @@ namespace OpenGameMonitorLibraries
         #region Unsigned integer helpers
         public static Byte ReadUInt8(this Stream stream)
         {
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
             return (byte)stream.ReadByte();
         }
 
         public static UInt16 ReadUInt16(this Stream stream)
         {
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
             byte[] data = new byte[2];
             stream.Read(data, 0, 2);
             return BitConverter.ToUInt16(data, 0);
@@ -95,6 +107,7 @@ namespace OpenGameMonitorLibraries
 
         public static UInt32 ReadUInt32(this Stream stream)
         {
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
             byte[] data = new byte[4];
             stream.Read(data, 0, 4);
             return BitConverter.ToUInt32(data, 0);
@@ -102,23 +115,27 @@ namespace OpenGameMonitorLibraries
 
         public static void WriteUInt8(this Stream stream, byte value)
         {
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
             stream.WriteByte(value);
         }
 
         public static void WriteUInt16(this Stream stream, UInt16 value)
         {
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
             byte[] data = BitConverter.GetBytes(value);
             stream.Write(data, 0, 2);
         }
 
         public static void WriteUInt32(this Stream stream, UInt32 value)
         {
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
             byte[] data = BitConverter.GetBytes(value);
             stream.Write(data, 0, 4);
         }
 
         public static void WriteUInt64(this Stream stream, UInt64 value)
         {
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
             byte[] data = BitConverter.GetBytes(value);
             stream.Write(data, 0, 8);
         }
@@ -127,6 +144,7 @@ namespace OpenGameMonitorLibraries
         #region String helpers
         public static char ReadChar8(this Stream stream)
         {
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
             return (char)stream.ReadByte();
         }
 
@@ -137,6 +155,7 @@ namespace OpenGameMonitorLibraries
 
         public static string ReadAsciiNullTerminatedString(this Stream stream)
         {
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
             StringBuilder sb = new StringBuilder();
             while (true)
             {
@@ -150,6 +169,7 @@ namespace OpenGameMonitorLibraries
 
         public static int WriteAsciiNullTerminatedString(this Stream stream, string data)
         {
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
             byte[] bytes = Encoding.ASCII.GetBytes(data);
             stream.Write(bytes, 0, bytes.Length);
             stream.WriteByte(0);
@@ -158,6 +178,7 @@ namespace OpenGameMonitorLibraries
 
         public static string ReadAsciiString(this Stream stream, int length)
         {
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
             byte[] bytes = new byte[length];
             stream.Read(bytes, 0, length);
             return Encoding.ASCII.GetString(bytes);
@@ -165,6 +186,7 @@ namespace OpenGameMonitorLibraries
 
         public static int WriteAsciiString(this Stream stream, string data)
         {
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
             byte[] bytes = Encoding.ASCII.GetBytes(data);
             stream.Write(bytes, 0, bytes.Length);
             return bytes.Length;
@@ -174,6 +196,7 @@ namespace OpenGameMonitorLibraries
         #region Alignment helpers
         public static void Align(this Stream stream, uint alignment)
         {
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
             long position = stream.Position;
             long outBy = position % alignment;
 
@@ -210,11 +233,13 @@ namespace OpenGameMonitorLibraries
         #region StreamReader helpers
         public static char ReadChar(this StreamReader sr)
         {
+            if (sr == null) throw new ArgumentNullException(nameof(sr));
             return (char)sr.Read();
         }
 
         public static char PeekChar(this StreamReader sr)
         {
+            if (sr == null) throw new ArgumentNullException(nameof(sr));
             return (char)sr.Peek();
         }
         #endregion

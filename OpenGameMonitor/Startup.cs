@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using OpenGameMonitorLibraries;
 
 namespace OpenGameMonitor
 {
@@ -31,10 +33,22 @@ namespace OpenGameMonitor
             {
                 configuration.RootPath = "ClientApp/dist";
             });
+
+            services.AddHostedService<IPCClient>();
+
+            services.AddSingleton<EventHandlerService>();
+        }
+
+        public void ConfigureAppConfiguration(WebHostBuilderContext hostingContext, IConfigurationBuilder config)
+        {
+            var env = hostingContext.HostingEnvironment;
+
+            config.AddJsonFile("appsettings.json", optional: false);
+            config.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {

@@ -22,8 +22,8 @@ namespace OpenGameMonitorLibraries
         public string Executable { get; set; }
         [Required]
         public string Path { get; set; }
-        public bool Graceful { get; set; }
-        public bool RestartOnClose { get; set; }
+        public bool? Graceful { get; set; }
+        public bool? RestartOnClose { get; set; }
 
         public string StartParams { get; set; }
         public string StartParamsHidden { get; set; }

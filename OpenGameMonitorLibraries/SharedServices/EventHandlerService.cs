@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace OpenGameMonitorWorker
+namespace OpenGameMonitorLibraries
 {
     public static class EventMockupHandlerBase
     {
