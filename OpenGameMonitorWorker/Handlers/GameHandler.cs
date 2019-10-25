@@ -48,15 +48,18 @@ namespace OpenGameMonitorWorker
         private readonly Dictionary<string, IGameHandlerBase> gameHandlers = new Dictionary<string, IGameHandlerBase>();
 		private readonly ILogger _logger;
         private readonly IServiceProvider _serviceProvider;
+        private readonly IServiceScopeFactory _serviceScope;
         private readonly EventHandlerService _eventHandlerService;
 
 		public GameHandler(ILogger<GameHandler> logger,
             IServiceProvider serviceProvider,
+            IServiceScopeFactory serviceScope,
             EventHandlerService eventHandlerService)
 		{
-			_serviceProvider = serviceProvider;
 			_logger = logger;
-			_eventHandlerService = eventHandlerService;
+            //_serviceProvider = serviceProvider;
+            _serviceScope = serviceScope;
+            _eventHandlerService = eventHandlerService;
 
             RegisterGameHandlers();
 		}
@@ -115,7 +118,8 @@ namespace OpenGameMonitorWorker
             });
 
             // Init every server and it's config, and check if the server is open and assign the PID and process to it
-            using (var db = _serviceProvider.GetService<MonitorDBContext>())
+            using (var scope = _serviceScope.CreateScope())
+            using (var db = scope.ServiceProvider.GetRequiredService<MonitorDBContext>())
             {
                 List<Server> servers = db.Servers
                     .Where(r => r.PID != null && r.PID != default)
@@ -177,8 +181,9 @@ namespace OpenGameMonitorWorker
 		{
 			List<Server> outOfDateServers = new List<Server>();
 
-			using (var db = _serviceProvider.GetService<MonitorDBContext>())
-			{
+            using (var scope = _serviceScope.CreateScope())
+            using (var db = scope.ServiceProvider.GetRequiredService<MonitorDBContext>())
+            {
 				List<Server> servers = db.Servers
 					.Where(r => r.Enabled == true)
 					.ToList();

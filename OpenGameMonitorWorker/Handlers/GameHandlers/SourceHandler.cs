@@ -78,7 +78,8 @@ namespace OpenGameMonitorWorker
                 catch
                 {
                     server.PID = default;
-                    using (var db = _serviceProvider.GetService<MonitorDBContext>())
+                    using (var scope = _serviceScopeFactory.CreateScope())
+                    using (var db = scope.ServiceProvider.GetRequiredService<MonitorDBContext>())
                     {
                         db.Update(server);
                     }

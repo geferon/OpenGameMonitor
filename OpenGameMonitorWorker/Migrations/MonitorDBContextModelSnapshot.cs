@@ -14,21 +14,24 @@ namespace Core.OpenGameMonitorWorker.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.2.6-servicing-10079")
+                .HasAnnotation("ProductVersion", "3.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             modelBuilder.Entity("OpenGameMonitorLibraries.Game", b =>
                 {
                     b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("Engine")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Name")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
-                    b.Property<uint>("SteamID");
+                    b.Property<uint>("SteamID")
+                        .HasColumnType("int unsigned");
 
                     b.HasKey("Id");
 
@@ -38,10 +41,12 @@ namespace Core.OpenGameMonitorWorker.Migrations
             modelBuilder.Entity("OpenGameMonitorLibraries.Group", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
 
@@ -50,9 +55,11 @@ namespace Core.OpenGameMonitorWorker.Migrations
 
             modelBuilder.Entity("OpenGameMonitorLibraries.GroupUser", b =>
                 {
-                    b.Property<string>("UserID");
+                    b.Property<string>("UserID")
+                        .HasColumnType("varchar(255)");
 
-                    b.Property<int>("GroupID");
+                    b.Property<int>("GroupID")
+                        .HasColumnType("int");
 
                     b.HasKey("UserID", "GroupID");
 
@@ -64,49 +71,84 @@ namespace Core.OpenGameMonitorWorker.Migrations
             modelBuilder.Entity("OpenGameMonitorLibraries.Server", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
 
                     b.Property<string>("Branch")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("varchar(40)")
                         .HasDefaultValue("public");
 
-                    b.Property<string>("BranchPassword");
+                    b.Property<string>("BranchPassword")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("DisplayIP")
+                        .HasColumnType("longtext");
 
                     b.Property<bool?>("Enabled")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
                         .HasDefaultValue(true);
 
                     b.Property<string>("Executable")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("GameId")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
 
                     b.Property<bool?>("Graceful")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
                         .HasDefaultValue(true);
 
-                    b.Property<int>("GroupId");
+                    b.Property<int>("GroupId")
+                        .HasColumnType("int");
 
-                    b.Property<DateTime>("LastStart");
+                    b.Property<string>("IP")
+                        .HasColumnType("longtext");
 
-                    b.Property<DateTime>("LastUpdate");
+                    b.Property<DateTime>("LastStart")
+                        .HasColumnType("datetime(6)");
 
-                    b.Property<bool>("LastUpdateFailed");
+                    b.Property<DateTime>("LastUpdate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("LastUpdateFailed")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("OwnerUsername")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
 
-                    b.Property<int>("PID");
+                    b.Property<int?>("PID")
+                        .HasColumnType("int");
 
                     b.Property<string>("Path")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
-                    b.Property<int>("UpdatePID");
+                    b.Property<int>("Port")
+                        .HasColumnType("int");
+
+                    b.Property<bool?>("RestartOnClose")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("StartParams")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("StartParamsHidden")
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("UpdatePID")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -122,10 +164,11 @@ namespace Core.OpenGameMonitorWorker.Migrations
             modelBuilder.Entity("OpenGameMonitorLibraries.Setting", b =>
                 {
                     b.Property<string>("Key")
-                        .ValueGeneratedOnAdd();
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("Value")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.HasKey("Key");
 
@@ -135,14 +178,16 @@ namespace Core.OpenGameMonitorWorker.Migrations
             modelBuilder.Entity("OpenGameMonitorLibraries.User", b =>
                 {
                     b.Property<string>("Username")
-                        .ValueGeneratedOnAdd();
+                        .HasColumnType("varchar(255)");
 
                     b.Property<bool>("Admin")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
                         .HasDefaultValue(false);
 
                     b.Property<string>("Email")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Language")
                         .ValueGeneratedOnAdd()
@@ -159,12 +204,14 @@ namespace Core.OpenGameMonitorWorker.Migrations
                     b.HasOne("OpenGameMonitorLibraries.Group", "Group")
                         .WithMany("Members")
                         .HasForeignKey("GroupID")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("OpenGameMonitorLibraries.User", "User")
                         .WithMany("Groups")
                         .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("OpenGameMonitorLibraries.Server", b =>
@@ -172,17 +219,20 @@ namespace Core.OpenGameMonitorWorker.Migrations
                     b.HasOne("OpenGameMonitorLibraries.Game", "Game")
                         .WithMany()
                         .HasForeignKey("GameId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("OpenGameMonitorLibraries.Group", "Group")
                         .WithMany()
                         .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("OpenGameMonitorLibraries.User", "Owner")
                         .WithMany()
                         .HasForeignKey("OwnerUsername")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

@@ -31,6 +31,13 @@ namespace OpenGameMonitor
 
         public IMonitorComsInterface ComsClient;
 
+        private Task TaskFromCancellationToken(CancellationToken token)
+        {
+            var task = new TaskCompletionSource<object>();
+            token.Register(() => { task.SetResult(null); });
+            return task.Task;
+        }
+
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             var ip = _config.GetValue<String>("MonitorConnection:Address", "localhost");
@@ -51,21 +58,35 @@ namespace OpenGameMonitor
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                ComsClient = await builder.CreateConnection();
-
-                await ComsClient.Connected();
-
+                ComsClient = await builder.CreateConnection(false);
                 var connection = ((IConnection)ComsClient);
+
+                var task = connection.Connect();
+
+                await Task.WhenAny(task, Task.Delay((int)(RetryTime * 1000)));
 
                 if (connection.State == Xeeny.Transports.ConnectionState.Connected)
                 {
+                    _logger.LogInformation("Sending initial welcome to the Monitor!");
+                    //var connectedTask = ComsClient.Connected();
+                    await ComsClient.Connected();
                     _logger.LogInformation("Connected succesfully to the Monitor.");
-                    while (!cancellationToken.IsCancellationRequested)
+
+                    //await Task.WhenAny(connectedTask, TaskFromCancellationToken(cancellationToken));
+                    while (!cancellationToken.IsCancellationRequested && connection.State == Xeeny.Transports.ConnectionState.Connected)
                     {
-                        await Task.Delay(60000, cancellationToken);
+                        await Task.Delay((int)(RetryTime * 1000), cancellationToken);
                     }
 
-                    connection.Close();
+                    if (connection.State == Xeeny.Transports.ConnectionState.Connected)
+                    {
+                        connection.Close();
+                    }
+                    else if (!cancellationToken.IsCancellationRequested)
+                    {
+                        _logger.LogWarning("The connection to the Monitor has been lost! Retrying connection in {0} seconds.", RetryTime);
+                        await Task.Delay((int)(RetryTime * 1000), cancellationToken);
+                    }
                 }
                 else
                 {

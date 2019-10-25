@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OpenGameMonitorLibraries;
+using System;
 
 namespace OpenGameMonitor
 {
@@ -37,14 +39,19 @@ namespace OpenGameMonitor
             services.AddHostedService<IPCClient>();
 
             services.AddSingleton<EventHandlerService>();
-        }
 
-        public void ConfigureAppConfiguration(WebHostBuilderContext hostingContext, IConfigurationBuilder config)
-        {
-            var env = hostingContext.HostingEnvironment;
+            // DB
+            services.AddEntityFrameworkMySql();
 
-            config.AddJsonFile("appsettings.json", optional: false);
-            config.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
+            var connectionStr = Configuration.GetConnectionString("MonitorDatabase");
+
+            if (String.IsNullOrEmpty(connectionStr))
+            {
+                throw new Exception("No connection string has been found!");
+                //return;
+            }
+
+            services.AddDbContext<MonitorDBContext>(options => options.UseMySql(connectionStr));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

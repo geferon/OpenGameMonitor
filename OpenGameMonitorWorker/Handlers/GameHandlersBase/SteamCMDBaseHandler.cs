@@ -61,7 +61,7 @@ namespace OpenGameMonitorWorker
 			}
 
 			using (var scope = _serviceScopeFactory.CreateScope())
-			using (var db = _serviceProvider.GetService<MonitorDBContext>())
+			using (var db = scope.ServiceProvider.GetRequiredService<MonitorDBContext>())
 			{
 				var scopedServices = scope.ServiceProvider;
 

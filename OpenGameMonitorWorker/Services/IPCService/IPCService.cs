@@ -46,24 +46,26 @@ namespace OpenGameMonitorWorker
             //    .Build()
             //    .RunAsync(stoppingToken);
 
-            serviceInstance = ActivatorUtilities.CreateInstance<MonitorComsService>(_serviceProvider);
+            //serviceInstance = ActivatorUtilities.CreateInstance<MonitorComsService>(_serviceProvider);
 
             var ip = _config.GetValue<String>("MonitorSettings:Address", "localhost");
             var port = _config.GetValue<int>("MonitorSettings:Port", 5001);
             var address = $"tcp://{ip}:{port}/opengameserver";
 
-            service = new ServiceHostBuilder<MonitorComsService>(serviceInstance)
+            //service = new ServiceHostBuilder<MonitorComsService>(serviceInstance)
+            service = new ServiceHostBuilder<MonitorComsService>(InstanceMode.Single)
                 .WithCallback<IMonitorComsCallback>()
                 .AddTcpServer("tcp://localhost:5001/opengameserver")
                 .CreateHost();
-
-            await service.Open();
 
             service.ServiceInstanceCreated += (callback) =>
             {
                 callback.InitServices(_serviceProvider);
             };
-            
+
+
+            await service.Open();
+
 
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -81,6 +83,7 @@ namespace OpenGameMonitorWorker
         private HostBuilderContext _hostBuilderContext;
         private GameHandler _gameHandler;
         private EventHandlerService _eventHandlerService;
+        private ILogger<IPCService> _logger;
 
         private bool parametersInit = false;
 
@@ -97,13 +100,15 @@ namespace OpenGameMonitorWorker
         public MonitorComsService(IServiceProvider serviceProvider,
             HostBuilderContext hostBuilderContext,
             GameHandler gameHandler,
-            EventHandlerService eventHandlerService)
+            EventHandlerService eventHandlerService,
+            ILogger<IPCService> logger)
         {
 
             _serviceProvider = serviceProvider;
             _hostBuilderContext = hostBuilderContext;
             _gameHandler = gameHandler;
             _eventHandlerService = eventHandlerService;
+            _logger = logger;
             parametersInit = true;
 
             Init();
@@ -120,6 +125,7 @@ namespace OpenGameMonitorWorker
             _hostBuilderContext = services.GetService<HostBuilderContext>();
             _gameHandler = services.GetService<GameHandler>();
             _eventHandlerService = services.GetService<EventHandlerService>();
+            _logger = services.GetService<ILogger<IPCService>>();
 
             parametersInit = true;
 
@@ -172,9 +178,13 @@ namespace OpenGameMonitorWorker
             var caller = GetCaller();
             var connection = (IConnection)caller;
             _clients.AddOrUpdate(connection.ConnectionId, caller, (k, v) => caller);
+
+            _logger.LogInformation("Web Monitor ({0}) has connected!", connection.ConnectionName);
+
             connection.SessionEnded += s =>
             {
                 _clients.TryRemove(connection.ConnectionId, out IMonitorComsCallback _);
+                _logger.LogInformation("Web Monitor ({0}) has disconnected.", connection.ConnectionName);
             };
         }
 
