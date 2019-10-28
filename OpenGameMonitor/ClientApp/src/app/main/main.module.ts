@@ -13,7 +13,7 @@ export const appRoutes: RouteItem[] = [
 		title: 'Home',
 		path: 'home',
 		//component: HomeComponent,
-		loadChildren: './home/home.module.ts#HomeModule',
+		loadChildren: () => import('./home/home.module').then(mod => mod.HomeModule),
 		main: true
 	}
 ];
@@ -30,8 +30,6 @@ for (let item of appRoutes) {
 		break;
 	}
 }
-
-console.log(appRoutes);
 
 @NgModule({
 	imports: [

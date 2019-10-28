@@ -1,4 +1,5 @@
 import { NgModule } from "@angular/core";
+import { CommonModule } from '@angular/common';
 import { Routes, RouterModule } from '@angular/router';
 import { HomeComponent } from './home.component';
 import { MaterialModule } from '../../material.module';
@@ -6,13 +7,15 @@ import { MaterialModule } from '../../material.module';
 const routes: Routes = [
 	{
 		path: '',
+		// pathMatch: 'full',
 		component: HomeComponent
 	}
 ];
 
 @NgModule({
 	imports: [
-		MaterialModule,
+		CommonModule,
+		// MaterialModule,
 		RouterModule.forChild(routes)
 	],
 	declarations: [

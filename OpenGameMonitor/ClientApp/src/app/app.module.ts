@@ -5,10 +5,8 @@ import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 
 import { AppRoutingModule } from './app-routing.module';
-import { MainComponent } from './main/main.component';
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
-import { HomeComponent } from './main/home/home.component';
 import { CounterComponent } from './main/counter/counter.component';
 import { FetchDataComponent } from './main/fetch-data/fetch-data.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -20,9 +18,7 @@ import { MaterialModule } from './material.module';
 		AppComponent,
 
 		NavMenuComponent,
-		MainComponent,
 
-		HomeComponent,
 		CounterComponent,
 		FetchDataComponent,
 	],
