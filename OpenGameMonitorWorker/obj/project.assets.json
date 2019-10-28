@@ -7817,27 +7817,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\gefer\\.nuget\\packages\\": {},
-    "C:\\Microsoft\\Xamarin\\NuGet\\": {},
+    "C:\\Users\\Jorge\\.nuget\\packages\\": {},
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\Trabajos\\Proyectos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj",
+      "projectUniqueName": "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj",
       "projectName": "Core.OpenGameMonitorWorker",
-      "projectPath": "E:\\Trabajos\\Proyectos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj",
-      "packagesPath": "C:\\Users\\gefer\\.nuget\\packages\\",
-      "outputPath": "E:\\Trabajos\\Proyectos\\OpenGameMonitor\\OpenGameMonitorWorker\\obj\\",
+      "projectPath": "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj",
+      "packagesPath": "C:\\Users\\Jorge\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\OpenGameMonitorWorker\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
-        "C:\\Microsoft\\Xamarin\\NuGet\\",
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
       ],
       "configFilePaths": [
-        "C:\\Users\\gefer\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+        "C:\\Users\\Jorge\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "netcoreapp3.0"
@@ -7849,8 +7846,8 @@
       "frameworks": {
         "netcoreapp3.0": {
           "projectReferences": {
-            "E:\\Trabajos\\Proyectos\\OpenGameMonitor\\CoreRCON\\CoreRCON.csproj": {
-              "projectPath": "E:\\Trabajos\\Proyectos\\OpenGameMonitor\\CoreRCON\\CoreRCON.csproj"
+            "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\CoreRCON\\CoreRCON.csproj": {
+              "projectPath": "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\CoreRCON\\CoreRCON.csproj"
             }
           }
         }
