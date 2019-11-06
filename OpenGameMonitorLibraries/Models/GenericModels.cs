@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -13,7 +14,8 @@ namespace OpenGameMonitorLibraries
         [Required]
         public string Name { get; set; }
         [Required]
-        public User Owner { get; set; }
+        //public User Owner { get; set; }
+        public MonitorUser Owner { get; set; }
         [Required]
         public Group Group { get; set; }
 		public bool? Enabled { get; set; }
@@ -59,36 +61,67 @@ namespace OpenGameMonitorLibraries
         public uint SteamID { get; set; }
     }
 
-    public class User
+    public class MonitorUser : IdentityUser
     {
-        [Key]
-        public string Username { get; set; }
-        [Required]
-        public string Email { get; set; }
-        [Column(TypeName = "varchar(2)")]
-        public string Language { get; set; } // Maybe?
-        public bool Admin { get; set; }
+        public MonitorUser(string name) : base(name)
+        {
+            this.Groups = new HashSet<Group>();
+        }
 
-        public List<GroupUser> Groups { get; set; }
+        public MonitorUser() : base()
+        {
+            this.Groups = new HashSet<Group>();
+        }
+
+        //public List<GroupUser> Groups { get; set; }
+        public virtual ICollection<Group> Groups { get; set; }
     }
+
+    public class MonitorRole : IdentityRole
+    {
+        public MonitorRole() : base() { }
+        public MonitorRole(string name) : base(name) { }
+    }
+
+    //public class User
+    //{
+    //    [Key]
+    //    public string Username { get; set; }
+    //    [Required]
+    //    public string Email { get; set; }
+    //    [Column(TypeName = "varchar(2)")]
+    //    public string Language { get; set; } // Maybe?
+    //    public bool Admin { get; set; }
+
+    //    public List<GroupUser> Groups { get; set; }
+    //}
 
     public class Group
     {
+        public Group()
+        {
+            this.Members = new HashSet<MonitorUser>();
+        }
+
         [Key]
         public int Id { get; set; }
         [Required]
         public string Name { get; set; }
 
-        public List<GroupUser> Members { get; set; }
+        //public List<GroupUser> Members { get; set; }
+        public virtual ICollection<MonitorUser> Members { get; set; }
     }
 
+    /*
     public class GroupUser
     {
         public string UserID { get; set; }
-        public User User { get; set; }
+        //public User User { get; set; }
+        public MonitorUser User { get; set; }
         public int GroupID { get; set; }
         public Group Group { get; set; }
     }
+    */
 
     public class Setting
     {

@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.EntityFrameworkCore;
@@ -52,6 +54,23 @@ namespace OpenGameMonitor
             }
 
             services.AddDbContext<MonitorDBContext>(options => options.UseMySql(connectionStr));
+
+            services.AddDefaultIdentity<MonitorUser>()
+                .AddRoles<MonitorRole>()
+                .AddRoleManager<RoleManager<MonitorRole>>()
+                .AddEntityFrameworkStores<MonitorDBContext>();
+
+            services.AddIdentityServer()
+                .AddApiAuthorization<MonitorUser, MonitorDBContext>();
+
+            services.AddAuthentication()
+                .AddIdentityServerJwt();
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("ServerPolicy", policy => 
+                    policy.Requirements.Add());
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -60,6 +79,7 @@ namespace OpenGameMonitor
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseDatabaseErrorPage();
             }
             else
             {
@@ -69,13 +89,22 @@ namespace OpenGameMonitor
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseSpaStaticFiles();
-
-            app.UseMvc(routes =>
+            if (!env.IsDevelopment())
             {
-                routes.MapRoute(
+                app.UseSpaStaticFiles();
+            }
+
+            app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseIdentityServer();
+            app.UseAuthorization();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllerRoute(
                     name: "default",
-                    template: "{controller}/{action=Index}/{id?}");
+                    pattern: "{controller}/{action=Index}/{id?}");
+                endpoints.MapRazorPages();
             });
 
             app.UseSpa(spa =>

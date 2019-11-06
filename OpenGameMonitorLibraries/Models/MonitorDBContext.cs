@@ -4,16 +4,23 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting.Internal;
+using Microsoft.Extensions.Options;
+using IdentityServer4.EntityFramework.Options;
 
 namespace OpenGameMonitorLibraries
 {
-    public class MonitorDBContext : DbContext
+    public class MonitorDBContext : ApiAuthorizationDbContext<MonitorUser>
     {
-        public MonitorDBContext(DbContextOptions<MonitorDBContext> options) : base(options)
+        public MonitorDBContext(DbContextOptions<MonitorDBContext> options,
+            IOptions<OperationalStoreOptions> operationalStoreOptions)
+            : base(options, operationalStoreOptions)
         { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -33,13 +40,13 @@ namespace OpenGameMonitorLibraries
                     .HasDefaultValue("public");
             });
 
-            modelBuilder.Entity<User>(entity =>
-            {
-                entity.Property(b => b.Language)
-                    .HasDefaultValue("en");
-                entity.Property(b => b.Admin)
-                    .HasDefaultValue(false);
-            });
+            //modelBuilder.Entity<User>(entity =>
+            //{
+            //    entity.Property(b => b.Language)
+            //        .HasDefaultValue("en");
+            //    entity.Property(b => b.Admin)
+            //        .HasDefaultValue(false);
+            //});
 
             modelBuilder.Entity<GroupUser>(entity =>
             {
@@ -55,7 +62,7 @@ namespace OpenGameMonitorLibraries
 
         public DbSet<Server> Servers { get; set; }
         public DbSet<Game> Games { get; set; }
-        public DbSet<User> Users { get; set; }
+        //public DbSet<User> Users { get; set; }
         public DbSet<Group> Groups { get; set; }
         public DbSet<Setting> Settings { get; set; }
 
@@ -89,7 +96,7 @@ namespace OpenGameMonitorLibraries
             builder.UseMySql(config.GetConnectionString("MonitorDatabase"),
                 optionsBuilder => optionsBuilder.MigrationsAssembly(typeof(MonitorDBContext).GetTypeInfo().Assembly.GetName().Name));
 
-            return new MonitorDBContext(builder.Options);
+            return new MonitorDBContext(builder.Options, Options.Create(new OperationalStoreOptions()));
         }
     }
 
@@ -124,7 +131,7 @@ namespace OpenGameMonitorLibraries
 
             OptionsAction(builder);
 
-            using (var dbContext = new MonitorDBContext(builder.Options))
+            using (var dbContext = new MonitorDBContext(builder.Options, Options.Create(new OperationalStoreOptions())))
             {
                 dbContext.Database.EnsureCreated();
 
