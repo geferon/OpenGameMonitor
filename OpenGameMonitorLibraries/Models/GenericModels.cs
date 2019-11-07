@@ -63,18 +63,8 @@ namespace OpenGameMonitorLibraries
 
     public class MonitorUser : IdentityUser
     {
-        public MonitorUser(string name) : base(name)
-        {
-            this.Groups = new HashSet<Group>();
-        }
-
-        public MonitorUser() : base()
-        {
-            this.Groups = new HashSet<Group>();
-        }
-
-        //public List<GroupUser> Groups { get; set; }
-        public virtual ICollection<Group> Groups { get; set; }
+        public List<GroupUser> Groups { get; set; }
+        //public virtual ICollection<Group> Groups { get; set; }
     }
 
     public class MonitorRole : IdentityRole
@@ -98,21 +88,15 @@ namespace OpenGameMonitorLibraries
 
     public class Group
     {
-        public Group()
-        {
-            this.Members = new HashSet<MonitorUser>();
-        }
-
         [Key]
         public int Id { get; set; }
         [Required]
         public string Name { get; set; }
 
-        //public List<GroupUser> Members { get; set; }
-        public virtual ICollection<MonitorUser> Members { get; set; }
+        public List<GroupUser> Members { get; set; }
+        //public virtual ICollection<MonitorUser> Members { get; set; }
     }
 
-    /*
     public class GroupUser
     {
         public string UserID { get; set; }
@@ -121,7 +105,6 @@ namespace OpenGameMonitorLibraries
         public int GroupID { get; set; }
         public Group Group { get; set; }
     }
-    */
 
     public class Setting
     {

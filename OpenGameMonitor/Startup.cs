@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OpenGameMonitorLibraries;
+using OpenGameMonitorWeb;
 using System;
 
 namespace OpenGameMonitor
@@ -69,12 +71,14 @@ namespace OpenGameMonitor
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("ServerPolicy", policy => 
-                    policy.Requirements.Add());
+                    policy.Requirements.Add(new ServerPolicyRequirement()));
             });
+
+            services.AddSingleton<IAuthorizationHandler, ServerPolicyHandler>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider service)
         {
             if (env.IsDevelopment())
             {
@@ -119,6 +123,8 @@ namespace OpenGameMonitor
                     spa.UseAngularCliServer(npmScript: "start");
                 }
             });
+
+            service.CreateRoles().Wait();
         }
     }
 }

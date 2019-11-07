@@ -25,6 +25,8 @@ namespace OpenGameMonitorLibraries
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<Server>(entity =>
             {
 				entity.Property(b => b.Enabled)
@@ -47,7 +49,7 @@ namespace OpenGameMonitorLibraries
             //    entity.Property(b => b.Admin)
             //        .HasDefaultValue(false);
             //});
-
+            
             modelBuilder.Entity<GroupUser>(entity =>
             {
                 entity.HasKey(b => new { b.UserID, b.GroupID });
