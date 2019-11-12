@@ -18,6 +18,9 @@ using Microsoft.Extensions.Logging;
 //using Microsoft.AspNetCore.Hosting;
 using System.Net;
 using MySql.Data.MySqlClient;
+using FubarDev.FtpServer;
+using FubarDev.FtpServer.FileSystem.DotNet;
+using Microsoft.AspNetCore.Identity;
 
 namespace OpenGameMonitorWorker
 {
@@ -64,24 +67,12 @@ namespace OpenGameMonitorWorker
                 })
                 .ConfigureServices((hostContext, services) =>
                 {
+                    // Basic services
                     services.AddOptions();
                     services.AddLogging();
                     //services.Configure<MonitorConfig>(hostContext.Configuration.GetSection("AppConfig"));
 
-                    services.AddSingleton<EventHandlerService>();
-
-                    // services.AddHostedService<Worker>();
-
-                    services.AddHostedService<QueuedHostedService>();
-                    services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
-
-
-                    services.AddSingleton<SteamAPIService>();
-                    services.AddSingleton<SteamCMDService>();
-                    services.AddSingleton<GameHandler>();
-
-                    //services.AddSingleton<NamedPipeOptions>();
-
+                    // DB service and external connections
                     services.AddEntityFrameworkMySql();
 
                     var connectionStr = hostContext.Configuration.GetConnectionString("MonitorDatabase");
@@ -94,18 +85,42 @@ namespace OpenGameMonitorWorker
 
                     services.AddDbContext<MonitorDBContext>(options => options.UseMySql(connectionStr));
 
-                    /*
-                    services.AddIpc(builder =>
-                    {
-                        builder
-                            .AddNamedPipe(options =>
-                            {
-                                options.ThreadCount = 2;
-                            })
-                            .AddService<IMonitorComsInterface, MonitorComsService>();
-                    });
-                    */
+                    services.AddDefaultIdentity<MonitorUser>()
+                        .AddRoles<MonitorRole>()
+                        .AddRoleManager<RoleManager<MonitorRole>>()
+                        .AddEntityFrameworkStores<MonitorDBContext>();
+
+                    services.AddIdentityServer()
+                        .AddApiAuthorization<MonitorUser, MonitorDBContext>();
+
+
                     services.AddHostedService<IPCService>();
+
+                    // Basic server services
+                    services.AddSingleton<EventHandlerService>();
+
+                    // services.AddHostedService<Worker>();
+
+                    services.AddHostedService<QueuedHostedService>();
+                    services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
+
+                    services.AddSingleton<SteamAPIService>();
+                    services.AddSingleton<SteamCMDService>();
+                    services.AddSingleton<GameHandler>();
+
+                    // FTP Server
+                    services.AddFtpServer(builder =>
+                        builder.UseDotNetFileSystem());
+
+                    services.Configure<FtpServerOptions>(config => {
+                        config.ServerAddress = "*";
+                        config.Port = hostContext.Configuration.GetValue<int>("MonitorSettings:FtpPort", 25);
+                    });
+
+                    services.Configure<DotNetFileSystemOptions>(opt =>
+                        opt.RootPath = Path.Combine(Path.GetTempPath(), "OpenGameMonitorFTP"));
+
+                    services.AddHostedService<HostedFTPService>();
 
                 });
                 /*
