@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OpenGameMonitorLibraries;
@@ -17,18 +18,26 @@ namespace Core.OpenGameMonitorWeb.Controllers
     {
         private readonly MonitorDBContext _context;
         private readonly IAuthorizationService _authorizationService;
+        private readonly UserManager<MonitorUser> _userManager;
 
-        public ServersController(MonitorDBContext context, IAuthorizationService authorizationService)
+        public ServersController(MonitorDBContext context, IAuthorizationService authorizationService, UserManager<MonitorUser> userManager)
         {
             _context = context;
             _authorizationService = authorizationService;
+            _userManager = userManager;
         }
 
         // GET: api/Servers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Server>>> GetServers()
         {
-            return await _context.Servers.ToListAsync();
+            var user = await _userManager.GetUserAsync(User);
+
+            var servers = _context.Servers.Where((server) => 
+                User.IsInRole("Admin") ||
+                user == server.Owner ||
+                (server.Group != null ? server.Group.Members.Any((group) => group.User == user) : false));
+            return await servers.ToListAsync();
         }
 
         // GET: api/Servers/5

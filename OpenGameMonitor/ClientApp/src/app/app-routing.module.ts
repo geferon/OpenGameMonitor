@@ -21,8 +21,13 @@ const appRoutes: Routes = [
 	{
 		path: 'main',
 		component: MainComponent,
-		loadChildren: () => import('./main/main.module').then(mo => mo.MainModule)
+		loadChildren: () => import('./main/main.module').then(mo => mo.MainModule),
+		canActivate: [AuthorizeGuard]
 	},
+	{
+		path: 'login',
+		// TODO
+	}
 ];
 
 @NgModule({
