@@ -117,8 +117,10 @@ namespace OpenGameMonitorWorker
                         config.Port = hostContext.Configuration.GetValue<int>("MonitorSettings:FtpPort", 25);
                     });
 
-                    services.Configure<DotNetFileSystemOptions>(opt =>
-                        opt.RootPath = Path.Combine(Path.GetTempPath(), "OpenGameMonitorFTP"));
+                    services.Configure<DotNetFileSystemOptions>(opt => {
+                        opt.RootPath = Path.Combine(Path.GetTempPath(), "OpenGameMonitorFTP");
+                        opt.AllowNonEmptyDirectoryDelete = true;
+                    });
 
                     services.AddHostedService<HostedFTPService>();
 

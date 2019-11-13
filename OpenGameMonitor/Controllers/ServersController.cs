@@ -33,10 +33,16 @@ namespace Core.OpenGameMonitorWeb.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
 
-            var servers = _context.Servers.Where((server) => 
-                User.IsInRole("Admin") ||
-                user == server.Owner ||
-                (server.Group != null ? server.Group.Members.Any((group) => group.User == user) : false));
+            IQueryable<Server> servers = _context.Servers;
+            if (!User.IsInRole("Admin"))
+            {
+                servers = servers.Where((server) =>
+                    user == server.Owner ||
+                    (server.Group != null
+                    ? server.Group.Members.Any((group) => group.User == user)
+                    : false)
+                );
+            }
             return await servers.ToListAsync();
         }
 

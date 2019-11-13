@@ -74,18 +74,6 @@
           "lib/netstandard2.1/FubarDev.FtpServer.FileSystem.DotNet.dll": {}
         }
       },
-      "Google.Protobuf/3.10.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Memory": "4.5.2"
-        },
-        "compile": {
-          "lib/netstandard2.0/Google.Protobuf.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard2.0/Google.Protobuf.dll": {}
-        }
-      },
       "IdentityModel/4.0.0": {
         "type": "package",
         "dependencies": {
@@ -1789,7 +1777,7 @@
           "lib/netstandard1.6/System.Linq.Expressions.dll": {}
         }
       },
-      "System.Net.Http/4.1.0": {
+      "System.Net.Http/4.3.0": {
         "type": "package",
         "dependencies": {
           "Microsoft.NETCore.Platforms": "1.1.0",
@@ -2781,26 +2769,6 @@
         "lib/netstandard2.1/FubarDev.FtpServer.FileSystem.DotNet.dll",
         "lib/netstandard2.1/FubarDev.FtpServer.FileSystem.DotNet.pdb",
         "lib/netstandard2.1/FubarDev.FtpServer.FileSystem.DotNet.xml"
-      ]
-    },
-    "Google.Protobuf/3.10.0": {
-      "sha512": "Vg7uAamIF6bECZ2F3tMv2N8IvCbO750q/M+Yz16wu3W2F+grIV3eFcb/qLWzNBc/HJTTbHk2sLqDL8tMF1Xd5Q==",
-      "type": "package",
-      "path": "google.protobuf/3.10.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "google.protobuf.3.10.0.nupkg.sha512",
-        "google.protobuf.nuspec",
-        "lib/net45/Google.Protobuf.dll",
-        "lib/net45/Google.Protobuf.pdb",
-        "lib/net45/Google.Protobuf.xml",
-        "lib/netstandard1.0/Google.Protobuf.dll",
-        "lib/netstandard1.0/Google.Protobuf.pdb",
-        "lib/netstandard1.0/Google.Protobuf.xml",
-        "lib/netstandard2.0/Google.Protobuf.dll",
-        "lib/netstandard2.0/Google.Protobuf.pdb",
-        "lib/netstandard2.0/Google.Protobuf.xml"
       ]
     },
     "IdentityModel/4.0.0": {
@@ -6250,27 +6218,6 @@
         "system.linq.expressions.nuspec"
       ]
     },
-    "System.Memory/4.5.2": {
-      "sha512": "fvq1GNmUFwbKv+aLVYYdgu/+gc8Nu9oFujOxIjPrsf+meis9JBzTPDL6aP/eeGOz9yPj6rRLUbOjKMpsMEWpNg==",
-      "type": "package",
-      "path": "system.memory/4.5.2",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "LICENSE.TXT",
-        "THIRD-PARTY-NOTICES.TXT",
-        "lib/netcoreapp2.1/_._",
-        "lib/netstandard1.1/System.Memory.dll",
-        "lib/netstandard1.1/System.Memory.xml",
-        "lib/netstandard2.0/System.Memory.dll",
-        "lib/netstandard2.0/System.Memory.xml",
-        "ref/netcoreapp2.1/_._",
-        "system.memory.4.5.2.nupkg.sha512",
-        "system.memory.nuspec",
-        "useSharedDesignerContext.txt",
-        "version.txt"
-      ]
-    },
     "System.Net.Http/4.3.0": {
       "sha512": "sYg+FtILtRQuYWSIAuNOELwVuVsxVyJGWQyOnlAzhV4xvhyFnON1bAzYYC+jjRW8JREM45R0R5Dgi8MTC5sEwA==",
       "type": "package",
@@ -8732,8 +8679,8 @@
     ".NETCoreApp,Version=v3.0": [
       "CoreRCON >= 3.0.0",
       "FubarDev.FtpServer >= 3.1.1",
+      "FubarDev.FtpServer.Abstractions >= 3.1.1",
       "FubarDev.FtpServer.FileSystem.DotNet >= 3.1.1",
-      "Google.Protobuf >= 3.10.0",
       "Microsoft.AspNetCore.ApiAuthorization.IdentityServer >= 3.0.0",
       "Microsoft.AspNetCore.Identity.EntityFrameworkCore >= 3.0.0",
       "Microsoft.AspNetCore.Identity.UI >= 3.0.0",
@@ -8753,24 +8700,27 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Jorge\\.nuget\\packages\\": {},
+    "C:\\Users\\gefer\\.nuget\\packages\\": {},
+    "C:\\Microsoft\\Xamarin\\NuGet\\": {},
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj",
+      "projectUniqueName": "E:\\Trabajos\\Proyectos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj",
       "projectName": "Core.OpenGameMonitorWorker",
-      "projectPath": "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj",
-      "packagesPath": "C:\\Users\\Jorge\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\OpenGameMonitorWorker\\obj\\",
+      "projectPath": "E:\\Trabajos\\Proyectos\\OpenGameMonitor\\OpenGameMonitorWorker\\Core.OpenGameMonitorWorker.csproj",
+      "packagesPath": "C:\\Users\\gefer\\.nuget\\packages\\",
+      "outputPath": "E:\\Trabajos\\Proyectos\\OpenGameMonitor\\OpenGameMonitorWorker\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
+        "C:\\Microsoft\\Xamarin\\NuGet\\",
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
       ],
       "configFilePaths": [
-        "C:\\Users\\Jorge\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "C:\\Users\\gefer\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
       ],
       "originalTargetFrameworks": [
         "netcoreapp3.0"
@@ -8782,8 +8732,8 @@
       "frameworks": {
         "netcoreapp3.0": {
           "projectReferences": {
-            "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\CoreRCON\\CoreRCON.csproj": {
-              "projectPath": "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\CoreRCON\\CoreRCON.csproj"
+            "E:\\Trabajos\\Proyectos\\OpenGameMonitor\\CoreRCON\\CoreRCON.csproj": {
+              "projectPath": "E:\\Trabajos\\Proyectos\\OpenGameMonitor\\CoreRCON\\CoreRCON.csproj"
             }
           }
         }
@@ -8801,13 +8751,13 @@
             "target": "Package",
             "version": "[3.1.1, )"
           },
-          "FubarDev.FtpServer.FileSystem.DotNet": {
+          "FubarDev.FtpServer.Abstractions": {
             "target": "Package",
             "version": "[3.1.1, )"
           },
-          "Google.Protobuf": {
+          "FubarDev.FtpServer.FileSystem.DotNet": {
             "target": "Package",
-            "version": "[3.10.0, )"
+            "version": "[3.1.1, )"
           },
           "Microsoft.AspNetCore.ApiAuthorization.IdentityServer": {
             "target": "Package",

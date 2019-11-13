@@ -11,14 +11,22 @@ namespace OpenGameMonitorWorker
     class FTPMembershipProvider : IMembershipProvider
     {
         UserManager<MonitorUser> _userManager;
-        public FTPMembershipProvider(UserManager<MonitorUser> userManager)
+        UserClaimsPrincipalFactory<MonitorUser> _userClaimsPrincipalFactory;
+        public FTPMembershipProvider(UserManager<MonitorUser> userManager,
+            UserClaimsPrincipalFactory<MonitorUser> userClaimsPrincipalFactory)
         {
             _userManager = userManager;
+            _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
         }
 
         public async Task<MemberValidationResult> ValidateUserAsync(string username, string password)
         {
-
+            var user = await _userManager.FindByNameAsync(username);
+            if (await _userManager.CheckPasswordAsync(user, password))
+            {
+                return new MemberValidationResult(MemberValidationStatus.AuthenticatedUser,
+                    await _userClaimsPrincipalFactory.CreateAsync(user));
+            }
             return new MemberValidationResult(MemberValidationStatus.InvalidLogin);
         }
     }
