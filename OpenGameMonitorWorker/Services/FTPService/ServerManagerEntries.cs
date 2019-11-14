@@ -4,23 +4,46 @@ using OpenGameMonitorLibraries;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace OpenGameMonitorWorker
 {
     class ServerManagerFileSystemEntry : IUnixFileSystemEntry
     {
-        protected ServerManagerFileSystemEntry(Server server)
+        public ServerManagerFileSystemEntry()
         {
-            Server = server;
         }
-
-        protected ServerManagerFileSystemEntry(Server server, FileSystemInfo fsInfo)
+        
+        public ServerManagerFileSystemEntry(FileSystemInfo fsInfo)
         {
-            Server = server;
             Info = fsInfo;
             LastWriteTime = new DateTimeOffset(Info.LastWriteTime);
             CreatedTime = new DateTimeOffset(Info.CreationTimeUtc);
+            var accessMode = new GenericAccessMode(true, true, true);
+            Permissions = new GenericUnixPermissions(accessMode, accessMode, accessMode);
+        }
+
+        // All servers have a path, this is pointless?
+        /*
+        public ServerManagerFileSystemEntry(Server server)
+        {
+            Server = server;
+            CreatedTime = server.Created;
+            LastWriteTime = server.LastModified;
+
+            var accessMode = new GenericAccessMode(true, true, true);
+            Permissions = new GenericUnixPermissions(accessMode, accessMode, accessMode);
+        }
+        */
+
+        public ServerManagerFileSystemEntry(Server server, FileSystemInfo fsInfo)
+            : this(fsInfo)
+        {
+            Server = server;
+            CreatedTime = server.Created;
+            LastWriteTime = server.LastModified;
+
             var accessMode = new GenericAccessMode(true, true, true);
             Permissions = new GenericUnixPermissions(accessMode, accessMode, accessMode);
         }
@@ -29,7 +52,7 @@ namespace OpenGameMonitorWorker
 
         public FileSystemInfo? Info { get; set; }
 
-        public string Name => Info?.Name ?? "";
+        public string Name => Info?.Name ?? Server?.Name ?? "";
 
         public IUnixPermissions Permissions { get; set; }
 
@@ -46,22 +69,81 @@ namespace OpenGameMonitorWorker
 
     class ServerManagerDirectoryEntry : ServerManagerFileSystemEntry, IUnixDirectoryEntry
     {
+        private readonly bool _allowDeleteIfNotEmpty;
+
+        public ServerManagerDirectoryEntry(bool allowDeleteIfNotEmpty) : base()
+        {
+            IsRoot = true;
+            _allowDeleteIfNotEmpty = allowDeleteIfNotEmpty;
+        }
+
+        public ServerManagerDirectoryEntry(DirectoryInfo dirInfo, bool allowDeleteIfNotEmpty) : base(dirInfo)
+        {
+            IsRoot = true;
+            _allowDeleteIfNotEmpty = allowDeleteIfNotEmpty;
+        }
+
+        // All servers have a path, this is pointless?
+        /*
+        public ServerManagerDirectoryEntry(Server server, bool allowDeleteIfNotEmpty) : base(server)
+        {
+            IsRoot = false;
+            _allowDeleteIfNotEmpty = allowDeleteIfNotEmpty;
+        }
+        */
+
+        public ServerManagerDirectoryEntry(Server server, DirectoryInfo dirInfo, bool allowDeleteIfNotEmpty) : base(server, dirInfo)
+        {
+            IsRoot = false;
+            _allowDeleteIfNotEmpty = allowDeleteIfNotEmpty;
+        }
+
         public bool IsRoot { get; }
 
         public bool IsDeletable => CheckIfDeletable();
 
-        public string Name => throw new NotImplementedException();
+        private static bool? HasChildEntries(DirectoryInfo directoryInfo)
+        {
+            try
+            {
+                return directoryInfo.EnumerateFileSystemInfos().Any();
+            }
+            catch
+            {
+                return null;
+            }
+        }
 
-        public IUnixPermissions Permissions => throw new NotImplementedException();
+        private bool CheckIfDeletable()
+        {
+            if (IsRoot)
+            {
+                return false;
+            }
 
-        public DateTimeOffset? LastWriteTime => throw new NotImplementedException();
+            // A server can't be deleted
+            if (Server != null && Info == null)
+            {
+                return false;
+            }
 
-        public DateTimeOffset? CreatedTime => throw new NotImplementedException();
+            var hasChildrenEntries = HasChildEntries((DirectoryInfo)Info);
+            if (hasChildrenEntries == null)
+            {
+                return false;
+            }
 
-        public long NumberOfLinks => throw new NotImplementedException();
+            return _allowDeleteIfNotEmpty || !hasChildrenEntries.Value;
+        }
+    }
 
-        public string Owner => throw new NotImplementedException();
+    class ServerManagerFileEntry : ServerManagerFileSystemEntry, IUnixFileEntry
+    {
+        public ServerManagerFileEntry(Server server, FileInfo info) : base(server, info)
+        {
 
-        public string Group => throw new NotImplementedException();
+        }
+
+        public long Size => ((FileInfo)Info).Length;
     }
 }

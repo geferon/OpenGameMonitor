@@ -190,7 +190,7 @@ namespace OpenGameMonitorWorker
 
         private Server GetServer(int server)
         {
-            using (MonitorDBContext db = (MonitorDBContext)_serviceProvider.GetService(typeof(MonitorDBContext)))
+            using (MonitorDBContext db = _serviceProvider.GetService<MonitorDBContext>())
             //using (var db = _serviceProvider.GetService<MonitorDBContext>())
             {
                 /*List<OpenGameMonitorLibraries.Server> servers = db.Servers

@@ -9,6 +9,11 @@ using System.IO.Pipelines;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using System.Linq;
+using FubarDev.FtpServer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace OpenGameMonitorWorker
 {
@@ -22,13 +27,17 @@ namespace OpenGameMonitorWorker
         private readonly int _streamBufferSize;
         private readonly bool _flushStream;
 
+        private readonly IServiceProvider _serviceProvider;
+        private readonly UserManager<MonitorUser> _userManager;
+        private IAccountInformation _account;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DotNetFileSystem"/> class.
         /// </summary>
         /// <param name="rootPath">The path to use as root.</param>
         /// <param name="allowNonEmptyDirectoryDelete">Defines whether the deletion of non-empty directories is allowed.</param>
-        public ServerManagerFileSystem(string rootPath, bool allowNonEmptyDirectoryDelete)
-            : this(rootPath, allowNonEmptyDirectoryDelete, DefaultStreamBufferSize)
+        public ServerManagerFileSystem(IAccountInformation account, IServiceProvider serviceProvider, string rootPath, bool allowNonEmptyDirectoryDelete)
+            : this(account, serviceProvider, rootPath, allowNonEmptyDirectoryDelete, DefaultStreamBufferSize)
         {
         }
 
@@ -38,8 +47,8 @@ namespace OpenGameMonitorWorker
         /// <param name="rootPath">The path to use as root.</param>
         /// <param name="allowNonEmptyDirectoryDelete">Defines whether the deletion of non-empty directories is allowed.</param>
         /// <param name="streamBufferSize">Buffer size to be used in async IO methods.</param>
-        public ServerManagerFileSystem(string rootPath, bool allowNonEmptyDirectoryDelete, int streamBufferSize)
-            : this(rootPath, allowNonEmptyDirectoryDelete, streamBufferSize, false)
+        public ServerManagerFileSystem(IAccountInformation account, IServiceProvider serviceProvider, string rootPath, bool allowNonEmptyDirectoryDelete, int streamBufferSize)
+            : this(account, serviceProvider, rootPath, allowNonEmptyDirectoryDelete, streamBufferSize, false)
         {
         }
 
@@ -50,10 +59,14 @@ namespace OpenGameMonitorWorker
         /// <param name="allowNonEmptyDirectoryDelete">Defines whether the deletion of non-empty directories is allowed.</param>
         /// <param name="streamBufferSize">Buffer size to be used in async IO methods.</param>
         /// <param name="flushStream">Flush the stream after every write operation.</param>
-        public ServerManagerFileSystem(string rootPath, bool allowNonEmptyDirectoryDelete, int streamBufferSize, bool flushStream)
+        public ServerManagerFileSystem(IAccountInformation account, IServiceProvider serviceProvider, string rootPath, bool allowNonEmptyDirectoryDelete, int streamBufferSize, bool flushStream)
         {
+            _account = account;
+            _serviceProvider = serviceProvider;
+            _userManager = _serviceProvider.GetService<UserManager<MonitorUser>>();
+
             FileSystemEntryComparer = StringComparer.OrdinalIgnoreCase;
-            Root = new DotNetDirectoryEntry(Directory.CreateDirectory(rootPath), true, allowNonEmptyDirectoryDelete);
+            Root = new ServerManagerDirectoryEntry(allowNonEmptyDirectoryDelete);
             SupportsNonEmptyDirectoryDelete = allowNonEmptyDirectoryDelete;
             _streamBufferSize = streamBufferSize;
             _flushStream = flushStream;
@@ -72,44 +85,81 @@ namespace OpenGameMonitorWorker
         public bool SupportsAppend => true;
 
         /// <inheritdoc/>
-        public Task<IReadOnlyList<IUnixFileSystemEntry>> GetEntriesAsync(IUnixDirectoryEntry directoryEntry, CancellationToken cancellationToken)
+        public async Task<IReadOnlyList<IUnixFileSystemEntry>> GetEntriesAsync(IUnixDirectoryEntry directoryEntry, CancellationToken cancellationToken)
         {
             var result = new List<IUnixFileSystemEntry>();
-            var searchDirInfo = ((DotNetDirectoryEntry)directoryEntry).DirectoryInfo;
-            foreach (var info in searchDirInfo.EnumerateFileSystemInfos())
+            var managerDirEntry = ((ServerManagerDirectoryEntry)directoryEntry);
+            if (managerDirEntry.IsRoot)
             {
-                if (info is DirectoryInfo dirInfo)
+                List<Server> servers;
+                using (var db = _serviceProvider.GetService<MonitorDBContext>())
                 {
-                    result.Add(new DotNetDirectoryEntry(dirInfo, false, SupportsNonEmptyDirectoryDelete));
-                }
-                else
-                {
-                    if (info is FileInfo fileInfo)
+                    IQueryable<Server> serversQuery = db.Servers;
+                    var User = _account.FtpUser;
+                    var user = await _userManager.GetUserAsync(User);
+
+                    if (!User.IsInRole("Admin"))
                     {
-                        result.Add(new DotNetFileEntry(fileInfo));
+                        serversQuery = serversQuery.Where((server) =>
+                            user == server.Owner ||
+                            (server.Group != null
+                            ? server.Group.Members.Any((group) => group.User == user)
+                            : false)
+                        );
+                    }
+
+                    servers = await serversQuery.ToListAsync();
+                }
+
+                foreach (var server in servers)
+                {
+                    result.Add(new ServerManagerDirectoryEntry(server, new DirectoryInfo(server.Path), SupportsNonEmptyDirectoryDelete));
+                }
+            }
+            else if (managerDirEntry.Info != null)
+            {
+                var searchDirInfo = (DirectoryInfo) managerDirEntry.Info;
+                foreach (var info in searchDirInfo.EnumerateFileSystemInfos())
+                {
+                    if (info is DirectoryInfo dirInfo)
+                    {
+                        result.Add(new ServerManagerDirectoryEntry(managerDirEntry.Server, dirInfo, SupportsNonEmptyDirectoryDelete));
+                    }
+                    else
+                    {
+                        if (info is FileInfo fileInfo)
+                        {
+                            result.Add(new ServerManagerFileEntry(managerDirEntry.Server, fileInfo));
+                        }
                     }
                 }
             }
-            return Task.FromResult<IReadOnlyList<IUnixFileSystemEntry>>(result);
+
+            return result;
         }
 
         /// <inheritdoc/>
         public Task<IUnixFileSystemEntry?> GetEntryByNameAsync(IUnixDirectoryEntry directoryEntry, string name, CancellationToken cancellationToken)
         {
-            var searchDirInfo = ((DotNetDirectoryEntry)directoryEntry).Info;
-            var fullPath = Path.Combine(searchDirInfo.FullName, name);
-            IUnixFileSystemEntry? result;
-            if (File.Exists(fullPath))
+            var managerDirEntry = (ServerManagerDirectoryEntry)directoryEntry;
+            IUnixFileSystemEntry? result = null;
+
+            if (managerDirEntry.IsRoot || managerDirEntry.Info == null)
             {
-                result = new DotNetFileEntry(new FileInfo(fullPath));
-            }
-            else if (Directory.Exists(fullPath))
-            {
-                result = new DotNetDirectoryEntry(new DirectoryInfo(fullPath), false, SupportsNonEmptyDirectoryDelete);
+                result = null;
             }
             else
             {
-                result = null;
+                var searchDirInfo = managerDirEntry.Info;
+                var fullPath = Path.Combine(searchDirInfo.FullName, name);
+                if (File.Exists(fullPath))
+                {
+                    result = new ServerManagerFileEntry(managerDirEntry.Server, new FileInfo(fullPath));
+                }
+                else if (Directory.Exists(fullPath))
+                {
+                    result = new ServerManagerDirectoryEntry(managerDirEntry.Server, new DirectoryInfo(fullPath), SupportsNonEmptyDirectoryDelete);
+                }
             }
 
             return Task.FromResult(result);
@@ -118,30 +168,40 @@ namespace OpenGameMonitorWorker
         /// <inheritdoc/>
         public Task<IUnixFileSystemEntry> MoveAsync(IUnixDirectoryEntry parent, IUnixFileSystemEntry source, IUnixDirectoryEntry target, string fileName, CancellationToken cancellationToken)
         {
-            var targetEntry = (DotNetDirectoryEntry)target;
-            var targetName = Path.Combine(targetEntry.Info.FullName, fileName);
+            var targetEntry = (ServerManagerDirectoryEntry)target;
 
-            if (source is DotNetFileEntry sourceFileEntry)
+            if (targetEntry.Info == null)
             {
-                sourceFileEntry.FileInfo.MoveTo(targetName);
-                return Task.FromResult<IUnixFileSystemEntry>(new DotNetFileEntry(new FileInfo(targetName)));
+                throw new InvalidOperationException();
             }
 
-            var sourceDirEntry = (DotNetDirectoryEntry)source;
-            sourceDirEntry.DirectoryInfo.MoveTo(targetName);
-            return Task.FromResult<IUnixFileSystemEntry>(new DotNetDirectoryEntry(new DirectoryInfo(targetName), false, SupportsNonEmptyDirectoryDelete));
+            var targetName = Path.Combine(targetEntry.Info.FullName, fileName);
+
+            if (source is ServerManagerFileEntry sourceFileEntry)
+            {
+                ((FileInfo)sourceFileEntry.Info).MoveTo(targetName);
+                return Task.FromResult<IUnixFileSystemEntry>(new ServerManagerFileEntry(targetEntry.Server, new FileInfo(targetName)));
+            }
+
+            var sourceDirEntry = (ServerManagerDirectoryEntry)source;
+            ((DirectoryInfo)sourceDirEntry.Info).MoveTo(targetName);
+            return Task.FromResult<IUnixFileSystemEntry>(new ServerManagerDirectoryEntry(targetEntry.Server, new DirectoryInfo(targetName), SupportsNonEmptyDirectoryDelete));
         }
 
         /// <inheritdoc/>
         public Task UnlinkAsync(IUnixFileSystemEntry entry, CancellationToken cancellationToken)
         {
-            if (entry is DotNetDirectoryEntry dirEntry)
+            if (entry is ServerManagerDirectoryEntry dirEntry)
             {
-                dirEntry.DirectoryInfo.Delete(SupportsNonEmptyDirectoryDelete);
+                if (dirEntry.Info == null)
+                {
+                    throw new InvalidOperationException();
+                }
+                ((DirectoryInfo)dirEntry.Info).Delete(SupportsNonEmptyDirectoryDelete);
             }
             else
             {
-                var fileEntry = (DotNetFileEntry)entry;
+                var fileEntry = (ServerManagerFileEntry)entry;
                 fileEntry.Info.Delete();
             }
 
@@ -151,15 +211,22 @@ namespace OpenGameMonitorWorker
         /// <inheritdoc/>
         public Task<IUnixDirectoryEntry> CreateDirectoryAsync(IUnixDirectoryEntry targetDirectory, string directoryName, CancellationToken cancellationToken)
         {
-            var targetEntry = (DotNetDirectoryEntry)targetDirectory;
-            var newDirInfo = targetEntry.DirectoryInfo.CreateSubdirectory(directoryName);
-            return Task.FromResult<IUnixDirectoryEntry>(new DotNetDirectoryEntry(newDirInfo, false, SupportsNonEmptyDirectoryDelete));
+            var targetEntry = (ServerManagerDirectoryEntry)targetDirectory;
+
+            // Do not allow directory creation on root
+            if (targetEntry.Info == null || targetEntry.IsRoot)
+            {
+                throw new InvalidOperationException();
+            }
+
+            var newDirInfo = ((DirectoryInfo)targetEntry.Info).CreateSubdirectory(directoryName);
+            return Task.FromResult<IUnixDirectoryEntry>(new ServerManagerDirectoryEntry(targetEntry.Server, newDirInfo, SupportsNonEmptyDirectoryDelete));
         }
 
         /// <inheritdoc/>
         public Task<Stream> OpenReadAsync(IUnixFileEntry fileEntry, long startPosition, CancellationToken cancellationToken)
         {
-            var fileInfo = ((DotNetFileEntry)fileEntry).FileInfo;
+            var fileInfo = (FileInfo)((ServerManagerFileEntry)fileEntry).Info;
             var input = new FileStream(fileInfo.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             if (startPosition != 0)
             {
@@ -172,7 +239,7 @@ namespace OpenGameMonitorWorker
         /// <inheritdoc/>
         public async Task<IBackgroundTransfer?> AppendAsync(IUnixFileEntry fileEntry, long? startPosition, Stream data, CancellationToken cancellationToken)
         {
-            var fileInfo = ((DotNetFileEntry)fileEntry).FileInfo;
+            var fileInfo = (FileInfo)((ServerManagerFileEntry)fileEntry).Info;
             using (var output = fileInfo.OpenWrite())
             {
                 if (startPosition == null)
@@ -190,7 +257,14 @@ namespace OpenGameMonitorWorker
         /// <inheritdoc/>
         public async Task<IBackgroundTransfer?> CreateAsync(IUnixDirectoryEntry targetDirectory, string fileName, Stream data, CancellationToken cancellationToken)
         {
-            var targetEntry = (DotNetDirectoryEntry)targetDirectory;
+            var targetEntry = (ServerManagerDirectoryEntry)targetDirectory;
+
+            // Do not allow directory creation on root
+            if (targetEntry.Info == null || targetEntry.IsRoot)
+            {
+                throw new InvalidOperationException();
+            }
+
             var fileInfo = new FileInfo(Path.Combine(targetEntry.Info.FullName, fileName));
             using (var output = fileInfo.Create())
             {
@@ -203,7 +277,7 @@ namespace OpenGameMonitorWorker
         /// <inheritdoc/>
         public async Task<IBackgroundTransfer?> ReplaceAsync(IUnixFileEntry fileEntry, Stream data, CancellationToken cancellationToken)
         {
-            var fileInfo = ((DotNetFileEntry)fileEntry).FileInfo;
+            var fileInfo = (FileInfo)((ServerManagerFileEntry)fileEntry).Info;
             using (var output = fileInfo.OpenWrite())
             {
                 await data.CopyToAsync(output, _streamBufferSize, _flushStream, cancellationToken).ConfigureAwait(false);
@@ -224,7 +298,12 @@ namespace OpenGameMonitorWorker
         /// <returns>The modified <see cref="IUnixFileSystemEntry"/>.</returns>
         public Task<IUnixFileSystemEntry> SetMacTimeAsync(IUnixFileSystemEntry entry, DateTimeOffset? modify, DateTimeOffset? access, DateTimeOffset? create, CancellationToken cancellationToken)
         {
-            var item = ((DotNetFileSystemEntry)entry).Info;
+            var item = ((ServerManagerFileSystemEntry)entry).Info;
+
+            if (item == null)
+            {
+                throw new InvalidOperationException();
+            }
 
             if (access != null)
             {
@@ -241,9 +320,9 @@ namespace OpenGameMonitorWorker
                 item.CreationTimeUtc = create.Value.UtcDateTime;
             }
 
-            if (entry is DotNetDirectoryEntry dirEntry)
+            if (entry is ServerManagerDirectoryEntry dirEntry)
             {
-                return Task.FromResult<IUnixFileSystemEntry>(new DotNetDirectoryEntry((DirectoryInfo)item, dirEntry.IsRoot, SupportsNonEmptyDirectoryDelete));
+                return Task.FromResult<IUnixFileSystemEntry>(new ServerManagerDirectoryEntry((DirectoryInfo)item, SupportsNonEmptyDirectoryDelete));
             }
 
             return Task.FromResult<IUnixFileSystemEntry>(new DotNetFileEntry((FileInfo)item));

@@ -71,6 +71,7 @@ namespace Core.OpenGameMonitorWeb.Controllers
         // PUT: api/Servers/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
+        /*
         [HttpPut("{id}")]
         public async Task<IActionResult> PutServer(int id, Server server)
         {
@@ -80,6 +81,7 @@ namespace Core.OpenGameMonitorWeb.Controllers
             }
 
             _context.Entry(server).State = EntityState.Modified;
+            // _context.Entry(server).Property(x => x.PROPERTY).IsModified = false;
 
             try
             {
@@ -98,6 +100,13 @@ namespace Core.OpenGameMonitorWeb.Controllers
             }
 
             return NoContent();
+        }
+        */
+
+        [HttpPatch]
+        public async void PatchServer(int id, Server server)
+        {
+
         }
 
         // POST: api/Servers

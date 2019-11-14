@@ -40,6 +40,9 @@ namespace OpenGameMonitorLibraries
         public string Branch { get; set; }
         public string BranchPassword { get; set; }
 
+        public DateTime Created { get; set; }
+        public DateTime? LastModified { get; set; }
+
         public int? PID { get; set; }
         public int? UpdatePID { get; set; }
         public DateTime LastStart { get; set; }
