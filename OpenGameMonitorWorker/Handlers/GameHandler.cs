@@ -62,53 +62,23 @@ namespace OpenGameMonitorWorker
             _eventHandlerService = eventHandlerService;
 
             RegisterGameHandlers();
+            InitGameHandlerBase();
 		}
 
 
 		public void RegisterGameHandlers()
 		{
-            // Register all game handlers in the folder GameHandlers
-			Type[] typeList = Assembly.GetExecutingAssembly().GetTypes()
-				.Where(t => String.Equals(t.Namespace, "OpenGameMonitorWorker.GameHandlers", StringComparison.Ordinal))
-				.ToArray();
+            RegisterGameHandler<SourceHandler>();
+		}
 
-			foreach (Type type in typeList)
-			{
-				if (type is IGameHandlerBase)
-				{
-					IGameHandlerBase gameHandler = (IGameHandlerBase) ActivatorUtilities.CreateInstance(_serviceProvider, type);
-
-                    string identifier;
-                    try
-                    {
-                        identifier = string.Format(CultureInfo.CurrentCulture, "{0}:{1}", gameHandler.Engine, gameHandler.Game);
-                    }
-#pragma warning disable CA1031 // No capture tipos de excepción generales.
-                    catch
-#pragma warning restore CA1031 // No capture tipos de excepción generales.
-                    {
-                        identifier = gameHandler.Engine;
-                    }
-
-					gameHandlers.Add(identifier, gameHandler);
-
-                    // Small quirk, will try to change on later updates...
-                    _eventHandlerService.RegisterHandler("Server:ConsoleMessage", (handler) => gameHandler.ConsoleMessage += handler.Listener);
-                    _eventHandlerService.RegisterHandler("Server:UpdateMessage", (handler) => gameHandler.UpdateMessage += handler.Listener);
-                    _eventHandlerService.RegisterHandler("Server:Closed", (handler) => gameHandler.ServerClosed += handler.Listener);
-                    _eventHandlerService.RegisterHandler("Server:Opened", (handler) => gameHandler.ServerOpened += handler.Listener);
-
-
-                    _logger.LogInformation("Registered game handler {0}", identifier);
-				}
-			}
-
+        public void InitGameHandlerBase()
+        {
             // Listen to Server:Closed and check if the server should be restarted upon close
             _eventHandlerService.ListenForEvent("Server:Closed", async (Object serverObj, EventArgs e) =>
             {
                 Server server = (Server)serverObj;
 
-                if (server.RestartOnClose ?? true)
+                if (server.RestartOnClose)
                 {
                     await Task.Delay(1000);
 
@@ -132,7 +102,35 @@ namespace OpenGameMonitorWorker
                     handler.InitServer(server);
                 }
             }
-		}
+        }
+
+        public void RegisterGameHandler<TGameHandler>() where TGameHandler : IGameHandlerBase
+        {
+            IGameHandlerBase gameHandler = (IGameHandlerBase)ActivatorUtilities.CreateInstance<TGameHandler>(_serviceProvider);
+
+            string identifier;
+            try
+            {
+                identifier = string.Format(CultureInfo.CurrentCulture, "{0}:{1}", gameHandler.Engine, gameHandler.Game);
+            }
+#pragma warning disable CA1031 // No capture tipos de excepción generales.
+            catch
+#pragma warning restore CA1031 // No capture tipos de excepción generales.
+            {
+                identifier = gameHandler.Engine;
+            }
+
+            gameHandlers.Add(identifier, gameHandler);
+
+            // Small quirk, will try to change on later updates...
+            _eventHandlerService.RegisterHandler("Server:ConsoleMessage", (handler) => gameHandler.ConsoleMessage += handler.Listener);
+            _eventHandlerService.RegisterHandler("Server:UpdateMessage", (handler) => gameHandler.UpdateMessage += handler.Listener);
+            _eventHandlerService.RegisterHandler("Server:Closed", (handler) => gameHandler.ServerClosed += handler.Listener);
+            _eventHandlerService.RegisterHandler("Server:Opened", (handler) => gameHandler.ServerOpened += handler.Listener);
+
+
+            _logger.LogInformation("Registered game handler {0}", identifier);
+        }
 
 		public IGameHandlerBase GetServerHandler(Server server)
 		{

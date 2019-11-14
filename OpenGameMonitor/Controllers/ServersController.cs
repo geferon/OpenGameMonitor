@@ -48,7 +48,6 @@ namespace Core.OpenGameMonitorWeb.Controllers
 
         // GET: api/Servers/5
         [HttpGet("{id}")]
-        [Authorize(Policy = "ServerPolicy")]
         public async Task<ActionResult<Server>> GetServer(int id)
         {
             var server = await _context.Servers.FindAsync(id);
@@ -57,6 +56,8 @@ namespace Core.OpenGameMonitorWeb.Controllers
             {
                 return NotFound();
             }
+
+            var user = await _userManager.GetUserAsync(User);
 
             var authResult = await _authorizationService.AuthorizeAsync(User, server, "ServerPolicy");
 
@@ -71,8 +72,8 @@ namespace Core.OpenGameMonitorWeb.Controllers
         // PUT: api/Servers/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
-        /*
         [HttpPut("{id}")]
+        [Authorize(Policy = "ServerPolicy")]
         public async Task<IActionResult> PutServer(int id, Server server)
         {
             if (id != server.Id)
@@ -81,6 +82,28 @@ namespace Core.OpenGameMonitorWeb.Controllers
             }
 
             _context.Entry(server).State = EntityState.Modified;
+
+            // Read only properties
+            _context.Entry(server).Property(x => x.Created).IsModified = false;
+            _context.Entry(server).Property(x => x.LastModified).IsModified = false;
+            _context.Entry(server).Property(x => x.LastStart).IsModified = false;
+            _context.Entry(server).Property(x => x.LastUpdate).IsModified = false;
+            _context.Entry(server).Property(x => x.LastUpdateFailed).IsModified = false;
+
+            // Admin only properties
+            if (!User.IsInRole("Admin"))
+            {
+                _context.Entry(server).Property(x => x.Owner).IsModified = false;
+                _context.Entry(server).Property(x => x.Group).IsModified = false;
+                _context.Entry(server).Property(x => x.Enabled).IsModified = false;
+                _context.Entry(server).Property(x => x.StartParamsHidden).IsModified = false;
+                _context.Entry(server).Property(x => x.Game).IsModified = false;
+                _context.Entry(server).Property(x => x.Path).IsModified = false;
+                _context.Entry(server).Property(x => x.Executable).IsModified = false;
+                _context.Entry(server).Property(x => x.IP).IsModified = false;
+                _context.Entry(server).Property(x => x.DisplayIP).IsModified = false;
+                _context.Entry(server).Property(x => x.Port).IsModified = false;
+            }
             // _context.Entry(server).Property(x => x.PROPERTY).IsModified = false;
 
             try
@@ -101,7 +124,6 @@ namespace Core.OpenGameMonitorWeb.Controllers
 
             return NoContent();
         }
-        */
 
         [HttpPatch]
         public async void PatchServer(int id, Server server)
@@ -112,6 +134,7 @@ namespace Core.OpenGameMonitorWeb.Controllers
         // POST: api/Servers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
+        [Authorize(Roles="Admin")]
         [HttpPost]
         public async Task<ActionResult<Server>> PostServer(Server server)
         {

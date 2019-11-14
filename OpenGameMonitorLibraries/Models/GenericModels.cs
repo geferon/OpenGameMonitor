@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace OpenGameMonitorLibraries
@@ -18,14 +19,14 @@ namespace OpenGameMonitorLibraries
         public MonitorUser Owner { get; set; }
         [Required]
         public Group Group { get; set; }
-		public bool? Enabled { get; set; }
+		public bool Enabled { get; set; }
 
         [Required]
         public string Executable { get; set; }
         [Required]
         public string Path { get; set; }
-        public bool? Graceful { get; set; }
-        public bool? RestartOnClose { get; set; }
+        public bool Graceful { get; set; }
+        public bool RestartOnClose { get; set; }
 
         public string StartParams { get; set; }
         public string StartParamsHidden { get; set; }
@@ -38,17 +39,19 @@ namespace OpenGameMonitorLibraries
         public Game Game { get; set; }
         [Column(TypeName="varchar(40)")]
         public string Branch { get; set; }
-        public string BranchPassword { get; set; }
+        public string? BranchPassword { get; set; }
 
         public DateTime Created { get; set; }
         public DateTime? LastModified { get; set; }
 
+        [IgnoreDataMember]
         public int? PID { get; set; }
+        [IgnoreDataMember]
         public int? UpdatePID { get; set; }
-        public DateTime LastStart { get; set; }
+        public DateTime? LastStart { get; set; }
 
-		public DateTime LastUpdate { get; set; }
-		public bool LastUpdateFailed { get; set; }
+		public DateTime? LastUpdate { get; set; }
+		public bool? LastUpdateFailed { get; set; }
 
     }
 

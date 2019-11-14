@@ -40,6 +40,9 @@ namespace OpenGameMonitorLibraries
 
                 entity.Property(b => b.Branch)
                     .HasDefaultValue("public");
+
+                entity.Property(b => b.Created)
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
             });
 
             //modelBuilder.Entity<User>(entity =>
