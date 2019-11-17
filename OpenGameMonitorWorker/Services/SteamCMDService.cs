@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenGameMonitorLibraries;
+using OpenGameMonitorWorker.Tasks;
 using SharpCompress.Common;
 using SharpCompress.Readers;
 using System;
@@ -13,7 +14,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenGameMonitorWorker
+namespace OpenGameMonitorWorker.Services
 {
     public class SteamCMDService
     {

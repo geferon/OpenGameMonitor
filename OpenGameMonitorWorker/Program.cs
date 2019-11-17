@@ -21,6 +21,9 @@ using MySql.Data.MySqlClient;
 using FubarDev.FtpServer;
 using FubarDev.FtpServer.FileSystem.DotNet;
 using Microsoft.AspNetCore.Identity;
+using OpenGameMonitorWorker.Services;
+using OpenGameMonitorWorker.Tasks;
+using OpenGameMonitorWorker.Handlers;
 
 namespace OpenGameMonitorWorker
 {

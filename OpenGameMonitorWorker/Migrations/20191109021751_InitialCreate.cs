@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Core.OpenGameMonitorWorker.Migrations
+namespace OpenGameMonitorWorker.Migrations
 {
     public partial class InitialCreate : Migration
     {

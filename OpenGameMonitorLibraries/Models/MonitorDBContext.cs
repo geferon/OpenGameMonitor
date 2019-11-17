@@ -38,6 +38,9 @@ namespace OpenGameMonitorLibraries
                 entity.Property(b => b.RestartOnClose)
                     .HasDefaultValue(true);
 
+                entity.Property(b => b.LastUpdateFailed)
+                    .HasDefaultValue(false);
+
                 entity.Property(b => b.Branch)
                     .HasDefaultValue("public");
 

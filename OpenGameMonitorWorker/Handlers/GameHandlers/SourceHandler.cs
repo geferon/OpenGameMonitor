@@ -10,8 +10,10 @@ using CoreRCON;
 using CoreRCON.PacketFormats;
 using Microsoft.Extensions.DependencyInjection;
 using OpenGameMonitorLibraries;
+using OpenGameMonitorWorker.Services;
+using OpenGameMonitorWorker.Utils;
 
-namespace OpenGameMonitorWorker
+namespace OpenGameMonitorWorker.Handlers
 {
     internal class SourceHandler : SteamCMDBaseHandler
     {
@@ -155,7 +157,7 @@ namespace OpenGameMonitorWorker
 
             bool succesfulShutdown = false;
 
-            if (server.Graceful ?? true)
+            if (server.Graceful)
             {
                 string rconPass = config.Get("rcon_password");
 

@@ -10,7 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenGameMonitorWorker
+namespace OpenGameMonitorWorker.Handlers
 {
     public class ServerUpdateEventArgs : EventArgs
     {
@@ -219,7 +219,7 @@ namespace OpenGameMonitorWorker
             if (server == null)
                 throw new ArgumentNullException(nameof(server));
 
-            bool enabled = server.Enabled ?? false;
+            bool enabled = server.Enabled;
 
 			if (!enabled)
 			{

@@ -10,12 +10,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using OpenGameMonitorLibraries;
+using OpenGameMonitorWorker.Handlers;
 using Xeeny.Api.Server;
 using Xeeny.Connections;
 using Xeeny.Dispatching;
 using Xeeny.Server;
 
-namespace OpenGameMonitorWorker
+namespace OpenGameMonitorWorker.Services
 {
     public class IPCService : BackgroundService
     {

@@ -4,6 +4,61 @@
     "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\OpenGameMonitorWorker\\OpenGameMonitorWorker.csproj": {}
   },
   "projects": {
+    "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\CoreRCON\\CoreRCON.csproj": {
+      "version": "3.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\CoreRCON\\CoreRCON.csproj",
+        "projectName": "CoreRCON",
+        "projectPath": "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\CoreRCON\\CoreRCON.csproj",
+        "packagesPath": "C:\\Users\\Jorge\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\CoreRCON\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Jorge\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netstandard2.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netstandard2.1": {
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netstandard2.1": {
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "NETStandard.Library": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.0.100\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
     "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\OpenGameMonitorWorker\\OpenGameMonitorWorker.csproj": {
       "version": "1.0.0",
       "restore": {
@@ -29,7 +84,11 @@
         },
         "frameworks": {
           "netcoreapp3.0": {
-            "projectReferences": {}
+            "projectReferences": {
+              "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\CoreRCON\\CoreRCON.csproj": {
+                "projectPath": "C:\\Users\\Jorge\\source\\repos\\OpenGameMonitor\\CoreRCON\\CoreRCON.csproj"
+              }
+            }
           }
         },
         "warningProperties": {
@@ -41,29 +100,84 @@
       "frameworks": {
         "netcoreapp3.0": {
           "dependencies": {
-            "JKang.IpcServiceFramework.Server": {
+            "FubarDev.FtpServer": {
               "target": "Package",
-              "version": "[2.2.2, )"
+              "version": "[3.1.1, )"
+            },
+            "FubarDev.FtpServer.Abstractions": {
+              "target": "Package",
+              "version": "[3.1.1, )"
+            },
+            "FubarDev.FtpServer.FileSystem.DotNet": {
+              "target": "Package",
+              "version": "[3.1.1, )"
+            },
+            "Microsoft.AspNetCore.ApiAuthorization.IdentityServer": {
+              "target": "Package",
+              "version": "[3.0.0, )"
+            },
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[3.0.0, )"
+            },
+            "Microsoft.AspNetCore.Identity.UI": {
+              "target": "Package",
+              "version": "[3.0.0, )"
+            },
+            "Microsoft.CodeAnalysis.FxCopAnalyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.9.7, )"
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[3.0.0-rc1.19456.14, )"
+              "version": "[3.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[3.0.0, )"
+            },
+            "Microsoft.Extensions.DependencyInjection": {
+              "target": "Package",
+              "version": "[3.0.0, )"
             },
             "Microsoft.Extensions.Hosting": {
               "target": "Package",
-              "version": "[3.0.0-rc1.19456.10, )"
+              "version": "[3.0.0, )"
             },
             "Microsoft.Extensions.Hosting.WindowsServices": {
               "target": "Package",
-              "version": "[3.0.0-rc1.19456.10, )"
+              "version": "[3.0.0, )"
             },
             "Pomelo.EntityFrameworkCore.MySql": {
               "target": "Package",
-              "version": "[2.2.1-preview1-final, )"
+              "version": "[3.0.0-rc2.final, )"
+            },
+            "SteamKit2": {
+              "target": "Package",
+              "version": "[2.2.0, )"
             },
             "System.ServiceProcess.ServiceController": {
               "target": "Package",
-              "version": "[4.6.0-rc1.19456.4, )"
+              "version": "[4.6.0, )"
+            },
+            "Xeeny": {
+              "target": "Package",
+              "version": "[1.3.0, )"
+            },
+            "Xeeny.Extensions.Loggers": {
+              "target": "Package",
+              "version": "[1.0.0, )"
+            },
+            "Xeeny.Serialization.JsonSerializer": {
+              "target": "Package",
+              "version": "[1.1.0, )"
+            },
+            "sharpcompress": {
+              "target": "Package",
+              "version": "[0.24.0, )"
             }
           },
           "imports": [
@@ -77,11 +191,14 @@
           "assetTargetFallback": true,
           "warn": true,
           "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.0.100-rc1-014190\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.0.100\\RuntimeIdentifierGraph.json"
         }
       }
     }

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Xeeny.Api.Client;
 using Xeeny.Connections;
 
-namespace OpenGameMonitor
+namespace OpenGameMonitor.Services
 {
     public class IPCClient : BackgroundService
     {

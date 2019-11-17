@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OpenGameMonitorLibraries;
 
-namespace Core.OpenGameMonitorWorker.Migrations
+namespace OpenGameMonitorWorker.Migrations
 {
     [DbContext(typeof(MonitorDBContext))]
     [Migration("20191109021751_InitialCreate")]

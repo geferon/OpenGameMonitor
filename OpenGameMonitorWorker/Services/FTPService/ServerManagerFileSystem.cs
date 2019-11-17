@@ -15,7 +15,7 @@ using FubarDev.FtpServer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace OpenGameMonitorWorker
+namespace OpenGameMonitorWorker.Services
 {
     class ServerManagerFileSystem : IUnixFileSystem
     {

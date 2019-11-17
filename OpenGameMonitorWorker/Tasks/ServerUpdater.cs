@@ -3,14 +3,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using OpenGameMonitorWorker.Utils;
 using OpenGameMonitorLibraries;
+using OpenGameMonitorWorker.Handlers;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace OpenGameMonitorWorker
+namespace OpenGameMonitorWorker.Tasks
 {
 	public class ServerUpdater : BackgroundService
 	{
@@ -46,7 +48,7 @@ namespace OpenGameMonitorWorker
 				{
 					Server server = serversToUpdate[0];
 
-					if (server.LastUpdateFailed && DateTime.Now > server.LastUpdate.AddMinutes(_config.GetValue<double>("UpdateSystem:ErrorTimeout", 10)))
+					if (server.LastUpdateFailed && server.LastUpdate != null && DateTime.Now > server.LastUpdate?.AddMinutes(_config.GetValue<double>("UpdateSystem:ErrorTimeout", 10)))
 					{
 						// Server has already been tried to update, stopping
 						serversToUpdate.RemoveAt(0);

@@ -7,9 +7,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using OpenGameMonitor.Services;
 using OpenGameMonitorLibraries;
 
-namespace Core.OpenGameMonitorWeb.Controllers
+namespace OpenGameMonitorWeb.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -19,12 +20,14 @@ namespace Core.OpenGameMonitorWeb.Controllers
         private readonly MonitorDBContext _context;
         private readonly IAuthorizationService _authorizationService;
         private readonly UserManager<MonitorUser> _userManager;
+        private readonly IPCClient _ipcClient;
 
-        public ServersController(MonitorDBContext context, IAuthorizationService authorizationService, UserManager<MonitorUser> userManager)
+        public ServersController(MonitorDBContext context, IAuthorizationService authorizationService, UserManager<MonitorUser> userManager, IPCClient ipcClient)
         {
             _context = context;
             _authorizationService = authorizationService;
             _userManager = userManager;
+            _ipcClient = ipcClient;
         }
 
         // GET: api/Servers
@@ -129,6 +132,65 @@ namespace Core.OpenGameMonitorWeb.Controllers
         public async void PatchServer(int id, Server server)
         {
 
+        }
+
+        [HttpPost("{id}")]
+        public async Task<ActionResult> PostServerAction(int id, string action)
+        {
+            var server = await _context.Servers.FindAsync(id);
+
+            if (server == null)
+            {
+                return NotFound();
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+
+            var authResult = await _authorizationService.AuthorizeAsync(User, server, "ServerPolicy");
+
+            if (!authResult.Succeeded)
+            {
+                return Forbid();
+            }
+
+            switch (action)
+            {
+                case "start":
+                    try
+                    {
+                        await _ipcClient.ComsClient.ServerOpen(id);
+                    }
+                    catch (Exception err)
+                    {
+                        return StatusCode(500, new { Error = err.Message });
+                    }
+                    break;
+                case "stop":
+                    try
+                    {
+                        await _ipcClient.ComsClient.ServerClose(id);
+                    }
+                    catch (Exception err)
+                    {
+                        return StatusCode(500, new { Error = err.Message });
+                    }
+                    break;
+                case "update":
+                    try
+                    {
+                        await _ipcClient.ComsClient.ServerUpdate(id);
+                    }
+                    catch (Exception err)
+                    {
+                        return StatusCode(500, new { Error = err.Message });
+                    }
+                    break;
+                default:
+                    return BadRequest();
+                    break;
+            }
+
+            return Ok();
         }
 
         // POST: api/Servers

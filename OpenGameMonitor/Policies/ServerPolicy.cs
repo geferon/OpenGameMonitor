@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using OpenGameMonitorLibraries;
 using Microsoft.AspNetCore.Identity;
 
-namespace OpenGameMonitorWeb
+namespace OpenGameMonitorWeb.Policies
 {
     public class ServerPolicyRequirement : IAuthorizationRequirement { }
 

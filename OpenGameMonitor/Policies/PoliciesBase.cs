@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace OpenGameMonitorWeb
+namespace OpenGameMonitorWeb.Policies
 {
     public static class PoliciesBaseExtensions
     {

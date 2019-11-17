@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenGameMonitorWorker
+namespace OpenGameMonitorWorker.Services
 {
     public class SteamAPIService : IDisposable
     {

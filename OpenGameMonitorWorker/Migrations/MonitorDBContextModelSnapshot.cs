@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OpenGameMonitorLibraries;
 
-namespace Core.OpenGameMonitorWorker.Migrations
+namespace OpenGameMonitorWorker.Migrations
 {
     [DbContext(typeof(MonitorDBContext))]
     partial class MonitorDBContextModelSnapshot : ModelSnapshot

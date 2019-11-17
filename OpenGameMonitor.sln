@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29306.81
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.OpenGameMonitorWeb", "OpenGameMonitor\Core.OpenGameMonitorWeb.csproj", "{EFEDEC27-5A9B-4069-81A5-EB36A7BC6862}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenGameMonitorWeb", "OpenGameMonitor\OpenGameMonitorWeb.csproj", "{EFEDEC27-5A9B-4069-81A5-EB36A7BC6862}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "OpenGameMonitorLibraries", "OpenGameMonitorLibraries\OpenGameMonitorLibraries.shproj", "{B82EAA51-96B0-4EAD-9D5F-52343EA10A99}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.OpenGameMonitorWorker", "OpenGameMonitorWorker\Core.OpenGameMonitorWorker.csproj", "{5F697CC5-72BC-4D76-87E8-E8B9D1BADC15}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenGameMonitorWorker", "OpenGameMonitorWorker\OpenGameMonitorWorker.csproj", "{5F697CC5-72BC-4D76-87E8-E8B9D1BADC15}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreRCON", "CoreRCON\CoreRCON.csproj", "{6029C5ED-CD96-4DAF-9899-FE1F249D695B}"
 EndProject
