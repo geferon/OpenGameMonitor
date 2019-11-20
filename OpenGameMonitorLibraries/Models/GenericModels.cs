@@ -73,10 +73,28 @@ namespace OpenGameMonitorLibraries
         //public virtual ICollection<Group> Groups { get; set; }
     }
 
+    public class DTOMonitorUser
+    {
+        public string UserName { get; set; }
+        public string Email { get; set; }
+        public List<GroupUser> Groups { get; set; }
+    }
+    
+    public class DTOMonitorUserSend : DTOMonitorUser
+    {
+        public string Password { get; set; }
+    }
+
     public class MonitorRole : IdentityRole
     {
         public MonitorRole() : base() { }
         public MonitorRole(string name) : base(name) { }
+    }
+
+    public class DTOMonitorRole
+    {
+        public string Id;
+        public string Name;
     }
 
     //public class User
@@ -107,9 +125,9 @@ namespace OpenGameMonitorLibraries
     {
         public string UserID { get; set; }
         //public User User { get; set; }
-        public MonitorUser User { get; set; }
+        public virtual MonitorUser User { get; set; }
         public int GroupID { get; set; }
-        public Group Group { get; set; }
+        public virtual Group Group { get; set; }
     }
 
     public class Setting

@@ -134,7 +134,7 @@ namespace OpenGameMonitorWeb.Controllers
 
         }
 
-        [HttpPost("{id}")]
+        [HttpPost("{id}/{action}")]
         public async Task<ActionResult> PostServerAction(int id, string action)
         {
             var server = await _context.Servers.FindAsync(id);

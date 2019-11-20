@@ -6,6 +6,8 @@ using OpenGameMonitorLibraries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace OpenGameMonitorWeb.Controllers
@@ -28,16 +30,30 @@ namespace OpenGameMonitorWeb.Controllers
 
         // GET: api/Users
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MonitorUser>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<DTOMonitorUser>>> GetUsers()
         {
-            return await _context.Users.ToListAsync();
+            return await _context.Users.Include(b => b.Groups)
+                .Select(b =>
+                new DTOMonitorUser()
+                {
+                    UserName = b.UserName,
+                    Groups = b.Groups
+                }
+            ).ToListAsync();
         }
 
         // GET: api/Users/5
         [HttpGet("{username}")]
-        public async Task<ActionResult<MonitorUser>> GetUser(string username)
+        public async Task<ActionResult<DTOMonitorUser>> GetUser(string username)
         {
-            var user = await _context.Users.FindAsync(username);
+            var user = await _context.Users.Include(b => b.Groups)
+                .Select(b =>
+                new DTOMonitorUser()
+                {
+                    UserName = b.UserName,
+                    Groups = b.Groups
+                }
+            ).FirstOrDefaultAsync(b => b.UserName == username);
 
             if (user == null)
             {
@@ -51,14 +67,21 @@ namespace OpenGameMonitorWeb.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{username}")]
-        public async Task<IActionResult> PutUser(string username, MonitorUser user)
+        public async Task<IActionResult> PutUser(string username, DTOMonitorUser user)
         {
             if (username != user.UserName)
             {
                 return BadRequest();
             }
 
-            _context.Entry(user).State = EntityState.Modified;
+            var userReal = new MonitorUser()
+            {
+                UserName = user.UserName,
+                Email = user.Email,
+                Groups = user.Groups
+            };
+
+            _context.Entry(userReal).State = EntityState.Modified;
 
             try
             {
@@ -83,17 +106,44 @@ namespace OpenGameMonitorWeb.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<MonitorUser>> PostUser(MonitorUser user)
+        public async Task<ActionResult<DTOMonitorUser>> PostUser(DTOMonitorUserSend user)
         {
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            //_context.Users.Add(user);
+            //await _context.SaveChangesAsync();
+
+            var userReal = new MonitorUser()
+            {
+                UserName = user.UserName,
+                Email = user.Email,
+                Groups = user.Groups
+            };
+
+            var result = await _userManager.CreateAsync(userReal, user.Password);
+
+            if (!result.Succeeded)
+            {
+                var errMessage = new StringBuilder();
+                foreach (var err in result.Errors)
+                {
+                    errMessage.Append(err.Code);
+                    errMessage.Append(": ");
+                    errMessage.Append(err.Description);
+                    errMessage.Append(Environment.NewLine);
+                }
+
+                return new ContentResult()
+                {
+                    Content = string.Format("Error while adding the user! {0}", errMessage.ToString()),
+                    StatusCode = (int) System.Net.HttpStatusCode.InternalServerError
+                };
+            }
 
             return CreatedAtAction("GetUser", new { username = user.UserName }, user);
         }
 
         // DELETE: api/Users/5
         [HttpDelete("{username}")]
-        public async Task<ActionResult<MonitorUser>> DeleteUser(string username)
+        public async Task<ActionResult<DTOMonitorUser>> DeleteUser(string username)
         {
             var user = await _context.Users.FindAsync(username);
             if (user == null)
@@ -104,7 +154,12 @@ namespace OpenGameMonitorWeb.Controllers
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
 
-            return user;
+            return new DTOMonitorUser()
+            {
+                UserName = user.UserName,
+                Email = user.Email,
+                Groups = user.Groups
+            };
         }
 
         private bool UserExists(string username)
