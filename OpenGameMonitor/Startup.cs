@@ -13,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using OpenGameMonitor.Services;
 using OpenGameMonitorLibraries;
 using OpenGameMonitorWeb;
+using OpenGameMonitorWeb.Hubs;
 using OpenGameMonitorWeb.Policies;
 using System;
 
@@ -77,6 +78,8 @@ namespace OpenGameMonitor
             });
 
             services.AddSingleton<IAuthorizationHandler, ServerPolicyHandler>();
+
+            services.AddSignalR();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -111,6 +114,8 @@ namespace OpenGameMonitor
                     name: "default",
                     pattern: "{controller}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
+
+                endpoints.MapHub<ServerHub>("/serverhub");
             });
 
             app.UseSpa(spa =>
