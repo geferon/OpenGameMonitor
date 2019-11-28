@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.Extensions.Options;
 using IdentityServer4.EntityFramework.Options;
+using EntityFrameworkCore.Triggers;
 
 namespace OpenGameMonitorLibraries
 {
@@ -44,8 +45,8 @@ namespace OpenGameMonitorLibraries
                 entity.Property(b => b.Branch)
                     .HasDefaultValue("public");
 
-                entity.Property(b => b.Created)
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                //entity.Property(b => b.Created)
+                //    .HasDefaultValueSql("CURRENT_TIMESTAMP");
             });
 
             //modelBuilder.Entity<User>(entity =>
@@ -82,7 +83,7 @@ namespace OpenGameMonitorLibraries
 
     // Used for fucking testing
 
-    public class MonitorDBContextFactory : IDesignTimeDbContextFactory<MonitorDBContext>
+    public class MonitorDBContextFactory : DbContextWithTriggers, IDesignTimeDbContextFactory<MonitorDBContext>
     {
         public MonitorDBContext CreateDbContext(string[] args)
         {

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using EntityFrameworkCore.Triggers;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -8,7 +9,19 @@ using System.Text;
 
 namespace OpenGameMonitorLibraries
 {
-    public class Server
+    public abstract class Trackable
+    {
+        public DateTime Inserted { get; private set; }
+        public DateTime Updated { get; private set; }
+
+        static Trackable()
+        {
+            Triggers<Trackable>.Inserting += entry => entry.Entity.Inserted = entry.Entity.Updated = DateTime.UtcNow;
+            Triggers<Trackable>.Updating += entry => entry.Entity.Updated = DateTime.UtcNow;
+        }
+    }
+
+    public class Server : Trackable
     {
         [Key]
         public int Id { get; set; }
@@ -41,8 +54,9 @@ namespace OpenGameMonitorLibraries
         public string Branch { get; set; }
         public string? BranchPassword { get; set; }
 
-        public DateTime Created { get; set; }
-        public DateTime? LastModified { get; set; }
+        // Not needed as of the Trackable class anymore
+        // public DateTime Created { get; set; }
+        // public DateTime? LastModified { get; set; }
 
         [IgnoreDataMember]
         public int? PID { get; set; }
@@ -110,7 +124,7 @@ namespace OpenGameMonitorLibraries
     //    public List<GroupUser> Groups { get; set; }
     //}
 
-    public class Group
+    public class Group : Trackable
     {
         [Key]
         public int Id { get; set; }

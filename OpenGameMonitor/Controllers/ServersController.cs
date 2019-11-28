@@ -87,8 +87,8 @@ namespace OpenGameMonitorWeb.Controllers
             _context.Entry(server).State = EntityState.Modified;
 
             // Read only properties
-            _context.Entry(server).Property(x => x.Created).IsModified = false;
-            _context.Entry(server).Property(x => x.LastModified).IsModified = false;
+            //_context.Entry(server).Property(x => x.Created).IsModified = false;
+            //_context.Entry(server).Property(x => x.LastModified).IsModified = false;
             _context.Entry(server).Property(x => x.LastStart).IsModified = false;
             _context.Entry(server).Property(x => x.LastUpdate).IsModified = false;
             _context.Entry(server).Property(x => x.LastUpdateFailed).IsModified = false;

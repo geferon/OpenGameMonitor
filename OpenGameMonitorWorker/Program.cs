@@ -67,6 +67,10 @@ namespace OpenGameMonitorWorker
                     {
                         config.AddCommandLine(args);
                     }
+
+                    var cfg = config.Build();
+
+                    config.AddMonitorDBConfiguration(options => options.UseMySql(cfg.GetConnectionString("MonitorDatabase")));
                 })
                 .ConfigureServices((hostContext, services) =>
                 {

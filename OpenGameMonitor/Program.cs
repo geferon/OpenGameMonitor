@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using OpenGameMonitorLibraries;
+using Microsoft.EntityFrameworkCore;
 
 namespace OpenGameMonitor
 {
@@ -27,6 +28,10 @@ namespace OpenGameMonitor
 
                     config.AddJsonFile("appsettings.json", optional: false);
                     config.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
+
+                    var cfg = config.Build();
+
+                    config.AddMonitorDBConfiguration(options => options.UseMySql(cfg.GetConnectionString("MonitorDatabase")));
                 })
                 .UseStartup<Startup>();
     }

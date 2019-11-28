@@ -104,6 +104,10 @@
       "frameworks": {
         "netcoreapp3.0": {
           "dependencies": {
+            "EntityFrameworkCore.Triggers": {
+              "target": "Package",
+              "version": "[1.2.2, )"
+            },
             "FubarDev.FtpServer": {
               "target": "Package",
               "version": "[3.1.1, )"
@@ -132,32 +136,36 @@
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[2.9.7, )"
+              "version": "[2.9.8, )"
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[3.0.0, )"
+              "version": "[3.0.1, )"
             },
             "Microsoft.EntityFrameworkCore.Design": {
               "suppressParent": "All",
               "target": "Package",
-              "version": "[3.0.0, )"
+              "version": "[3.0.1, )"
             },
             "Microsoft.Extensions.DependencyInjection": {
               "target": "Package",
-              "version": "[3.0.0, )"
+              "version": "[3.0.1, )"
             },
             "Microsoft.Extensions.Hosting": {
               "target": "Package",
-              "version": "[3.0.0, )"
+              "version": "[3.0.1, )"
             },
             "Microsoft.Extensions.Hosting.WindowsServices": {
               "target": "Package",
-              "version": "[3.0.0, )"
+              "version": "[3.0.1, )"
+            },
+            "NickStrupat.EntityFrameworkCore.Triggers.Hosting": {
+              "target": "Package",
+              "version": "[1.0.1, )"
             },
             "Pomelo.EntityFrameworkCore.MySql": {
               "target": "Package",
-              "version": "[3.0.0-rc2.final, )"
+              "version": "[3.0.0, )"
             },
             "SteamKit2": {
               "target": "Package",

@@ -1,3 +1,5 @@
+using EntityFrameworkCore.Triggers;
+using EntityFrameworkCore.Triggers.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -59,6 +61,7 @@ namespace OpenGameMonitor
             }
 
             services.AddDbContext<MonitorDBContext>(options => options.UseMySql(connectionStr));
+            services.AddTriggers();
 
             services.AddDefaultIdentity<MonitorUser>()
                 .AddRoles<MonitorRole>()
