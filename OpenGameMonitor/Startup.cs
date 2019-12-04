@@ -33,18 +33,6 @@ namespace OpenGameMonitor
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc(options =>
-            {
-                options.EnableEndpointRouting = false;
-            })
-                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
-
-            // In production, the Angular files will be served from this directory
-            services.AddSpaStaticFiles(configuration =>
-            {
-                configuration.RootPath = "ClientApp/dist";
-            });
-
             services.AddHostedService<IPCClient>();
 
             services.AddSingleton<EventHandlerService>();
@@ -69,7 +57,16 @@ namespace OpenGameMonitor
                 .AddEntityFrameworkStores<MonitorDBContext>();
 
             services.AddIdentityServer()
-                .AddApiAuthorization<MonitorUser, MonitorDBContext>();
+                .AddApiAuthorization<MonitorUser, MonitorDBContext>(options =>
+                {
+                    options.Clients.AddIdentityServerSPA("OpenGameMonitorPanel", builder =>
+                    {
+                        builder.WithRedirectUri("https://localhost:44307/authentication/login-callback");
+                        builder.WithLogoutRedirectUri("https://localhost:44307/authentication/logout-callback");
+                        //builder.WithRedirectUri("");
+                        //builder.WithLogoutRedirectUri("");
+                    });
+                });
 
             services.AddAuthentication()
                 .AddIdentityServerJwt();
@@ -83,6 +80,22 @@ namespace OpenGameMonitor
             services.AddSingleton<IAuthorizationHandler, ServerPolicyHandler>();
 
             services.AddSignalR();
+
+
+            services.AddControllersWithViews();
+            services.AddRazorPages();
+
+            services.AddMvc(options =>
+            {
+                options.EnableEndpointRouting = false;
+            })
+                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+
+            // In production, the Angular files will be served from this directory
+            services.AddSpaStaticFiles(configuration =>
+            {
+                configuration.RootPath = "ClientApp/dist";
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

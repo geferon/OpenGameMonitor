@@ -14,9 +14,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { LayoutModule } from '@angular/cdk/layout';
 import { MaterialModule } from './material.module';
 
-import { ApiAuthorizationModule } from 'src/api-authorization/api-authorization.module';
-import { AuthorizeGuard } from 'src/api-authorization/authorize.guard';
-import { AuthorizeInterceptor } from 'src/api-authorization/authorize.interceptor';
+import { ApiAuthorizationModule } from '../api-authorization/api-authorization.module';
+import { AuthorizeGuard } from '../api-authorization/authorize.guard';
+import { AuthorizeInterceptor } from '../api-authorization/authorize.interceptor';
 
 @NgModule({
 	declarations: [
@@ -30,12 +30,14 @@ import { AuthorizeInterceptor } from 'src/api-authorization/authorize.intercepto
 	imports: [
 		BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
 		HttpClientModule,
+
 		FormsModule,
+		ApiAuthorizationModule,
 		AppRoutingModule,
+
 		BrowserAnimationsModule,
 		LayoutModule,
-		MaterialModule,
-		ApiAuthorizationModule
+		MaterialModule
 	],
 	providers: [
 		{ provide: HTTP_INTERCEPTORS, useClass: AuthorizeInterceptor, multi: true }

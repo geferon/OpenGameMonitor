@@ -1,6 +1,6 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes, Route } from '@angular/router';
-//import { HomeComponent } from './home/home.component';
+// import { HomeComponent } from './home/home.component';
 
 export interface RouteItem extends Route {
 	title?: string;
@@ -12,16 +12,16 @@ export const appRoutes: RouteItem[] = [
 	{
 		title: 'Home',
 		path: 'home',
-		//component: HomeComponent,
+		// component: HomeComponent,
 		loadChildren: () => import('./home/home.module').then(mod => mod.HomeModule),
 		main: true
 	}
 ];
 
 // Sidebar items exporting
-for (let item of appRoutes) {
+for (const item of appRoutes) {
 	if (item.main) {
-		let redirect = {
+		const redirect = {
 			path: '',
 			pathMatch: 'full',
 			redirectTo: item.path

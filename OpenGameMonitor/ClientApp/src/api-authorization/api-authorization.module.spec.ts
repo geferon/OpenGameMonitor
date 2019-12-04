@@ -4,10 +4,10 @@ describe('ApiAuthorizationModule', () => {
   let apiAuthorizationModule: ApiAuthorizationModule;
 
   beforeEach(() => {
-    apiAuthorizationModule = new ApiAuthorizationModule();
+	apiAuthorizationModule = new ApiAuthorizationModule();
   });
 
   it('should create an instance', () => {
-    expect(apiAuthorizationModule).toBeTruthy();
+	expect(apiAuthorizationModule).toBeTruthy();
   });
 });

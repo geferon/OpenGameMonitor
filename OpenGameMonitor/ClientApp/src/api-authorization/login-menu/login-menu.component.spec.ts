@@ -7,19 +7,19 @@ describe('LoginMenuComponent', () => {
   let fixture: ComponentFixture<LoginMenuComponent>;
 
   beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ LoginMenuComponent ]
-    })
-    .compileComponents();
+	TestBed.configureTestingModule({
+		declarations: [ LoginMenuComponent ]
+	})
+	.compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(LoginMenuComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+	fixture = TestBed.createComponent(LoginMenuComponent);
+	component = fixture.componentInstance;
+	fixture.detectChanges();
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+	expect(component).toBeTruthy();
   });
 });

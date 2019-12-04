@@ -41,8 +41,8 @@ namespace OpenGameMonitorWorker.Services
             : this(fsInfo)
         {
             Server = server;
-            CreatedTime = server.Created;
-            LastWriteTime = server.LastModified;
+            CreatedTime = server.Inserted;
+            LastWriteTime = server.Updated;
 
             var accessMode = new GenericAccessMode(true, true, true);
             Permissions = new GenericUnixPermissions(accessMode, accessMode, accessMode);

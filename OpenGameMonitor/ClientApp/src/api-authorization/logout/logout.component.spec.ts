@@ -7,19 +7,19 @@ describe('LogoutComponent', () => {
   let fixture: ComponentFixture<LogoutComponent>;
 
   beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ LogoutComponent ]
-    })
-    .compileComponents();
+	TestBed.configureTestingModule({
+		declarations: [ LogoutComponent ]
+	})
+	.compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(LogoutComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+	fixture = TestBed.createComponent(LogoutComponent);
+	component = fixture.componentInstance;
+	fixture.detectChanges();
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+	expect(component).toBeTruthy();
   });
 });

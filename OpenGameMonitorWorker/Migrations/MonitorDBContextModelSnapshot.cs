@@ -14,7 +14,7 @@ namespace OpenGameMonitorWorker.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.0.0")
+                .HasAnnotation("ProductVersion", "3.1.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.DeviceFlowCodes", b =>
@@ -97,32 +97,6 @@ namespace OpenGameMonitorWorker.Migrations
                     b.HasIndex("SubjectId", "ClientId", "Type");
 
                     b.ToTable("PersistedGrants");
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("varchar(256) CHARACTER SET utf8mb4")
-                        .HasMaxLength(256);
-
-                    b.Property<string>("NormalizedName")
-                        .HasColumnType("varchar(256) CHARACTER SET utf8mb4")
-                        .HasMaxLength(256);
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedName")
-                        .IsUnique()
-                        .HasName("RoleNameIndex");
-
-                    b.ToTable("AspNetRoles");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -254,9 +228,15 @@ namespace OpenGameMonitorWorker.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("Inserted")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<DateTime>("Updated")
+                        .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
 
@@ -276,6 +256,32 @@ namespace OpenGameMonitorWorker.Migrations
                     b.HasIndex("GroupID");
 
                     b.ToTable("GroupUser");
+                });
+
+            modelBuilder.Entity("OpenGameMonitorLibraries.MonitorRole", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("varchar(256) CHARACTER SET utf8mb4")
+                        .HasMaxLength(256);
+
+                    b.Property<string>("NormalizedName")
+                        .HasColumnType("varchar(256) CHARACTER SET utf8mb4")
+                        .HasMaxLength(256);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasName("RoleNameIndex");
+
+                    b.ToTable("AspNetRoles");
                 });
 
             modelBuilder.Entity("OpenGameMonitorLibraries.MonitorUser", b =>
@@ -359,7 +365,7 @@ namespace OpenGameMonitorWorker.Migrations
                     b.Property<string>("DisplayIP")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<bool?>("Enabled")
+                    b.Property<bool>("Enabled")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("tinyint(1)")
                         .HasDefaultValue(true);
@@ -372,7 +378,7 @@ namespace OpenGameMonitorWorker.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
 
-                    b.Property<bool?>("Graceful")
+                    b.Property<bool>("Graceful")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("tinyint(1)")
                         .HasDefaultValue(true);
@@ -383,14 +389,19 @@ namespace OpenGameMonitorWorker.Migrations
                     b.Property<string>("IP")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<DateTime>("LastStart")
+                    b.Property<DateTime>("Inserted")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<DateTime>("LastUpdate")
+                    b.Property<DateTime?>("LastStart")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("LastUpdate")
                         .HasColumnType("datetime(6)");
 
                     b.Property<bool>("LastUpdateFailed")
-                        .HasColumnType("tinyint(1)");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -410,7 +421,7 @@ namespace OpenGameMonitorWorker.Migrations
                     b.Property<int>("Port")
                         .HasColumnType("int");
 
-                    b.Property<bool?>("RestartOnClose")
+                    b.Property<bool>("RestartOnClose")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("tinyint(1)")
                         .HasDefaultValue(true);
@@ -423,6 +434,9 @@ namespace OpenGameMonitorWorker.Migrations
 
                     b.Property<int?>("UpdatePID")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("Updated")
+                        .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
 
@@ -451,7 +465,7 @@ namespace OpenGameMonitorWorker.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                    b.HasOne("OpenGameMonitorLibraries.MonitorRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -478,7 +492,7 @@ namespace OpenGameMonitorWorker.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                    b.HasOne("OpenGameMonitorLibraries.MonitorRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)

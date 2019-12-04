@@ -1,4 +1,9 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using MySql.Data.MySqlClient;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -54,6 +59,80 @@ namespace OpenGameMonitorLibraries
                     }
                     while (count > 0);
                     return memory.ToArray();
+                }
+            }
+        }
+
+        public static void TestConnection(this IHost host)
+        {
+            if (host == null) throw new ArgumentNullException(nameof(host));
+
+            ILoggerFactory loggerF = host.Services.GetService<ILoggerFactory>();
+
+            ILogger logger = loggerF.CreateLogger("Program");
+
+            IServiceScopeFactory serviceScopeFactory = host.Services.GetService<IServiceScopeFactory>();
+
+            using (var scope = serviceScopeFactory.CreateScope())
+            {
+                MonitorDBContext db = scope.ServiceProvider.GetRequiredService<MonitorDBContext>();
+
+                try
+                {
+                    if (!db.Database.CanConnect())
+                    {
+                        logger.LogError("The database connection settings is invalid, or the server can't connect to the database.");
+                        Environment.Exit(-1);
+                    }
+                }
+                catch (Exception err)
+                {
+                    if (err is MySqlException || err is InvalidOperationException)
+                    {
+                        string errorText = "The database connection settings is invalid, or the server can't connect to the database.\nError: {0}\nStack trace: {1}";
+                        logger.LogError(err, string.Format(errorText, err.Message, err.StackTrace));
+
+                        Environment.Exit(-1);
+                        return;
+                    }
+                    throw;
+                }
+            }
+        }
+
+        public static void TestConnection(this IWebHost host)
+        {
+            if (host == null) throw new ArgumentNullException(nameof(host));
+
+            ILoggerFactory loggerF = host.Services.GetService<ILoggerFactory>();
+
+            ILogger logger = loggerF.CreateLogger("Program");
+
+            IServiceScopeFactory serviceScopeFactory = host.Services.GetService<IServiceScopeFactory>();
+
+            using (var scope = serviceScopeFactory.CreateScope())
+            {
+                MonitorDBContext db = scope.ServiceProvider.GetRequiredService<MonitorDBContext>();
+
+                try
+                {
+                    if (!db.Database.CanConnect())
+                    {
+                        logger.LogError("The database connection settings is invalid, or the server can't connect to the database.");
+                        Environment.Exit(-1);
+                    }
+                }
+                catch (Exception err)
+                {
+                    if (err is MySqlException || err is InvalidOperationException)
+                    {
+                        string errorText = "The database connection settings is invalid, or the server can't connect to the database.\nError: {0}\nStack trace: {1}";
+                        logger.LogError(err, string.Format(errorText, err.Message, err.StackTrace));
+
+                        Environment.Exit(-1);
+                        return;
+                    }
+                    throw;
                 }
             }
         }

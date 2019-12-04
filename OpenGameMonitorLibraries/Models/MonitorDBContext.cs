@@ -14,10 +14,14 @@ using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.Extensions.Options;
 using IdentityServer4.EntityFramework.Options;
 using EntityFrameworkCore.Triggers;
+using IdentityServer4.EntityFramework.Interfaces;
+using IdentityServer4.EntityFramework.Entities;
+using System.Threading.Tasks;
+using IdentityServer4.EntityFramework.Extensions;
 
 namespace OpenGameMonitorLibraries
 {
-    public class MonitorDBContext : ApiAuthorizationDbContext<MonitorUser>
+    public class MonitorDBContext : ExtendedApiAuthorizationDbContext<MonitorUser, MonitorRole, string>
     {
         public MonitorDBContext(DbContextOptions<MonitorDBContext> options,
             IOptions<OperationalStoreOptions> operationalStoreOptions)
@@ -142,11 +146,17 @@ namespace OpenGameMonitorLibraries
 
             using (var dbContext = new MonitorDBContext(builder.Options, Options.Create(new OperationalStoreOptions())))
             {
-                dbContext.Database.EnsureCreated();
-
-                Data = !dbContext.Settings.Any()
-                    ? CreateAndSaveDefaultValues(dbContext)
-                    : dbContext.Settings.ToDictionary(c => c.Key, c => c.Value);
+                //dbContext.Database.EnsureCreated();
+                try
+                {
+                    Data = !dbContext.Settings.Any()
+                        ? CreateAndSaveDefaultValues(dbContext)
+                        : dbContext.Settings.ToDictionary(c => c.Key, c => c.Value);
+                }
+                catch (Exception err)
+                {
+                    // Cannot connect to DB for EF Config
+                }
             }
         }
 
@@ -178,6 +188,50 @@ namespace OpenGameMonitorLibraries
             dbContext.SaveChanges();
 
             return configValues;
+        }
+    }
+
+    /// <summary>
+    /// Database abstraction for a combined <see cref="DbContext"/> using ASP.NET Identity and Identity Server.
+    /// </summary>
+    /// <typeparam name="TUser"></typeparam>
+    public class ExtendedApiAuthorizationDbContext<TUser, TRole, TKey> : IdentityDbContext<TUser, TRole, TKey>, IPersistedGrantDbContext
+        where TUser : IdentityUser<TKey>
+        where TRole : IdentityRole<TKey>
+        where TKey : IEquatable<TKey>
+    {
+        private readonly IOptions<OperationalStoreOptions> _operationalStoreOptions;
+
+        /// <summary>
+        /// Initializes a new instance of <see cref="ApiAuthorizationDbContext{TUser}"/>.
+        /// </summary>
+        /// <param name="options">The <see cref="DbContextOptions"/>.</param>
+        /// <param name="operationalStoreOptions">The <see cref="IOptions{OperationalStoreOptions}"/>.</param>
+        public ExtendedApiAuthorizationDbContext(
+            DbContextOptions options,
+            IOptions<OperationalStoreOptions> operationalStoreOptions)
+            : base(options)
+        {
+            _operationalStoreOptions = operationalStoreOptions;
+        }
+
+        /// <summary>
+        /// Gets or sets the <see cref="DbSet{PersistedGrant}"/>.
+        /// </summary>
+        public DbSet<PersistedGrant> PersistedGrants { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="DbSet{DeviceFlowCodes}"/>.
+        /// </summary>
+        public DbSet<DeviceFlowCodes> DeviceFlowCodes { get; set; }
+
+        Task<int> IPersistedGrantDbContext.SaveChangesAsync() => base.SaveChangesAsync();
+
+        /// <inheritdoc />
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+            builder.ConfigurePersistedGrantContext(_operationalStoreOptions.Value);
         }
     }
 

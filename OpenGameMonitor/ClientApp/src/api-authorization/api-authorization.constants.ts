@@ -1,4 +1,4 @@
-export const ApplicationName = 'AngularAuthTest';
+export const ApplicationName = 'OpenGameMonitorPanel';
 
 export const ReturnUrlType = 'returnUrl';
 
