@@ -48,6 +48,8 @@ namespace OpenGameMonitor
                 //return;
             }
 
+            services.AddSingleton<HubConnectionManager>();
+
             services.AddDbContext<MonitorDBContext>(options => options.UseMySql(connectionStr));
             services.AddTriggers();
 
