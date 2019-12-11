@@ -11,11 +11,18 @@ namespace OpenGameMonitorWeb.Hubs
     {
         Dictionary<string, ClaimsPrincipal> CurrentConnections = new Dictionary<string, ClaimsPrincipal>();
 
+        private readonly HubConnectionManager _connectionManager;
+        public ServerHub(HubConnectionManager connectionManager)
+        {
+            _connectionManager = connectionManager;
+        }
+
         public override async Task OnConnectedAsync()
         {
             var id = Context.ConnectionId;
             var user = Context.User;
-            CurrentConnections.Add(id, user);
+
+            _connectionManager.UserConnected(id, user);
 
             await base.OnConnectedAsync();
         }
@@ -23,12 +30,9 @@ namespace OpenGameMonitorWeb.Hubs
         public override async Task OnDisconnectedAsync(Exception exception)
         {
             var conId = Context.ConnectionId;
-            var connection = CurrentConnections.ContainsKey(conId);
+            var user = Context.User;
 
-            if (connection)
-            {
-                CurrentConnections.Remove(conId);
-            }
+            _connectionManager.UserDisconnected(conId, user);
 
             await base.OnDisconnectedAsync(exception);
         }

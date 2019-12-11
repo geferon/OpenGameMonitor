@@ -19,7 +19,7 @@ namespace OpenGameMonitorWeb.Hubs
             }
         }
 
-        public void UserDisconnected(string connectionId)
+        public void UserDisconnected(string connectionId, ClaimsPrincipal user)
         {
             lock (connectionsLock)
             {

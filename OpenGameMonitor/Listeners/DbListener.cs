@@ -38,11 +38,21 @@ namespace OpenGameMonitorWeb.Listeners
                 }
             }
 
-            _hub.Clients.Clients(connections).SendAsync("ServerNew");
+            await _hub.Clients.Clients(connections).SendAsync("ServerNew", server.Entity);
         }
 
         public void ServerUpdated(IUpdatedEntry<Server> server)
         {
+            Dictionary<string, bool[]> connections = new List<string, bool[]>();
+            foreach (var connection in _hubConnectionManager.GetConnectedUsers())
+            {
+                if (!connections.ContainsKey(connection.Key))
+                    connections.Add(connection.Key, new bool[2]);
+
+                connections[connection.Key][0](await _authorizationService.AuthorizeAsync(connection.Value, server, "ServerPolicy")).Succeeded;
+            }
+
+            await _hub.Clients.Clients(connections).SendAsync("ServerNew", server.Entity);
 
         }
     }
