@@ -11,9 +11,9 @@
 
   <ItemGroup>
     <PackageReference Include="EntityFrameworkCore.Triggers" Version="1.2.2" />
-    <PackageReference Include="FubarDev.FtpServer" Version="3.1.1" />
-    <PackageReference Include="FubarDev.FtpServer.Abstractions" Version="3.1.1" />
-    <PackageReference Include="FubarDev.FtpServer.FileSystem.DotNet" Version="3.1.1" />
+    <PackageReference Include="FubarDev.FtpServer" Version="3.1.2-beta.5" />
+    <PackageReference Include="FubarDev.FtpServer.Abstractions" Version="3.1.2-beta.5" />
+    <PackageReference Include="FubarDev.FtpServer.FileSystem.DotNet" Version="3.1.2-beta.5" />
     <PackageReference Include="Microsoft.AspNetCore.ApiAuthorization.IdentityServer" Version="3.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="3.1.0" />
@@ -29,7 +29,7 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="3.1.0" />
     <PackageReference Include="NickStrupat.EntityFrameworkCore.Triggers.Hosting" Version="1.0.1" />
-    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="3.1.0-rc1.final" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="3.1.0" />
     <PackageReference Include="sharpcompress" Version="0.24.0" />
     <PackageReference Include="SteamKit2" Version="2.2.0" />
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="4.7.0" />

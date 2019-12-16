@@ -31,7 +31,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.0" />
     <PackageReference Include="NickStrupat.EntityFrameworkCore.Triggers.AspNetCore" Version="1.0.3" />
-    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="3.1.0-rc1.final" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="3.1.0" />
     <PackageReference Include="Xeeny" Version="1.3.0" />
     <PackageReference Include="Xeeny.Extensions.Loggers" Version="1.0.0" />
     <PackageReference Include="Xeeny.Serialization.JsonSerializer" Version="1.1.0" />
