@@ -16,6 +16,7 @@ using OpenGameMonitor.Services;
 using OpenGameMonitorLibraries;
 using OpenGameMonitorWeb;
 using OpenGameMonitorWeb.Hubs;
+using OpenGameMonitorWeb.Listeners;
 using OpenGameMonitorWeb.Policies;
 using System;
 
@@ -48,8 +49,6 @@ namespace OpenGameMonitor
                 //return;
             }
 
-            services.AddSingleton<HubConnectionManager>();
-
             services.AddDbContext<MonitorDBContext>(options => options.UseMySql(connectionStr));
             services.AddTriggers();
 
@@ -81,8 +80,9 @@ namespace OpenGameMonitor
 
             services.AddSingleton<IAuthorizationHandler, ServerPolicyHandler>();
 
+            services.AddSingleton<HubConnectionManager>();
             services.AddSignalR();
-
+            services.AddHostedService<ServersListener>();
 
             services.AddControllersWithViews();
             services.AddRazorPages();
@@ -126,6 +126,7 @@ namespace OpenGameMonitor
             app.UseAuthentication();
             app.UseIdentityServer();
             app.UseAuthorization();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
@@ -133,7 +134,7 @@ namespace OpenGameMonitor
                     pattern: "{controller}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
 
-                endpoints.MapHub<ServerHub>("/serverhub");
+                endpoints.MapHub<ServersHub>("/servershub");
             });
 
             app.UseSpa(spa =>

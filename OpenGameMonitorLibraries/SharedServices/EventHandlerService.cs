@@ -134,5 +134,25 @@ namespace OpenGameMonitorLibraries
 				eventListeners[key].Add(callback);
 			}
 		}
+
+		public void ListenForEventType<TEventArgs>(string key, EventHandler<TEventArgs> callback)
+			where TEventArgs : EventArgs
+		{
+			EventHandler eventHandlerMock = (o, ea) => callback(o, (TEventArgs)ea);
+
+			if (eventHandlers.ContainsKey(key))
+			{
+				eventHandlers[key] += eventHandlerMock;
+			}
+			else
+			{
+				if (!eventListeners.ContainsKey(key))
+				{
+					eventListeners.Add(key, new List<EventHandler>());
+				}
+
+				eventListeners[key].Add(eventHandlerMock);
+			}
+		}
 	}
 }

@@ -48,12 +48,12 @@ namespace OpenGameMonitorWeb.Controllers
         {
             var user = await _context.Users.Include(b => b.Groups)
                 .Select(b =>
-                new DTOMonitorUser()
-                {
-                    UserName = b.UserName,
-                    Groups = b.Groups
-                }
-            ).FirstOrDefaultAsync(b => b.UserName == username);
+                    new DTOMonitorUser()
+                    {
+                        UserName = b.UserName,
+                        Groups = b.Groups
+                    }
+                ).FirstOrDefaultAsync(b => b.UserName == username);
 
             if (user == null)
             {

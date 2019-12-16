@@ -20,7 +20,7 @@ namespace OpenGameMonitorLibraries
         Task ServerOpened(int server);
         Task ServerClosed(int server);
         Task ServerUpdated(int server);
-        Task ServerMessageConsole(string message);
-        Task ServerMessageUpdate(string message);
+        Task ServerMessageConsole(int server, string message);
+        Task ServerMessageUpdate(int server, string message);
     }
 }

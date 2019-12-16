@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.SignalR;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -8,29 +9,41 @@ namespace OpenGameMonitorWeb.Hubs
 {
     public class HubConnectionManager
     {
-        private Dictionary<string, ClaimsPrincipal> CurrentConnections = new Dictionary<string, ClaimsPrincipal>();
+        private Dictionary<Type, Dictionary<string, ClaimsPrincipal>> CurrentConnections = new Dictionary<Type, Dictionary<string, ClaimsPrincipal>>();
         private readonly object connectionsLock = new object();
 
-        public void UserConnected(string connectionId, ClaimsPrincipal user)
+        public void UserConnected<THub>(string connectionId, ClaimsPrincipal user) where THub : Hub
         {
+            var hub = typeof(THub);
             lock (connectionsLock)
             {
-                CurrentConnections.Add(connectionId, user);
+                if (!CurrentConnections.ContainsKey(hub))
+                {
+                    CurrentConnections.Add(hub, new Dictionary<string, ClaimsPrincipal>());
+                }
+
+                CurrentConnections[hub].Add(connectionId, user);
             }
         }
 
-        public void UserDisconnected(string connectionId, ClaimsPrincipal user)
+        public void UserDisconnected<THub>(string connectionId, ClaimsPrincipal user) where THub : Hub
         {
+            var hub = typeof(THub);
             lock (connectionsLock)
             {
-                if (CurrentConnections.ContainsKey(connectionId))
-                    CurrentConnections.Remove(connectionId);
+                if (!CurrentConnections.ContainsKey(hub))
+                {
+                    CurrentConnections.Add(hub, new Dictionary<string, ClaimsPrincipal>());
+                }
+
+                if (CurrentConnections[hub].ContainsKey(connectionId))
+                    CurrentConnections[hub].Remove(connectionId);
             }
         }
 
-        public List<KeyValuePair<string, ClaimsPrincipal>> GetConnectedUsers()
+        public List<KeyValuePair<string, ClaimsPrincipal>> GetConnectedUsers<THub>() where THub : Hub
         {
-            return CurrentConnections.ToList();
+            return CurrentConnections[typeof(THub)].ToList();
         }
     }
 }

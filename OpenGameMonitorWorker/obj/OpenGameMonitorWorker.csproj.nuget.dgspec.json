@@ -110,15 +110,15 @@
             },
             "FubarDev.FtpServer": {
               "target": "Package",
-              "version": "[3.1.1, )"
+              "version": "[3.1.2-beta.5, )"
             },
             "FubarDev.FtpServer.Abstractions": {
               "target": "Package",
-              "version": "[3.1.1, )"
+              "version": "[3.1.2-beta.5, )"
             },
             "FubarDev.FtpServer.FileSystem.DotNet": {
               "target": "Package",
-              "version": "[3.1.1, )"
+              "version": "[3.1.2-beta.5, )"
             },
             "Microsoft.AspNetCore.ApiAuthorization.IdentityServer": {
               "target": "Package",
@@ -165,7 +165,7 @@
             },
             "Pomelo.EntityFrameworkCore.MySql": {
               "target": "Package",
-              "version": "[3.1.0-rc1.final, )"
+              "version": "[3.1.0, )"
             },
             "SteamKit2": {
               "target": "Package",

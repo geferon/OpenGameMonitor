@@ -135,20 +135,18 @@ namespace OpenGameMonitorWorker.Services
 
         private void Init()
         {
-            _eventHandlerService.ListenForEvent("Server:ConsoleMessage", async (Object serverObj, EventArgs e) =>
+            _eventHandlerService.ListenForEventType<ConsoleEventArgs>("Server:ConsoleMessage", async (Object serverObj, ConsoleEventArgs args) =>
             {
-                ConsoleEventArgs args = (ConsoleEventArgs)e;
                 foreach (KeyValuePair<string, IMonitorComsCallback> client in _clients)
                 {
-                    await client.Value.ServerMessageConsole(args.NewLine).ConfigureAwait(false);
+                    await client.Value.ServerMessageConsole(((Server)serverObj).Id, args.NewLine).ConfigureAwait(false);
                 }
             });
-            _eventHandlerService.ListenForEvent("Server:UpdateMessage", async (Object serverObj, EventArgs e) =>
+            _eventHandlerService.ListenForEventType<ConsoleEventArgs>("Server:UpdateMessage", async (Object serverObj, ConsoleEventArgs args) =>
             {
-                ConsoleEventArgs args = (ConsoleEventArgs)e;
                 foreach (KeyValuePair<string, IMonitorComsCallback> client in _clients)
                 {
-                    await client.Value.ServerMessageConsole(args.NewLine).ConfigureAwait(false);
+                    await client.Value.ServerMessageConsole(((Server)serverObj).Id, args.NewLine).ConfigureAwait(false);
                 }
             });
             _eventHandlerService.ListenForEvent("Server:Opened", async (Object serverObj, EventArgs e) =>
@@ -191,8 +189,7 @@ namespace OpenGameMonitorWorker.Services
 
         private Server GetServer(int server)
         {
-            using (MonitorDBContext db = _serviceProvider.GetService<MonitorDBContext>())
-            //using (var db = _serviceProvider.GetService<MonitorDBContext>())
+            using (var db = _serviceProvider.GetService<MonitorDBContext>())
             {
                 /*List<OpenGameMonitorLibraries.Server> servers = db.Servers
                     .Where(r => r.PID != null && r.PID != default(int))

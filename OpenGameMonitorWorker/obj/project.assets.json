@@ -27,10 +27,10 @@
           "lib/netstandard2.1/EntityFrameworkCore.Triggers.dll": {}
         }
       },
-      "FubarDev.FtpServer/3.1.1": {
+      "FubarDev.FtpServer/3.1.2-beta.5": {
         "type": "package",
         "dependencies": {
-          "FubarDev.FtpServer.Commands": "3.1.1",
+          "FubarDev.FtpServer.Commands": "3.1.2-beta.5",
           "Scrutor": "2.0.0",
           "System.IO.Pipelines": "4.5.1"
         },
@@ -41,7 +41,7 @@
           "lib/netcoreapp3.0/FubarDev.FtpServer.dll": {}
         }
       },
-      "FubarDev.FtpServer.Abstractions/3.1.1": {
+      "FubarDev.FtpServer.Abstractions/3.1.2-beta.5": {
         "type": "package",
         "dependencies": {
           "Microsoft.AspNetCore.Http.Features": "2.0.0",
@@ -60,10 +60,10 @@
           "lib/netstandard2.1/FubarDev.FtpServer.Abstractions.dll": {}
         }
       },
-      "FubarDev.FtpServer.Commands/3.1.1": {
+      "FubarDev.FtpServer.Commands/3.1.2-beta.5": {
         "type": "package",
         "dependencies": {
-          "FubarDev.FtpServer.Abstractions": "3.1.1",
+          "FubarDev.FtpServer.Abstractions": "3.1.2-beta.5",
           "Microsoft.Extensions.Options": "2.0.0"
         },
         "compile": {
@@ -73,10 +73,10 @@
           "lib/netstandard2.1/FubarDev.FtpServer.Commands.dll": {}
         }
       },
-      "FubarDev.FtpServer.FileSystem.DotNet/3.1.1": {
+      "FubarDev.FtpServer.FileSystem.DotNet/3.1.2-beta.5": {
         "type": "package",
         "dependencies": {
-          "FubarDev.FtpServer.Abstractions": "3.1.1",
+          "FubarDev.FtpServer.Abstractions": "3.1.2-beta.5",
           "Microsoft.Extensions.Options": "2.0.0"
         },
         "compile": {
@@ -1125,7 +1125,7 @@
           "lib/netstandard2.0/EntityFrameworkCore.Triggers.Hosting.dll": {}
         }
       },
-      "Pomelo.EntityFrameworkCore.MySql/3.1.0-rc1.final": {
+      "Pomelo.EntityFrameworkCore.MySql/3.1.0": {
         "type": "package",
         "dependencies": {
           "Microsoft.EntityFrameworkCore.Relational": "3.1.0",
@@ -2739,14 +2739,14 @@
         "lib/netstandard2.1/EntityFrameworkCore.Triggers.dll"
       ]
     },
-    "FubarDev.FtpServer/3.1.1": {
-      "sha512": "ImxRbIV1AaRdQA4MF/VVIUX2sBbI86aCB28A6XynJ+mGIQNVkKOvVpJkS8yXbaIq1yfkKHSorkJxZFFf4Uk5DA==",
+    "FubarDev.FtpServer/3.1.2-beta.5": {
+      "sha512": "SKSiYcqC7mQai2NBJC6ir21PZ42jYqd4NJl4zhdnT2XPLF9I1BYsVsKubETE/0NKvrsKMYldaecoNeZOCRBlCA==",
       "type": "package",
-      "path": "fubardev.ftpserver/3.1.1",
+      "path": "fubardev.ftpserver/3.1.2-beta.5",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "fubardev.ftpserver.3.1.1.nupkg.sha512",
+        "fubardev.ftpserver.3.1.2-beta.5.nupkg.sha512",
         "fubardev.ftpserver.nuspec",
         "lib/net461/FubarDev.FtpServer.dll",
         "lib/net461/FubarDev.FtpServer.pdb",
@@ -2771,14 +2771,14 @@
         "lib/netstandard2.1/FubarDev.FtpServer.xml"
       ]
     },
-    "FubarDev.FtpServer.Abstractions/3.1.1": {
-      "sha512": "vDrmU/LNzatDNJpthZ4/RTNs5A58aFdS+DJDsNJFINWY2RrQLW2VJQlgtwmaAl8Bhke3n6vMI/U+bRJsQII45w==",
+    "FubarDev.FtpServer.Abstractions/3.1.2-beta.5": {
+      "sha512": "elPgocwlcM1kcC+iVgX3IpdHOfO7nOdUZh0fkIZRyR9Mo3Q0auCnSv4CLkNqDw2aeLoy0e515vN6l81NSojryw==",
       "type": "package",
-      "path": "fubardev.ftpserver.abstractions/3.1.1",
+      "path": "fubardev.ftpserver.abstractions/3.1.2-beta.5",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "fubardev.ftpserver.abstractions.3.1.1.nupkg.sha512",
+        "fubardev.ftpserver.abstractions.3.1.2-beta.5.nupkg.sha512",
         "fubardev.ftpserver.abstractions.nuspec",
         "lib/net461/FubarDev.FtpServer.Abstractions.dll",
         "lib/net461/FubarDev.FtpServer.Abstractions.pdb",
@@ -2794,14 +2794,14 @@
         "lib/netstandard2.1/FubarDev.FtpServer.Abstractions.xml"
       ]
     },
-    "FubarDev.FtpServer.Commands/3.1.1": {
-      "sha512": "FV1zrxR1NvabW6647rDJEWwpiimbM0QE/ybs3tw7vDHo8bNOeydVuKdVD4z1U59uT7qDKrc48GqXOf4JNctpoQ==",
+    "FubarDev.FtpServer.Commands/3.1.2-beta.5": {
+      "sha512": "SvzJbOs+V5WrnKl/ID4NGarCxinZVCKhxszoo7nMf3NTLtpJCa3OyAQHn2JAgzJnQ6B1DmXukZiu0YOVFcOXWA==",
       "type": "package",
-      "path": "fubardev.ftpserver.commands/3.1.1",
+      "path": "fubardev.ftpserver.commands/3.1.2-beta.5",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "fubardev.ftpserver.commands.3.1.1.nupkg.sha512",
+        "fubardev.ftpserver.commands.3.1.2-beta.5.nupkg.sha512",
         "fubardev.ftpserver.commands.nuspec",
         "lib/net461/FubarDev.FtpServer.Commands.dll",
         "lib/net461/FubarDev.FtpServer.Commands.pdb",
@@ -2817,14 +2817,14 @@
         "lib/netstandard2.1/FubarDev.FtpServer.Commands.xml"
       ]
     },
-    "FubarDev.FtpServer.FileSystem.DotNet/3.1.1": {
-      "sha512": "dSyeoxtSFKiZomuuZB/SigEcRAvWGEbrj2vjbRY02zPdlYcVDN0e42EycvzHNHmuQ/hKZzNPtpuoX0XZrgkKcA==",
+    "FubarDev.FtpServer.FileSystem.DotNet/3.1.2-beta.5": {
+      "sha512": "20wkOCTwEP6IcPikePQF/JBu79PcFTnYbe+KQM4HhKLF4VCnBYGzQ+eBywWdWNAU3rpQQwOcAriXi8j9heDgKA==",
       "type": "package",
-      "path": "fubardev.ftpserver.filesystem.dotnet/3.1.1",
+      "path": "fubardev.ftpserver.filesystem.dotnet/3.1.2-beta.5",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "fubardev.ftpserver.filesystem.dotnet.3.1.1.nupkg.sha512",
+        "fubardev.ftpserver.filesystem.dotnet.3.1.2-beta.5.nupkg.sha512",
         "fubardev.ftpserver.filesystem.dotnet.nuspec",
         "lib/net461/FubarDev.FtpServer.FileSystem.DotNet.dll",
         "lib/net461/FubarDev.FtpServer.FileSystem.DotNet.pdb",
@@ -4615,16 +4615,16 @@
         "nickstrupat.entityframeworkcore.triggers.hosting.nuspec"
       ]
     },
-    "Pomelo.EntityFrameworkCore.MySql/3.1.0-rc1.final": {
-      "sha512": "oUjodnlK+0nHE9m+BDwh2amfmDpbcpVJETQBGSy+1vr/UPAp0p5ktXM+EMRGpU0J3rWPDVGSkVi5+dRiarZmMQ==",
+    "Pomelo.EntityFrameworkCore.MySql/3.1.0": {
+      "sha512": "cm43LBLO2/RWn4fniC/JFpqLy6deHbFK7oBOryzAkjl67UJotmQYXf4I+cjCFBLEApdxtLboBovZ+ckbGYZzjQ==",
       "type": "package",
-      "path": "pomelo.entityframeworkcore.mysql/3.1.0-rc1.final",
+      "path": "pomelo.entityframeworkcore.mysql/3.1.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "icon.png",
         "lib/netstandard2.0/Pomelo.EntityFrameworkCore.MySql.dll",
-        "pomelo.entityframeworkcore.mysql.3.1.0-rc1.final.nupkg.sha512",
+        "pomelo.entityframeworkcore.mysql.3.1.0.nupkg.sha512",
         "pomelo.entityframeworkcore.mysql.nuspec"
       ]
     },
@@ -8843,9 +8843,9 @@
     ".NETCoreApp,Version=v3.1": [
       "CoreRCON >= 3.0.0",
       "EntityFrameworkCore.Triggers >= 1.2.2",
-      "FubarDev.FtpServer >= 3.1.1",
-      "FubarDev.FtpServer.Abstractions >= 3.1.1",
-      "FubarDev.FtpServer.FileSystem.DotNet >= 3.1.1",
+      "FubarDev.FtpServer >= 3.1.2-beta.5",
+      "FubarDev.FtpServer.Abstractions >= 3.1.2-beta.5",
+      "FubarDev.FtpServer.FileSystem.DotNet >= 3.1.2-beta.5",
       "Microsoft.AspNetCore.ApiAuthorization.IdentityServer >= 3.1.0",
       "Microsoft.AspNetCore.Identity.EntityFrameworkCore >= 3.1.0",
       "Microsoft.AspNetCore.Identity.UI >= 3.1.0",
@@ -8856,7 +8856,7 @@
       "Microsoft.Extensions.Hosting >= 3.1.0",
       "Microsoft.Extensions.Hosting.WindowsServices >= 3.1.0",
       "NickStrupat.EntityFrameworkCore.Triggers.Hosting >= 1.0.1",
-      "Pomelo.EntityFrameworkCore.MySql >= 3.1.0-rc1.final",
+      "Pomelo.EntityFrameworkCore.MySql >= 3.1.0",
       "SteamKit2 >= 2.2.0",
       "System.ServiceProcess.ServiceController >= 4.7.0",
       "Xeeny >= 1.3.0",
@@ -8919,15 +8919,15 @@
           },
           "FubarDev.FtpServer": {
             "target": "Package",
-            "version": "[3.1.1, )"
+            "version": "[3.1.2-beta.5, )"
           },
           "FubarDev.FtpServer.Abstractions": {
             "target": "Package",
-            "version": "[3.1.1, )"
+            "version": "[3.1.2-beta.5, )"
           },
           "FubarDev.FtpServer.FileSystem.DotNet": {
             "target": "Package",
-            "version": "[3.1.1, )"
+            "version": "[3.1.2-beta.5, )"
           },
           "Microsoft.AspNetCore.ApiAuthorization.IdentityServer": {
             "target": "Package",
@@ -8974,7 +8974,7 @@
           },
           "Pomelo.EntityFrameworkCore.MySql": {
             "target": "Package",
-            "version": "[3.1.0-rc1.final, )"
+            "version": "[3.1.0, )"
           },
           "SteamKit2": {
             "target": "Package",

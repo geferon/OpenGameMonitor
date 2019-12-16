@@ -104,6 +104,7 @@ namespace OpenGameMonitor.Services
 
     public class ServerMessageEventArgs : EventArgs
     {
+        public int ServerID;
         public string Message;
     }
 
@@ -141,18 +142,20 @@ namespace OpenGameMonitor.Services
             });
         }
 
-        public async Task ServerMessageConsole(string message)
+        public async Task ServerMessageConsole(int server, string message)
         {
             serverMessageConsoleEvent?.Invoke(this, new ServerMessageEventArgs()
             {
+                ServerID = server,
                 Message = message
             });
         }
 
-        public async Task ServerMessageUpdate(string message)
+        public async Task ServerMessageUpdate(int server, string message)
         {
             serverMessageUpdateEvent?.Invoke(this, new ServerMessageEventArgs()
             {
+                ServerID = server,
                 Message = message
             });
         }
