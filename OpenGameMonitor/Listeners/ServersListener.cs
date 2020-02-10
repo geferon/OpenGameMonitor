@@ -55,7 +55,7 @@ namespace OpenGameMonitorWeb.Listeners
         {
             using (var db = _serviceProvider.GetService<MonitorDBContext>())
             {
-                NotifyServerUpdated(await db.Servers.FindAsync(args.ServerID), null);
+                await NotifyServerUpdated(await db.Servers.FindAsync(args.ServerID), null);
             }
         }
 
@@ -63,7 +63,7 @@ namespace OpenGameMonitorWeb.Listeners
         {
             using (var db = _serviceProvider.GetService<MonitorDBContext>())
             {
-                NotifyServerUpdated(await db.Servers.FindAsync(args.ServerID), null);
+                await NotifyServerUpdated(await db.Servers.FindAsync(args.ServerID), null);
             }
         }
 
@@ -71,7 +71,7 @@ namespace OpenGameMonitorWeb.Listeners
         {
             using (var db = _serviceProvider.GetService<MonitorDBContext>())
             {
-                NotifyServerUpdated(await db.Servers.FindAsync(args.ServerID), null);
+                await NotifyServerUpdated(await db.Servers.FindAsync(args.ServerID), null);
             }
         }
 
@@ -93,7 +93,7 @@ namespace OpenGameMonitorWeb.Listeners
                 }
             }
 
-            NotifyServerInserted(server.Entity, connections.ToArray());
+            await NotifyServerInserted(server.Entity, connections.ToArray());
         }
 
         public async void ServerUpdated(IUpdatingEntry<Server> server)
