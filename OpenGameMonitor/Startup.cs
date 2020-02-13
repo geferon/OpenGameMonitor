@@ -78,7 +78,7 @@ namespace OpenGameMonitor
                     policy.Requirements.Add(new ServerPolicyRequirement()));
             });
 
-            services.AddSingleton<IAuthorizationHandler, ServerPolicyHandler>();
+            services.AddTransient<IAuthorizationHandler, ServerPolicyHandler>();
 
             services.AddSingleton<HubConnectionManager>();
             services.AddSignalR();

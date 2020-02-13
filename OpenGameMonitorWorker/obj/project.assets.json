@@ -1126,7 +1126,7 @@
           "lib/netstandard2.0/EntityFrameworkCore.Triggers.Hosting.dll": {}
         }
       },
-      "Pomelo.EntityFrameworkCore.MySql/3.1.0": {
+      "Pomelo.EntityFrameworkCore.MySql/3.1.1": {
         "type": "package",
         "dependencies": {
           "Microsoft.EntityFrameworkCore.Relational": "3.1.0",
@@ -4616,16 +4616,16 @@
         "nickstrupat.entityframeworkcore.triggers.hosting.nuspec"
       ]
     },
-    "Pomelo.EntityFrameworkCore.MySql/3.1.0": {
-      "sha512": "cm43LBLO2/RWn4fniC/JFpqLy6deHbFK7oBOryzAkjl67UJotmQYXf4I+cjCFBLEApdxtLboBovZ+ckbGYZzjQ==",
+    "Pomelo.EntityFrameworkCore.MySql/3.1.1": {
+      "sha512": "DYMsaJe/lKoaPGjB0ACnP+h5FeaJC+07f83FewBulkqfkUvc7m97PECX0OUHSTT+qEF0EOmJ7HQR0dltSCDyPQ==",
       "type": "package",
-      "path": "pomelo.entityframeworkcore.mysql/3.1.0",
+      "path": "pomelo.entityframeworkcore.mysql/3.1.1",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "icon.png",
         "lib/netstandard2.0/Pomelo.EntityFrameworkCore.MySql.dll",
-        "pomelo.entityframeworkcore.mysql.3.1.0.nupkg.sha512",
+        "pomelo.entityframeworkcore.mysql.3.1.1.nupkg.sha512",
         "pomelo.entityframeworkcore.mysql.nuspec"
       ]
     },
@@ -8857,7 +8857,7 @@
       "Microsoft.Extensions.Hosting >= 3.1.1",
       "Microsoft.Extensions.Hosting.WindowsServices >= 3.1.1",
       "NickStrupat.EntityFrameworkCore.Triggers.Hosting >= 1.0.1",
-      "Pomelo.EntityFrameworkCore.MySql >= 3.1.0",
+      "Pomelo.EntityFrameworkCore.MySql >= 3.1.1",
       "SteamKit2 >= 2.2.0",
       "System.ServiceProcess.ServiceController >= 4.7.0",
       "Xeeny >= 1.3.0",
@@ -8975,7 +8975,7 @@
           },
           "Pomelo.EntityFrameworkCore.MySql": {
             "target": "Package",
-            "version": "[3.1.0, )"
+            "version": "[3.1.1, )"
           },
           "SteamKit2": {
             "target": "Package",
@@ -9020,7 +9020,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.100\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
       }
     }
   }

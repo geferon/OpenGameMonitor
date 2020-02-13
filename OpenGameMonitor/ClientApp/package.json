@@ -25,7 +25,6 @@
     "@angular/platform-server": "^9.0.0",
     "@angular/router": "^9.0.0",
     "@nguniversal/module-map-ngfactory-loader": "^8.2.6",
-    "aspnet-prerendering": "^3.0.1",
     "core-js": "^3.6.4",
     "oidc-client": "^1.10.1",
     "rxjs": "^6.5.4",

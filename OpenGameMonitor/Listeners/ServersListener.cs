@@ -19,18 +19,18 @@ namespace OpenGameMonitorWeb.Listeners
         private readonly IHubContext<ServersHub> _hub;
         private readonly HubConnectionManager _hubConnectionManager;
         private readonly IServiceProvider _serviceProvider;
-        private readonly IAuthorizationService _authorizationService;
+        //private readonly IAuthorizationService _authorizationService;
         private readonly EventHandlerService _eventHandlerService;
         public ServersListener(IHubContext<ServersHub> hub,
             HubConnectionManager hubConnectionManager,
             IServiceProvider serviceProvider,
-            IAuthorizationService authorizationService,
+            //IAuthorizationService authorizationService,
             EventHandlerService eventHandlerService)
         {
             _hub = hub;
             _hubConnectionManager = hubConnectionManager;
             _serviceProvider = serviceProvider;
-            _authorizationService = authorizationService;
+            //_authorizationService = authorizationService;
             _eventHandlerService = eventHandlerService;
         }
 
@@ -82,10 +82,12 @@ namespace OpenGameMonitorWeb.Listeners
 
         public async void ServerInserted(IInsertedEntry<Server> server)
         {
+            var authService = _serviceProvider.GetService<IAuthorizationService>();
+
             List<string> connections = new List<string>();
             foreach (var connection in _hubConnectionManager.GetConnectedUsers<ServersHub>())
             {
-                var authResult = await _authorizationService.AuthorizeAsync(connection.Value, server.Entity, "ServerPolicy");
+                var authResult = await authService.AuthorizeAsync(connection.Value, server.Entity, "ServerPolicy");
                 if (authResult.Succeeded)
                 {
                     if (!connections.Contains(connection.Key))
@@ -98,14 +100,16 @@ namespace OpenGameMonitorWeb.Listeners
 
         public async void ServerUpdated(IUpdatingEntry<Server> server)
         {
+            var authService = _serviceProvider.GetService<IAuthorizationService>();
+
             Dictionary<string, bool[]> connections = new Dictionary<string, bool[]>();
             foreach (var connection in _hubConnectionManager.GetConnectedUsers<ServersHub>())
             {
                 if (!connections.ContainsKey(connection.Key))
                     connections.Add(connection.Key, new bool[2]);
 
-                connections[connection.Key][0] = (await _authorizationService.AuthorizeAsync(connection.Value, server.Original, "ServerPolicy")).Succeeded;
-                connections[connection.Key][1] = (await _authorizationService.AuthorizeAsync(connection.Value, server.Entity, "ServerPolicy")).Succeeded;
+                connections[connection.Key][0] = (await authService.AuthorizeAsync(connection.Value, server.Original, "ServerPolicy")).Succeeded;
+                connections[connection.Key][1] = (await authService.AuthorizeAsync(connection.Value, server.Entity, "ServerPolicy")).Succeeded;
             }
 
             var allowedConnections = connections.Where(v => v.Value[0] && v.Value[1]).Select(v => v.Key).ToArray();
@@ -120,10 +124,12 @@ namespace OpenGameMonitorWeb.Listeners
 
         public async void ServerDeleted(IDeletedEntry<Server> server)
         {
+            var authService = _serviceProvider.GetService<IAuthorizationService>();
+
             List<string> connections = new List<string>();
             foreach (var connection in _hubConnectionManager.GetConnectedUsers<ServersHub>())
             {
-                var authResult = await _authorizationService.AuthorizeAsync(connection.Value, server.Entity, "ServerPolicy");
+                var authResult = await authService.AuthorizeAsync(connection.Value, server.Entity, "ServerPolicy");
                 if (authResult.Succeeded)
                 {
                     if (!connections.Contains(connection.Key))
@@ -163,10 +169,12 @@ namespace OpenGameMonitorWeb.Listeners
 
         private async Task<string[]> GetDefaultConnections(Server server)
         {
+            var authService = _serviceProvider.GetService<IAuthorizationService>();
+
             List<string> connections = new List<string>();
             foreach (var connection in _hubConnectionManager.GetConnectedUsers<ServersHub>())
             {
-                var authResult = await _authorizationService.AuthorizeAsync(connection.Value, server, "ServerPolicy");
+                var authResult = await authService.AuthorizeAsync(connection.Value, server, "ServerPolicy");
                 if (authResult.Succeeded)
                 {
                     if (!connections.Contains(connection.Key))

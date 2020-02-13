@@ -63,7 +63,7 @@ namespace OpenGameMonitorWorker.Services
         {
             _account = account;
             _serviceProvider = serviceProvider;
-            _userManager = _serviceProvider.GetService<UserManager<MonitorUser>>();
+            //_userManager = _serviceProvider.GetService<UserManager<MonitorUser>>();
 
             FileSystemEntryComparer = StringComparer.OrdinalIgnoreCase;
             Root = new ServerManagerDirectoryEntry(allowNonEmptyDirectoryDelete);
