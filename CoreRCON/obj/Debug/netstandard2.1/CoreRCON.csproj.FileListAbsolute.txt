@@ -14,3 +14,11 @@ C:\Users\Jorge\source\repos\OpenGameMonitor\CoreRCON\obj\Debug\netstandard2.1\Co
 C:\Users\Jorge\source\repos\OpenGameMonitor\CoreRCON\obj\Debug\netstandard2.1\CoreRCON.AssemblyInfo.cs
 C:\Users\Jorge\source\repos\OpenGameMonitor\CoreRCON\obj\Debug\netstandard2.1\CoreRCON.dll
 C:\Users\Jorge\source\repos\OpenGameMonitor\CoreRCON\obj\Debug\netstandard2.1\CoreRCON.pdb
+C:\Users\gefer\source\repos\OpenGameMonitor\CoreRCON\bin\Debug\netstandard2.1\CoreRCON.deps.json
+C:\Users\gefer\source\repos\OpenGameMonitor\CoreRCON\bin\Debug\netstandard2.1\CoreRCON.dll
+C:\Users\gefer\source\repos\OpenGameMonitor\CoreRCON\bin\Debug\netstandard2.1\CoreRCON.pdb
+C:\Users\gefer\source\repos\OpenGameMonitor\CoreRCON\obj\Debug\netstandard2.1\CoreRCON.csprojAssemblyReference.cache
+C:\Users\gefer\source\repos\OpenGameMonitor\CoreRCON\obj\Debug\netstandard2.1\CoreRCON.AssemblyInfoInputs.cache
+C:\Users\gefer\source\repos\OpenGameMonitor\CoreRCON\obj\Debug\netstandard2.1\CoreRCON.AssemblyInfo.cs
+C:\Users\gefer\source\repos\OpenGameMonitor\CoreRCON\obj\Debug\netstandard2.1\CoreRCON.dll
+C:\Users\gefer\source\repos\OpenGameMonitor\CoreRCON\obj\Debug\netstandard2.1\CoreRCON.pdb

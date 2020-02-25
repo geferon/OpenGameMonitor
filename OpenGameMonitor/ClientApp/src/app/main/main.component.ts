@@ -34,7 +34,7 @@ export class MainComponent {
 
 	constructor(private breakpointObserver: BreakpointObserver) { }
 
-	filterRoute(route: RouteItem) {
-		return route.title && route.path;
+	filterRoute(route: RouteItem): boolean {
+		return (!(route.title === undefined || route.title === null) && (route.path === undefined || route.path === null));
 	}
 }

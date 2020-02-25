@@ -55,9 +55,14 @@ namespace OpenGameMonitor
             services.AddDefaultIdentity<MonitorUser>()
                 .AddRoles<MonitorRole>()
                 .AddRoleManager<RoleManager<MonitorRole>>()
-                .AddEntityFrameworkStores<MonitorDBContext>();
+                .AddEntityFrameworkStores<MonitorDBContext>()
+                .AddDefaultTokenProviders();
 
             services.AddIdentityServer()
+#if DEBUG
+                .AddDeveloperSigningCredential()
+#endif
+                .AddAspNetIdentity<MonitorUser>()
                 .AddApiAuthorization<MonitorUser, MonitorDBContext>(options =>
                 {
                     options.Clients.AddIdentityServerSPA("OpenGameMonitorPanel", builder =>
@@ -68,6 +73,32 @@ namespace OpenGameMonitor
                         //builder.WithLogoutRedirectUri("");
                     });
                 });
+
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequiredLength = 6;
+
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = true;
+
+                options.SignIn.RequireConfirmedEmail = false;
+            });
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                // Cookie settings
+                options.Cookie.HttpOnly = true;
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+
+                options.LoginPath = "/Identity/Account/Login";
+                options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+                options.SlidingExpiration = true;
+            });
 
             services.AddAuthentication()
                 .AddIdentityServerJwt();
