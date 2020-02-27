@@ -55,7 +55,7 @@ namespace OpenGameMonitor
 
             //services.AddDefaultIdentity<MonitorUser>()
             //.AddRoles<MonitorRole>()
-            services.AddIdentity<MonitorUser, MonitorRole>()
+            services.AddIdentity<MonitorUser, MonitorRole>(options => options.SignIn.RequireConfirmedAccount = true)
                 //.AddRoleManager<RoleManager<MonitorRole>>()
                 .AddEntityFrameworkStores<MonitorDBContext>()
                 .AddDefaultTokenProviders();
@@ -67,21 +67,27 @@ namespace OpenGameMonitor
                     options.Events.RaiseFailureEvents = true;
                     options.Events.RaiseSuccessEvents = true;
                 })
+                //.AddInMemoryIdentityResources(Config.Ids)
+                //.AddInMemoryApiResources(Config.Apis)
+                //.AddInMemoryClients(Config.Clients)
                 //.AddAspNetIdentity<MonitorUser>()
-                .AddApiAuthorization<MonitorUser, MonitorDBContext>(options =>
+                .AddApiAuthorization<MonitorUser, MonitorDBContext>();
+
+            //.AddInMemoryPersistedGrants()
+            /*.AddApiAuthorization<MonitorUser, MonitorDBContext>(options =>
+            {
+                options.Clients.AddIdentityServerSPA("OpenGameMonitorPanel", builder =>
                 {
-                    options.Clients.AddIdentityServerSPA("OpenGameMonitorPanel", builder =>
-                    {
-                        builder.WithRedirectUri("https://localhost:44307/authentication/login-callback");
-                        builder.WithLogoutRedirectUri("https://localhost:44307/authentication/logout-callback");
-                        //builder.WithRedirectUri("");
-                        //builder.WithLogoutRedirectUri("");
-                    });
+                    builder.WithRedirectUri("https://localhost:44307/authentication/login-callback");
+                    builder.WithLogoutRedirectUri("https://localhost:44307/authentication/logout-callback");
+                    //builder.WithRedirectUri("");
+                    //builder.WithLogoutRedirectUri("");
                 });
+            });*/
+
 
 #if DEBUG
             builder.AddDeveloperSigningCredential();
-            builder.AddSigningCredentials();
 #else
             builder.AddSigningCredentials();
 #endif
@@ -113,13 +119,15 @@ namespace OpenGameMonitor
             });
 
             services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-                .AddJwtBearer(jwtBearerOptions =>
                 {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(options =>
+                {
+                    //options.Authority = "http://localhost:";
 
+                    options.Audience = "api1";
                 })
                 .AddIdentityServerJwt();
 
@@ -135,14 +143,21 @@ namespace OpenGameMonitor
             services.AddSignalR();
             services.AddHostedService<ServersListener>();
 
+
+            services.AddCors(options => options.AddPolicy("AllowAll", p => p.AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader()));
+
             services.AddControllersWithViews();
             services.AddRazorPages();
 
+            /*
             services.AddMvc(options =>
             {
                 options.EnableEndpointRouting = false;
             })
-                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+                .SetCompatibilityVersion(CompatibilityVersion.Latest);
+            */
 
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -174,6 +189,7 @@ namespace OpenGameMonitor
 
             app.UseRouting();
 
+            app.UseCors("AllowAll");
             app.UseAuthentication();
             app.UseIdentityServer();
             app.UseAuthorization();

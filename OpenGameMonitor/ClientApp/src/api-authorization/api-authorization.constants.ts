@@ -23,7 +23,6 @@ export const LoginActions = {
 
 let applicationPaths: ApplicationPathsType = {
 	DefaultLoginRedirectPath: '/',
-	OidcClientConfigurationUrl: '/assets/auth.clientConfiguration.json',
 	ApiAuthorizationClientConfigurationUrl: `/_configuration/${ApplicationName}`,
 	Login: `authentication/${LoginActions.Login}`,
 	LoginFailed: `authentication/${LoginActions.LoginFailed}`,
@@ -58,7 +57,6 @@ applicationPaths = {
 
 interface ApplicationPathsType {
 	readonly DefaultLoginRedirectPath: string;
-	readonly OidcClientConfigurationUrl: string;
 	readonly ApiAuthorizationClientConfigurationUrl: string;
 	readonly Login: string;
 	readonly LoginFailed: string;
