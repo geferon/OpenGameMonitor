@@ -81,7 +81,7 @@ namespace OpenGameMonitorLibraries
         public uint SteamID { get; set; }
     }
 
-    public class MonitorUser : IdentityUser
+    public class MonitorUser : IdentityUser<string>
     {
         public List<GroupUser> Groups { get; set; }
         //public virtual ICollection<Group> Groups { get; set; }
@@ -99,7 +99,7 @@ namespace OpenGameMonitorLibraries
         public string Password { get; set; }
     }
 
-    public class MonitorRole : IdentityRole
+    public class MonitorRole : IdentityRole<string>
     {
         public MonitorRole() : base() { }
         public MonitorRole(string name) : base(name) { }

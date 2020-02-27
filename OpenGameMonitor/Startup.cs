@@ -1,6 +1,7 @@
 using EntityFrameworkCore.Triggers;
 using EntityFrameworkCore.Triggers.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -52,17 +53,21 @@ namespace OpenGameMonitor
             services.AddDbContext<MonitorDBContext>(options => options.UseMySql(connectionStr));
             services.AddTriggers();
 
-            services.AddDefaultIdentity<MonitorUser>()
-                .AddRoles<MonitorRole>()
-                .AddRoleManager<RoleManager<MonitorRole>>()
+            //services.AddDefaultIdentity<MonitorUser>()
+            //.AddRoles<MonitorRole>()
+            services.AddIdentity<MonitorUser, MonitorRole>()
+                //.AddRoleManager<RoleManager<MonitorRole>>()
                 .AddEntityFrameworkStores<MonitorDBContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddIdentityServer()
-#if DEBUG
-                .AddDeveloperSigningCredential()
-#endif
-                .AddAspNetIdentity<MonitorUser>()
+            var builder = services.AddIdentityServer(options =>
+                {
+                    options.Events.RaiseErrorEvents = true;
+                    options.Events.RaiseInformationEvents = true;
+                    options.Events.RaiseFailureEvents = true;
+                    options.Events.RaiseSuccessEvents = true;
+                })
+                //.AddAspNetIdentity<MonitorUser>()
                 .AddApiAuthorization<MonitorUser, MonitorDBContext>(options =>
                 {
                     options.Clients.AddIdentityServerSPA("OpenGameMonitorPanel", builder =>
@@ -73,6 +78,13 @@ namespace OpenGameMonitor
                         //builder.WithLogoutRedirectUri("");
                     });
                 });
+
+#if DEBUG
+            builder.AddDeveloperSigningCredential();
+            builder.AddSigningCredentials();
+#else
+            builder.AddSigningCredentials();
+#endif
 
             services.Configure<IdentityOptions>(options =>
             {
@@ -100,7 +112,15 @@ namespace OpenGameMonitor
                 options.SlidingExpiration = true;
             });
 
-            services.AddAuthentication()
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+                .AddJwtBearer(jwtBearerOptions =>
+                {
+
+                })
                 .AddIdentityServerJwt();
 
             services.AddAuthorization(options =>

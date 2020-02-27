@@ -5,9 +5,10 @@ import { LoginComponent } from './login/login.component';
 import { LogoutComponent } from './logout/logout.component';
 import { RouterModule } from '@angular/router';
 import { ApplicationPaths } from './api-authorization.constants';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { MaterialModule } from '../app/material.module';
-import { AuthModule, OidcConfigService, OidcSecurityService, ConfigResult } from 'angular-auth-oidc-client';
+import { AuthModule, OidcConfigService, OidcSecurityService, ConfigResult, OpenIdConfiguration } from 'angular-auth-oidc-client';
+import { switchMap } from 'rxjs/operators';
 
 @NgModule({
 	imports: [
@@ -34,10 +35,20 @@ import { AuthModule, OidcConfigService, OidcSecurityService, ConfigResult } from
 		OidcConfigService,
 		{
 			provide: APP_INITIALIZER,
-			deps: [OidcConfigService],
+			deps: [OidcConfigService, HttpClient],
 			multi: true,
-			useFactory: (oidcConfigService: OidcConfigService) => {
-				return () => oidcConfigService.load(ApplicationPaths.ApiAuthorizationClientConfigurationUrl);
+			useFactory: (oidcConfigService: OidcConfigService, http: HttpClient) => {
+				return () => {
+					return http
+					.get(ApplicationPaths.ApiAuthorizationClientConfigurationUrl)
+					.pipe(
+						switchMap(config => {
+							config['stsServer'] = config['authority'];
+							return oidcConfigService['loadUsingConfiguration'](config);
+						})
+					)
+					.toPromise();
+				};
 			}
 		}
 	]
@@ -49,7 +60,22 @@ export class ApiAuthorizationModule {
 	) {
 		// TODO: https://github.com/damienbod/angular-auth-oidc-client
 		this.oidcConfigService.onConfigurationLoaded.subscribe((configResult: ConfigResult) => {
+			let redirectUrl = new URL(configResult.customConfig.redirect_uri);
 
+			const config: OpenIdConfiguration = {
+				stsServer: configResult.customConfig.stsServer,
+				redirect_url: redirectUrl.origin,
+				client_id: configResult.customConfig.client_id,
+				scope: configResult.customConfig.scope,
+				response_type: configResult.customConfig.response_type,
+				silent_renew: true,
+				silent_renew_url: `${configResult.customConfig.authority}/silent-renew.html`,
+				log_console_debug_active: true,
+				post_logout_redirect_uri: configResult.customConfig.post_logout_redirect_uri,
+				post_login_route: configResult.customConfig.redirect_uri
+			};
+
+			this.oidcSecurityService.setupModule(config, configResult.authWellknownEndpoints);
 		});
 	}
 }

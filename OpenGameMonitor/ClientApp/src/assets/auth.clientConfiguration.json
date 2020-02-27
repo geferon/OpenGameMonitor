@@ -1,0 +1,17 @@
+{
+    "stsServer": "http://localhost:52202",
+    "redirect_url": "http://localhost:52202",
+    "client_id": "angularclient",
+    "response_type": "code",
+    "scope": "dataEventRecords securedFiles openid profile",
+    "post_logout_redirect_uri": "http://localhost:52202",
+    "start_checksession": true,
+    "silent_renew": true,
+    "silent_renew_url": "http://localhost:52202/silent-renew.html",
+    "post_login_route": "/home",
+    "forbidden_route": "/forbidden",
+    "unauthorized_route": "/unauthorized",
+    "log_console_warning_active": true,
+    "log_console_debug_active": true,
+    "max_id_token_iat_offset_allowed_in_seconds": 10
+}
