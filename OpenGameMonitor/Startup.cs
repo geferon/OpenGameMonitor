@@ -129,6 +129,7 @@ namespace OpenGameMonitor
 
                     options.Audience = "api1";
                 })
+                //.AddIdentityServerAuthentication()
                 .AddIdentityServerJwt();
 
             services.AddAuthorization(options =>
@@ -148,16 +149,15 @@ namespace OpenGameMonitor
                 .AllowAnyMethod()
                 .AllowAnyHeader()));
 
+            services.AddControllers();
             services.AddControllersWithViews();
-            services.AddRazorPages();
+            //services.AddRazorPages();
 
-            /*
             services.AddMvc(options =>
             {
                 options.EnableEndpointRouting = false;
             })
                 .SetCompatibilityVersion(CompatibilityVersion.Latest);
-            */
 
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -169,6 +169,8 @@ namespace OpenGameMonitor
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider service)
         {
+            app.UseRouting();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -187,19 +189,18 @@ namespace OpenGameMonitor
                 app.UseSpaStaticFiles();
             }
 
-            app.UseRouting();
-
             app.UseCors("AllowAll");
             app.UseAuthentication();
             app.UseIdentityServer();
             app.UseAuthorization();
-
+            
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapControllers();
+                endpoints.MapRazorPages();
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller}/{action=Index}/{id?}");
-                endpoints.MapRazorPages();
 
                 endpoints.MapHub<ServersHub>("/servershub");
             });
