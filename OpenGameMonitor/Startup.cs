@@ -67,9 +67,9 @@ namespace OpenGameMonitor
                     options.Events.RaiseFailureEvents = true;
                     options.Events.RaiseSuccessEvents = true;
                 })
-                //.AddInMemoryIdentityResources(Config.Ids)
-                //.AddInMemoryApiResources(Config.Apis)
-                //.AddInMemoryClients(Config.Clients)
+                .AddInMemoryIdentityResources(Config.Ids)
+                .AddInMemoryApiResources(Config.Apis)
+                .AddInMemoryClients(Config.Clients)
                 //.AddAspNetIdentity<MonitorUser>()
                 .AddApiAuthorization<MonitorUser, MonitorDBContext>();
 

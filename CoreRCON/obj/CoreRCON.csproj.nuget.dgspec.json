@@ -1,21 +1,26 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\gefer\\source\\repos\\OpenGameMonitor\\CoreRCON\\CoreRCON.csproj": {}
+    "E:\\Trabajos\\Proyectos\\OpenGameMonitor\\CoreRCON\\CoreRCON.csproj": {}
   },
   "projects": {
-    "C:\\Users\\gefer\\source\\repos\\OpenGameMonitor\\CoreRCON\\CoreRCON.csproj": {
+    "E:\\Trabajos\\Proyectos\\OpenGameMonitor\\CoreRCON\\CoreRCON.csproj": {
       "version": "3.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\gefer\\source\\repos\\OpenGameMonitor\\CoreRCON\\CoreRCON.csproj",
+        "projectUniqueName": "E:\\Trabajos\\Proyectos\\OpenGameMonitor\\CoreRCON\\CoreRCON.csproj",
         "projectName": "CoreRCON",
-        "projectPath": "C:\\Users\\gefer\\source\\repos\\OpenGameMonitor\\CoreRCON\\CoreRCON.csproj",
+        "projectPath": "E:\\Trabajos\\Proyectos\\OpenGameMonitor\\CoreRCON\\CoreRCON.csproj",
         "packagesPath": "C:\\Users\\gefer\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\gefer\\source\\repos\\OpenGameMonitor\\CoreRCON\\obj\\",
+        "outputPath": "E:\\Trabajos\\Proyectos\\OpenGameMonitor\\CoreRCON\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Microsoft\\Xamarin\\NuGet\\",
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
         "configFilePaths": [
           "C:\\Users\\gefer\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
         ],
         "originalTargetFrameworks": [
           "netstandard2.1"

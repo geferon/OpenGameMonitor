@@ -13,14 +13,14 @@ namespace OpenGameMonitorWeb
 			new List<IdentityResource>
 			{
 				new IdentityResources.OpenId(),
-				new IdentityResources.Email(),
-				new IdentityResources.Profile()
+				new IdentityResources.Profile(),
+				new IdentityResources.Email()
 			};
 
 		public static IEnumerable<ApiResource> Apis =>
 			new List<ApiResource>
 			{
-				new ApiResource("api1", "OpenGameMonitor API")
+				new ApiResource("api", "OpenGameMonitor API")
 			};
 
 		public static IEnumerable<Client> Clients =>
@@ -34,7 +34,7 @@ namespace OpenGameMonitorWeb
 
 					AllowedGrantTypes = GrantTypes.ClientCredentials,
 					// scopes that client has access to
-					AllowedScopes = { "api1" }
+					AllowedScopes = { "api" }
 				},
 				// interactive ASP.NET Core MVC client
 				new Client
@@ -56,7 +56,7 @@ namespace OpenGameMonitorWeb
 					{
 						IdentityServerConstants.StandardScopes.OpenId,
 						IdentityServerConstants.StandardScopes.Profile,
-						"api1"
+						"api"
 					},
 
 					AllowOfflineAccess = true
@@ -66,9 +66,10 @@ namespace OpenGameMonitorWeb
 				{
 					ClientId = "OpenGameMonitorPanel",
 					ClientName = "Angular Client",
-					AllowedGrantTypes = GrantTypes.Implicit,
-					RequirePkce = true,
+					AllowedGrantTypes = GrantTypes.Code,
+					AllowOfflineAccess = true,
 					RequireClientSecret = false,
+					//RequirePkce = true,
 					RequireConsent = false,
 
 					AllowAccessTokensViaBrowser = true,
@@ -82,7 +83,7 @@ namespace OpenGameMonitorWeb
 						IdentityServerConstants.StandardScopes.OpenId,
 						IdentityServerConstants.StandardScopes.Profile,
 						IdentityServerConstants.StandardScopes.Email,
-						"api1"
+						"api"
 					}
 				}
 			};
