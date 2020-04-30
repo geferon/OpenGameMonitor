@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# CA2007: Puede llamar a ConfigureAwait en la tarea esperada
+dotnet_diagnostic.CA2007.severity = none

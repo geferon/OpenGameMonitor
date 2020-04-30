@@ -24,4 +24,7 @@
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)Protos\" />
   </ItemGroup>
+  <ItemGroup>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory).editorconfig" />
+  </ItemGroup>
 </Project>

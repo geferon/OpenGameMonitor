@@ -139,35 +139,35 @@ namespace OpenGameMonitorWorker.Services
             {
                 foreach (KeyValuePair<string, IMonitorComsCallback> client in _clients)
                 {
-                    await client.Value.ServerMessageConsole(((Server)serverObj).Id, args.NewLine).ConfigureAwait(false);
+                    await client.Value.ServerMessageConsole(((Server)serverObj).Id, args.NewLine);
                 }
             });
             _eventHandlerService.ListenForEventType<ConsoleEventArgs>("Server:UpdateMessage", async (Object serverObj, ConsoleEventArgs args) =>
             {
                 foreach (KeyValuePair<string, IMonitorComsCallback> client in _clients)
                 {
-                    await client.Value.ServerMessageConsole(((Server)serverObj).Id, args.NewLine).ConfigureAwait(false);
+                    await client.Value.ServerMessageConsole(((Server)serverObj).Id, args.NewLine);
                 }
             });
             _eventHandlerService.ListenForEvent("Server:Opened", async (Object serverObj, EventArgs e) =>
             {
                 foreach (KeyValuePair<string, IMonitorComsCallback> client in _clients)
                 {
-                    await client.Value.ServerOpened(((Server) serverObj).Id).ConfigureAwait(false);
+                    await client.Value.ServerOpened(((Server) serverObj).Id);
                 }
             });
             _eventHandlerService.ListenForEvent("Server:Closed", async (Object serverObj, EventArgs e) =>
             {
                 foreach (KeyValuePair<string, IMonitorComsCallback> client in _clients)
                 {
-                    await client.Value.ServerClosed(((Server) serverObj).Id).ConfigureAwait(false);
+                    await client.Value.ServerClosed(((Server) serverObj).Id);
                 }
             });
             _eventHandlerService.ListenForEvent("Server:Updated", async (Object serverObj, EventArgs e) =>
             {
                 foreach (KeyValuePair<string, IMonitorComsCallback> client in _clients)
                 {
-                    await client.Value.ServerUpdated(((Server)serverObj).Id).ConfigureAwait(false);
+                    await client.Value.ServerUpdated(((Server)serverObj).Id);
                 }
             });
         }

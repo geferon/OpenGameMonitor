@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using IdentityServer4.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using OpenGameMonitorLibraries;
 
 namespace OpenGameMonitorWeb.Controllers
@@ -19,16 +21,19 @@ namespace OpenGameMonitorWeb.Controllers
         private readonly IIdentityServerInteractionService _interaction;
         private readonly UserManager<MonitorUser> _userManager;
         private readonly SignInManager<MonitorUser> _signInManager;
+        private readonly IHostEnvironment _environment;
 
         public AuthenticationController(
                 IIdentityServerInteractionService interaction,
                 UserManager<MonitorUser> userManager,
-                SignInManager<MonitorUser> signInManager
+                SignInManager<MonitorUser> signInManager,
+                IHostEnvironment environment
             )
         {
             _interaction = interaction;
             _userManager = userManager;
             _signInManager = signInManager;
+            _environment = environment;
         }
 
         public class LoginRequest
@@ -36,7 +41,7 @@ namespace OpenGameMonitorWeb.Controllers
             public string Username { get; set; }
             public string Password { get; set; }
             public string ReturnUrl { get; set; }
-            public string? TwoFAToken { get; set; }
+            public string TwoFAToken { get; set; }
         }
 
         [HttpPost]
@@ -51,13 +56,21 @@ namespace OpenGameMonitorWeb.Controllers
 
                 if (await _userManager.GetTwoFactorEnabledAsync(user))
                 {
-                    if (request.TwoFAToken.HasValue && !String.IsNullOrEmpty(request.TwoFAToken))
+                    if (!String.IsNullOrEmpty(request.TwoFAToken))
                     {
-                        _userManager.VerifyTwoFactorTokenAsync(user, "Login", request.TwoFAToken);
+                        var authorized = await _userManager.VerifyTwoFactorTokenAsync(user, "Login", request.TwoFAToken);
+                        
+                        if (authorized)
+                        {
+                            await _signInManager.SignInAsync(user, true);
+                            return new JsonResult(new { RedirectUrl = request.ReturnUrl, IsOk = true });
+                        }
                     }
                     else
                     {
-                        return new JsonResult();
+                        var result = new JsonResult(new { IsOK = false, Error = "2fa_enabled", ErrorDescription = "Two Factor Authentication is enabled for this account." });
+                        result.StatusCode = 401;
+                        return result;
                     }
                 }
                 else

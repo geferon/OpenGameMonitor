@@ -265,10 +265,10 @@ namespace OpenGameMonitorLibraries
 
             var buffer = new byte[bufferSize];
             int readCount;
-            while ((readCount = await source.ReadAsync(buffer, 0, bufferSize, cancellationToken).ConfigureAwait(false)) != 0)
+            while ((readCount = await source.ReadAsync(buffer, 0, bufferSize, cancellationToken)) != 0)
             {
-                await destination.WriteAsync(buffer, 0, readCount, cancellationToken).ConfigureAwait(false);
-                await destination.FlushAsync(cancellationToken).ConfigureAwait(false);
+                await destination.WriteAsync(buffer, 0, readCount, cancellationToken);
+                await destination.FlushAsync(cancellationToken);
             }
         }
     }

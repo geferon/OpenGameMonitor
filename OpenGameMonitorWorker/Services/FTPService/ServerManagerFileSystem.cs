@@ -248,7 +248,7 @@ namespace OpenGameMonitorWorker.Services
                 }
 
                 output.Seek(startPosition.Value, SeekOrigin.Begin);
-                await data.CopyToAsync(output, _streamBufferSize, _flushStream, cancellationToken).ConfigureAwait(false);
+                await data.CopyToAsync(output, _streamBufferSize, _flushStream, cancellationToken);
             }
 
             return null;
@@ -268,7 +268,7 @@ namespace OpenGameMonitorWorker.Services
             var fileInfo = new FileInfo(Path.Combine(targetEntry.Info.FullName, fileName));
             using (var output = fileInfo.Create())
             {
-                await data.CopyToAsync(output, _streamBufferSize, _flushStream, cancellationToken).ConfigureAwait(false);
+                await data.CopyToAsync(output, _streamBufferSize, _flushStream, cancellationToken);
             }
 
             return null;
@@ -280,7 +280,7 @@ namespace OpenGameMonitorWorker.Services
             var fileInfo = (FileInfo)((ServerManagerFileEntry)fileEntry).Info;
             using (var output = fileInfo.OpenWrite())
             {
-                await data.CopyToAsync(output, _streamBufferSize, _flushStream, cancellationToken).ConfigureAwait(false);
+                await data.CopyToAsync(output, _streamBufferSize, _flushStream, cancellationToken);
                 output.SetLength(output.Position);
             }
 

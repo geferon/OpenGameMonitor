@@ -83,7 +83,7 @@ namespace OpenGameMonitorWorker.Handlers
 					await Task.Delay(1000);
 
 					IGameHandlerBase handler = GetServerHandler(server);
-					await handler.OpenServer(server).ConfigureAwait(false);
+					await handler.OpenServer(server);
 				}
 			});
 

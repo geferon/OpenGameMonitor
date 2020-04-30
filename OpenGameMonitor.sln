@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreRCON", "CoreRCON\CoreRC
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		OpenGameMonitorLibraries\OpenGameMonitorLibraries.projitems*{5f697cc5-72bc-4d76-87e8-e8b9d1badc15}*SharedItemsImports = 5
 		OpenGameMonitorLibraries\OpenGameMonitorLibraries.projitems*{b82eaa51-96b0-4ead-9d5f-52343ea10a99}*SharedItemsImports = 13
+		OpenGameMonitorLibraries\OpenGameMonitorLibraries.projitems*{efedec27-5a9b-4069-81a5-eb36a7bc6862}*SharedItemsImports = 5
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
