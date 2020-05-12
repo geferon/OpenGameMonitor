@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,12 +19,18 @@ namespace OpenGameMonitorWeb.Controllers
     public class UsersController : ControllerBase
     {
         private readonly MonitorDBContext _context;
+        private readonly IMapper _mapper;
         private readonly IAuthorizationService _authorizationService;
         private readonly UserManager<MonitorUser> _userManager;
 
-        public UsersController(MonitorDBContext context, IAuthorizationService authorizationService, UserManager<MonitorUser> userManager)
-        {
+        public UsersController(
+            MonitorDBContext context,
+            IMapper mapper,
+            IAuthorizationService authorizationService,
+            UserManager<MonitorUser> userManager
+        ) {
             _context = context;
+            _mapper = mapper;
             _authorizationService = authorizationService;
             _userManager = userManager;
         }
@@ -32,33 +39,32 @@ namespace OpenGameMonitorWeb.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<DTOMonitorUser>>> GetUsers()
         {
-            return await _context.Users.Include(b => b.Groups)
-                .Select(b =>
-                new DTOMonitorUser()
+            return await Task.WhenAll(
+                (await _context.Users.Include(b => b.Groups)
+                .ToListAsync())
+                .Select(async b =>
                 {
-                    UserName = b.UserName,
-                    Groups = b.Groups
-                }
-            ).ToListAsync();
+                    var user = _mapper.Map<DTOMonitorUser>(b);
+                    user.Roles = (await _userManager.GetRolesAsync(b)).ToList();
+                    return user;
+                })
+            );
         }
 
         // GET: api/Users/5
         [HttpGet("{username}")]
         public async Task<ActionResult<DTOMonitorUser>> GetUser(string username)
         {
-            var user = await _context.Users.Include(b => b.Groups)
-                .Select(b =>
-                    new DTOMonitorUser()
-                    {
-                        UserName = b.UserName,
-                        Groups = b.Groups
-                    }
-                ).FirstOrDefaultAsync(b => b.UserName == username);
+            var userObj = await _context.Users.Include(b => b.Groups)
+                .FirstOrDefaultAsync(b => b.UserName == username);
 
-            if (user == null)
+            if (userObj == null)
             {
                 return NotFound();
             }
+
+            var user = _mapper.Map<DTOMonitorUser>(userObj);
+            user.Roles = (await _userManager.GetRolesAsync(userObj)).ToList();
 
             return user;
         }
@@ -74,12 +80,7 @@ namespace OpenGameMonitorWeb.Controllers
                 return BadRequest();
             }
 
-            var userReal = new MonitorUser()
-            {
-                UserName = user.UserName,
-                Email = user.Email,
-                Groups = user.Groups
-            };
+            var userReal = _mapper.Map<MonitorUser>(user);
 
             _context.Entry(userReal).State = EntityState.Modified;
 
@@ -111,12 +112,7 @@ namespace OpenGameMonitorWeb.Controllers
             //_context.Users.Add(user);
             //await _context.SaveChangesAsync();
 
-            var userReal = new MonitorUser()
-            {
-                UserName = user.UserName,
-                Email = user.Email,
-                Groups = user.Groups
-            };
+            var userReal = _mapper.Map<MonitorUser>(user);
 
             var result = await _userManager.CreateAsync(userReal, user.Password);
 
@@ -138,6 +134,8 @@ namespace OpenGameMonitorWeb.Controllers
                 };
             }
 
+            await _userManager.AddToRolesAsync(userReal, user.Roles);
+
             return CreatedAtAction("GetUser", new { username = user.UserName }, user);
         }
 
@@ -154,12 +152,7 @@ namespace OpenGameMonitorWeb.Controllers
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
 
-            return new DTOMonitorUser()
-            {
-                UserName = user.UserName,
-                Email = user.Email,
-                Groups = user.Groups
-            };
+            return _mapper.Map<DTOMonitorUser>(user);
         }
 
         private bool UserExists(string username)

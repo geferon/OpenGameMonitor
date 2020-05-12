@@ -9,22 +9,44 @@ namespace OpenGameMonitorWeb
 {
 	public static class Config
 	{
-		public static IEnumerable<IdentityResource> Ids =>
-			new List<IdentityResource>
+		public static IEnumerable<IdentityResource> GetIdentityResources()
+		{
+			return new List<IdentityResource>
 			{
 				new IdentityResources.OpenId(),
 				new IdentityResources.Profile(),
 				new IdentityResources.Email()
 			};
+		}
 
-		public static IEnumerable<ApiResource> Apis =>
-			new List<ApiResource>
+		public static IEnumerable<ApiResource> GetApis()
+		{
+			return new List<ApiResource>
 			{
-				new ApiResource("api", "OpenGameMonitor API")
+				//new ApiResource("api", "OpenGameMonitor API"),
+				new ApiResource
+				{
+					Name = "api",
+					Description = "OpenGameMonitor API",
+					Scopes =
+					{
+						new Scope("api"),
+						new Scope("OpenGameMonitorWebAPI")
+					},
+					UserClaims = {
+						IdentityModel.JwtClaimTypes.Name,
+						IdentityModel.JwtClaimTypes.Email,
+						IdentityModel.JwtClaimTypes.Role,
+						System.Security.Claims.ClaimTypes.Role,
+						System.Security.Claims.ClaimTypes.NameIdentifier
+					}
+				}
 			};
+		}
 
-		public static IEnumerable<Client> Clients =>
-			new List<Client>
+		public static IEnumerable<Client> GetClients()
+		{
+			return new List<Client>
 			{
 				// machine to machine client
 				new Client
@@ -37,6 +59,7 @@ namespace OpenGameMonitorWeb
 					AllowedScopes = { "api" }
 				},
 				// interactive ASP.NET Core MVC client
+				/*
 				new Client
 				{
 					ClientId = "mvc",
@@ -61,11 +84,13 @@ namespace OpenGameMonitorWeb
 
 					AllowOfflineAccess = true
 				},
+				*/
 				// Angular Client
 				new Client
 				{
 					ClientId = "OpenGameMonitorPanel",
 					ClientName = "Angular Client",
+					//AllowedGrantTypes = GrantTypes.Implicit,
 					AllowedGrantTypes = GrantTypes.Code,
 					AllowOfflineAccess = true,
 					RequireClientSecret = false,
@@ -74,18 +99,21 @@ namespace OpenGameMonitorWeb
 
 					AllowAccessTokensViaBrowser = true,
 
-					RedirectUris =           { "http://localhost:4200/auth-callback" },
-					PostLogoutRedirectUris = { "http://localhost:4200/" },
-					AllowedCorsOrigins =     { "http://localhost:4200" },
+					ClientUri =              "http://localhost:4200",
+					RedirectUris =           { "http://localhost:4200/auth-callback", "https://localhost:5001/authentication/login-callback" },
+					PostLogoutRedirectUris = { "http://localhost:4200/", "https://localhost:5001/" },
+					AllowedCorsOrigins =     { "http://localhost:4200", "https://localhost:5001" },
 
 					AllowedScopes =
 					{
+						"api",
+						"OpenGameMonitorWebAPI",
 						IdentityServerConstants.StandardScopes.OpenId,
 						IdentityServerConstants.StandardScopes.Profile,
-						IdentityServerConstants.StandardScopes.Email,
-						"api"
+						IdentityServerConstants.StandardScopes.Email
 					}
 				}
 			};
+		}
 	}
 }

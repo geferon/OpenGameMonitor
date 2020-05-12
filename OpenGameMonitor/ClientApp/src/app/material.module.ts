@@ -44,6 +44,7 @@ import {CdkStepperModule} from '@angular/cdk/stepper';
 import {CdkTableModule} from '@angular/cdk/table';
 import {CdkTreeModule} from '@angular/cdk/tree';
 import {DragDropModule} from '@angular/cdk/drag-drop';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 /**
  * NgModule that includes all Material modules.
@@ -98,6 +99,7 @@ import {DragDropModule} from '@angular/cdk/drag-drop';
 		MatToolbarModule,
 		MatTooltipModule,
 		MatTreeModule,
+		ScrollingModule,
 	]
 })
 export class MaterialModule {}

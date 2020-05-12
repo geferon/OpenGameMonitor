@@ -1,0 +1,43 @@
+@import '~@angular/material/theming';
+
+:host {
+	// width: 100%;
+	display: block;
+	padding: 24px;
+}
+
+.mat-column-select {
+	overflow: initial;
+}
+
+.mat-column-actions {
+	flex: 0;
+}
+
+.table-footer {
+	display: flex;
+	flex-direction: row;
+}
+
+.footer-buttons {
+	// background: mat-color($background);
+	background: white; // TODO: Change
+	padding: 0 8px;
+
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+tr, td {
+	.fit-size {
+		width: 1px;
+
+		&:not(:last-of-type) {
+			padding-right: 12px;
+		}
+		&:not(:first-of-type) {
+			padding-left: 12px;
+		}
+	}
+}

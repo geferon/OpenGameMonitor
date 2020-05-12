@@ -1,0 +1,38 @@
+<h1 mat-dialog-title>Create game</h1>
+<div mad-dialog-content>
+	<form name="gameForm" [formGroup]="gameForm">
+		<mat-form-field>
+			<mat-label>ID</mat-label>
+			<input matInput
+			required placeholder="gmod"
+			formControlName="ID" />
+		</mat-form-field>
+		<br />
+		<mat-form-field>
+			<mat-label>SteamID</mat-label>
+			<input matInput type="number"
+			placeholder="4020"
+			formControlName="SteamID" />
+		</mat-form-field>
+		<br />
+		<mat-form-field>
+			<mat-label>Name</mat-label>
+			<input matInput
+			required placeholder="Garry's Mod"
+			formControlName="Name" />
+			<mat-error *ngIf="hasError('Name', 'required')">You must enter a value</mat-error>
+		</mat-form-field>
+		<br />
+		<mat-form-field>
+			<mat-label>Engine</mat-label>
+			<input matInput
+			required placeholder="Source"
+			formControlName="Engine" />
+			<mat-error *ngIf="hasError('Engine', 'required')">You must enter a value</mat-error>
+		</mat-form-field>
+	</form>
+</div>
+<div mat-dialog-actions>
+	<button mat-raised-button color="warn" (click)="onCancel()">Cancel</button>
+	<button mat-raised-button color="primary" [mat-dialog-close]="Game" (click)="onSubmit()" [disabled]="!gameForm.valid" cdkFocusInitial>Ok</button>
+</div>

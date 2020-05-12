@@ -26,6 +26,11 @@
 			"tabs",
 			4
 		],
+		"ter-indent": [
+			true,
+			4,
+			{"SwitchCase": 1}
+		],
 		"interface-over-type-literal": true,
 		"label-position": true,
 		"max-line-length": [

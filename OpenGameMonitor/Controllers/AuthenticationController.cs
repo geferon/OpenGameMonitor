@@ -45,6 +45,7 @@ namespace OpenGameMonitorWeb.Controllers
         }
 
         [HttpPost]
+        [Route("Login")]
         public async Task<IActionResult> Login([FromBody]LoginRequest request)
         {
             var context = await _interaction.GetAuthorizationContextAsync(request.ReturnUrl);
@@ -52,31 +53,55 @@ namespace OpenGameMonitorWeb.Controllers
 
             if (user != null && context != null)
             {
-                var passwordRight = _userManager.CheckPasswordAsync(user, request.Password);
-
-                if (await _userManager.GetTwoFactorEnabledAsync(user))
+                /*
+                if (String.IsNullOrEmpty(request.TwoFAToken))
                 {
-                    if (!String.IsNullOrEmpty(request.TwoFAToken))
+                    var result = await _signInManager.PasswordSignInAsync(user, request.Password, true, false);
+
+                    if (result.RequiresTwoFactor)
                     {
-                        var authorized = await _userManager.VerifyTwoFactorTokenAsync(user, "Login", request.TwoFAToken);
-                        
-                        if (authorized)
-                        {
-                            await _signInManager.SignInAsync(user, true);
-                            return new JsonResult(new { RedirectUrl = request.ReturnUrl, IsOk = true });
-                        }
-                    }
-                    else
-                    {
-                        var result = new JsonResult(new { IsOK = false, Error = "2fa_enabled", ErrorDescription = "Two Factor Authentication is enabled for this account." });
-                        result.StatusCode = 401;
-                        return result;
+
                     }
                 }
                 else
                 {
-                    await _signInManager.SignInAsync(user, true);
-                    return new JsonResult(new { RedirectUrl = request.ReturnUrl, IsOk = true });
+                    var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
+
+                    if (user == null)
+                    {
+
+                    }
+                    var result = await 
+                }
+                */
+                var passwordRight = await _userManager.CheckPasswordAsync(user, request.Password);
+
+                if (passwordRight)
+                {
+                    if (await _userManager.GetTwoFactorEnabledAsync(user))
+                    {
+                        if (!String.IsNullOrEmpty(request.TwoFAToken))
+                        {
+                            var authorized = await _userManager.VerifyTwoFactorTokenAsync(user, "Login", request.TwoFAToken);
+
+                            if (authorized)
+                            {
+                                await _signInManager.SignInAsync(user, true);
+                                return new JsonResult(new { RedirectUrl = request.ReturnUrl, IsOk = true });
+                            }
+                        }
+                        else
+                        {
+                            var result = new JsonResult(new { IsOK = false, Error = "2fa_enabled", ErrorDescription = "Two Factor Authentication is enabled for this account." });
+                            result.StatusCode = 401;
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        await _signInManager.SignInAsync(user, true);
+                        return new JsonResult(new { RedirectUrl = request.ReturnUrl, IsOk = true });
+                    }
                 }
             }
 

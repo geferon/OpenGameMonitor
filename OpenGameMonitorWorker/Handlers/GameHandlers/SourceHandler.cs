@@ -106,7 +106,13 @@ namespace OpenGameMonitorWorker.Handlers
             var proc = new Process();
             proc.StartInfo.FileName = Path.Combine(server.Path, server.Executable);
             proc.StartInfo.WorkingDirectory = Path.GetDirectoryName(Path.Combine(server.Path, server.Executable));
-            //proc.StartInfo.Arguments = server.
+            
+            List<string> startParameters = new List<string>();
+            if (!String.IsNullOrWhiteSpace(server.StartParamsHidden)) startParameters.Add(server.StartParamsHidden);
+            if (!String.IsNullOrWhiteSpace(server.StartParams)) startParameters.Add(server.StartParams);
+            proc.StartInfo.Arguments = String.Join(" ", startParameters);
+
+            proc.PriorityClass = server.ProcessPriority;
 
             proc.StartInfo.RedirectStandardError = true;
             proc.StartInfo.RedirectStandardOutput = true;

@@ -18,17 +18,21 @@ namespace OpenGameMonitorWeb.Policies
             _userManager = userManager;
         }
 
-        protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context,
+        protected override async Task HandleRequirementAsync(
+            AuthorizationHandlerContext context,
             ServerPolicyRequirement requirement,
-            Server server)
-        {
+            Server server
+        ) {
             //var user = (MonitorUser)context.User.Identity;
             var user = await _userManager.GetUserAsync(context.User);
 
+            if (user == null || server == null)
+                return;
+
             if (context.User.IsInRole("Admin") ||
-                user == server.Owner ||
+                user.Id == server.Owner.Id ||
                 //(server.Group?.Members.Contains(user) ?? false))
-                (server.Group?.Members.Any((group) => group.User == user) ?? false))
+                (server.Group?.Members.Any((group) => group.User.Id == user.Id) ?? false))
             {
                 context.Succeed(requirement);
             }

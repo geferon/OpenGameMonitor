@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { User, UserManager, WebStorageStateStore } from 'oidc-client';
-import { BehaviorSubject, concat, from, Observable } from 'rxjs';
-import { filter, map, mergeMap, take, tap } from 'rxjs/operators';
+import { BehaviorSubject, concat, from, Observable, of } from 'rxjs';
+import { filter, map, mergeMap, take, tap, catchError } from 'rxjs/operators';
 import { ApplicationPaths, ApplicationName } from './api-authorization.constants';
+import { HttpClient } from '@angular/common/http';
 
 export type IAuthenticationResult =
 	SuccessAuthenticationResult |
@@ -39,6 +40,10 @@ export interface IUser {
 export class AuthorizeService {
 	// By default pop ups are disabled because they don't work properly on Edge.
 	// If you want to enable pop up authentication simply set this flag to false.
+
+	constructor(
+		private http: HttpClient
+	) { }
 
 	private popUpDisabled = true;
 	private userManager: UserManager;
@@ -195,5 +200,24 @@ export class AuthorizeService {
 			.pipe(
 				mergeMap(() => this.userManager.getUser()),
 				map(u => u && u.profile));
+	}
+
+	public redirectUri() {
+		return this.userManager.settings.redirect_uri;
+	}
+
+	public manualSignIn(username: string, password: string, twoFAToken?: string): Observable<IAuthenticationResult> {
+		return this.http.post('/authentication/login', {
+			Username: username,
+			Password: password,
+			ReturnUrl: this.userManager.settings.redirect_uri,
+			TwoFAToken: twoFAToken
+		})
+		.pipe(
+			map((value, index) => {
+				return this.success(undefined);
+			}),
+			catchError((err, caught) => of(this.error(err)))
+		);
 	}
 }

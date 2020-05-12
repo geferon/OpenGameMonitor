@@ -51,6 +51,10 @@ namespace OpenGameMonitorWorker
                     Console.WriteLine("{0}", err.Message);
                     Console.WriteLine("{0}", err.StackTrace);
                     Console.WriteLine(err.GetType());
+
+#if DEBUG
+                    throw;
+#endif
                 }
             }
         }
@@ -74,7 +78,7 @@ namespace OpenGameMonitorWorker
 
                     var cfg = config.Build();
 
-                    config.AddMonitorDBConfiguration(options => options.UseMySql(cfg.GetConnectionString("MonitorDatabase")));
+                    config.AddMonitorDBConfiguration(options => options.UseMySql(cfg.GetConnectionString("MonitorDatabase"), x => x.MigrationsAssembly("OpenGameMonitorDBMigrations")));
                 })
                 .ConfigureServices((hostContext, services) =>
                 {
@@ -153,83 +157,5 @@ namespace OpenGameMonitorWorker
                     webBuilder.UseStartup<gRPCStartup>();
                 });
                 */
-
-        public static void CheckForUpdate(this IHost host)
-        {
-            if (host == null) throw new ArgumentNullException(nameof(host));
-
-            /*
-            // Migrate by default on development
-#if DEBUG
-            bool shouldMigrateDatabase = true;
-#else
-            bool shouldMigrateDatabase = false;
-#endif
-            // */
-            IServiceScopeFactory serviceScopeFactory = host.Services.GetService<IServiceScopeFactory>();
-
-            using (var scope = serviceScopeFactory.CreateScope())
-            {
-                MonitorDBContext db = scope.ServiceProvider.GetRequiredService<MonitorDBContext>();
-
-                bool shouldMigrateDatabase = db.Database.GetPendingMigrations().Any();
-
-                ILoggerFactory loggerF = host.Services.GetService<ILoggerFactory>();
-                ILogger logger = loggerF.CreateLogger("Program");
-
-                // Might not need this anymore after above
-                /*
-                if (!shouldMigrateDatabase)
-                {
-                    try
-                    {
-                        var appData = File.ReadLines("application.dat").ToList();
-                        int oldVer = Convert.ToInt32(appData[0], CultureInfo.InvariantCulture);
-
-                        if (oldVer < MonitorConfig.Version)
-                        {
-                            shouldMigrateDatabase = true;
-                        }
-                    }
-                    catch
-                    {
-                        shouldMigrateDatabase = true;
-                    }
-                }
-                */
-
-                if (shouldMigrateDatabase)
-                {
-                    logger.LogInformation("Version out of date or old, performing updating!");
-
-                    try
-                    {
-                        db.Database.Migrate();
-                    }
-                    catch (Exception err)
-                    {
-                        logger.LogError(err, "There has been an error while performing the Database upgrade! Err: {0}", err.Message);
-                        Environment.Exit(-1);
-                        return;
-                    }
-                }
-
-                // Write the version file
-                string[] data = new string[]
-                {
-                    MonitorConfig.Version.ToString(CultureInfo.InvariantCulture)
-                };
-
-                File.WriteAllLines("application.dat", data);
-
-
-                if (shouldMigrateDatabase)
-                {
-                    // After the upgrade, restart
-                    logger.LogInformation("Application upgraded succesfully! Restarting...");
-                    host.Services.GetService<IApplicationLifetime>().StopApplication();
-                }
-            }
-        }
     }
 }

@@ -43,7 +43,8 @@ namespace OpenGameMonitorWeb.Hubs
 
         public List<KeyValuePair<string, ClaimsPrincipal>> GetConnectedUsers<THub>() where THub : Hub
         {
-            return CurrentConnections[typeof(THub)].ToList();
+            var hubType = typeof(THub);
+            return CurrentConnections.ContainsKey(hubType) ? CurrentConnections[hubType].ToList() : new List<KeyValuePair<string, ClaimsPrincipal>>();
         }
     }
 }

@@ -6,17 +6,17 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OpenGameMonitorLibraries;
 
-namespace OpenGameMonitorWorker.Migrations
+namespace OpenGameMonitorDBMigrations.ProdMigrations
 {
     [DbContext(typeof(MonitorDBContext))]
-    [Migration("20191204123823_InitialCreate")]
+    [Migration("20200508163302_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.0")
+                .HasAnnotation("ProductVersion", "3.1.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.DeviceFlowCodes", b =>
@@ -216,7 +216,7 @@ namespace OpenGameMonitorWorker.Migrations
                         .IsRequired()
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<uint>("SteamID")
+                    b.Property<uint?>("SteamID")
                         .HasColumnType("int unsigned");
 
                     b.HasKey("Id");
@@ -372,8 +372,10 @@ namespace OpenGameMonitorWorker.Migrations
                         .HasColumnType("tinyint(1)")
                         .HasDefaultValue(true);
 
+                    b.Property<string>("EnvironmentVariables")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
                     b.Property<string>("Executable")
-                        .IsRequired()
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<string>("GameId")
@@ -385,7 +387,7 @@ namespace OpenGameMonitorWorker.Migrations
                         .HasColumnType("tinyint(1)")
                         .HasDefaultValue(true);
 
-                    b.Property<int>("GroupId")
+                    b.Property<int?>("GroupId")
                         .HasColumnType("int");
 
                     b.Property<string>("IP")
@@ -417,11 +419,15 @@ namespace OpenGameMonitorWorker.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Path")
-                        .IsRequired()
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<int>("Port")
                         .HasColumnType("int");
+
+                    b.Property<int>("ProcessPriority")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(32);
 
                     b.Property<bool>("RestartOnClose")
                         .ValueGeneratedOnAdd()
@@ -433,6 +439,11 @@ namespace OpenGameMonitorWorker.Migrations
 
                     b.Property<string>("StartParamsHidden")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<bool>("StartParamsModifyAllowed")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(true);
 
                     b.Property<int?>("UpdatePID")
                         .HasColumnType("int");
@@ -541,9 +552,7 @@ namespace OpenGameMonitorWorker.Migrations
 
                     b.HasOne("OpenGameMonitorLibraries.Group", "Group")
                         .WithMany()
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("GroupId");
 
                     b.HasOne("OpenGameMonitorLibraries.MonitorUser", "Owner")
                         .WithMany()

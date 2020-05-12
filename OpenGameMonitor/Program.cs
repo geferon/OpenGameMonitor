@@ -10,6 +10,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using OpenGameMonitorLibraries;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
+using OpenGameMonitorWeb.Policies;
+using System.Diagnostics;
 
 namespace OpenGameMonitor
 {
@@ -22,7 +25,30 @@ namespace OpenGameMonitor
 
             host.TestConnection();
 
-            host.Run();
+            try
+            {
+                host.CheckForUpdate();
+
+                host.Services.CreateRoles().Wait();
+
+                host.Run();
+            }
+            catch (Exception err)
+            {
+                // If it's an OperationCanceled that means it was cancelled by us, so don't throw this error
+                if (!(err is OperationCanceledException))
+                {
+                    Console.WriteLine("An error has occurred while starting the application!");
+                    Console.WriteLine("Note: This is NOT a normal error, if you see this, please report this error!");
+                    Console.WriteLine("{0}", err.Message);
+                    Console.WriteLine("{0}", err.StackTrace);
+                    Console.WriteLine(err.GetType());
+
+#if DEBUG
+                    throw;
+#endif
+                }
+            }
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>

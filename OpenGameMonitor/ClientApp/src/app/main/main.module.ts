@@ -15,6 +15,15 @@ export const appRoutes: RouteItem[] = [
 		// component: HomeComponent,
 		loadChildren: () => import('./home/home.module').then(mod => mod.HomeModule),
 		main: true
+	},
+	{
+		title: 'Servers',
+		path: 'servers',
+		loadChildren: () => import('./servers/servers.module').then(mod => mod.ServersModule)
+	},
+	{
+		path: 'server-details',
+		loadChildren: () => import('./server-details/server-details.module').then(mod => mod.ServerDetailsModule)
 	}
 ];
 
@@ -36,7 +45,8 @@ for (const item of appRoutes) {
 		RouterModule.forChild(
 			appRoutes
 		)
-	]
+	],
+	declarations: []
 })
 export class MainModule {
 }

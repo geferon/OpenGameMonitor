@@ -6,6 +6,16 @@
 	width: 200px;
 }
 
+mat-sidenav-container.sidenav-container {
+	min-height: 100%;
+	height: auto !important;
+}
+
+mat-sidenav-content.content {
+	width: 100%;
+}
+
+
 // .mat-toolbar.mat-primary {
 // 	position: sticky;
 // 	top: 0;

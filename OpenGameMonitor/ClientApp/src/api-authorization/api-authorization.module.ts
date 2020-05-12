@@ -7,6 +7,7 @@ import { RouterModule } from '@angular/router';
 import { ApplicationPaths } from './api-authorization.constants';
 import { HttpClientModule } from '@angular/common/http';
 import { MaterialModule } from '../app/material.module';
+import { LoginInterfaceComponent } from './login-interface/login-interface.component';
 
 @NgModule({
 	imports: [
@@ -18,6 +19,7 @@ import { MaterialModule } from '../app/material.module';
 				{ path: ApplicationPaths.Register, component: LoginComponent },
 				{ path: ApplicationPaths.Profile, component: LoginComponent },
 				{ path: ApplicationPaths.Login, component: LoginComponent },
+				{ path: ApplicationPaths.Login + '-interface', component: LoginInterfaceComponent },
 				{ path: ApplicationPaths.LoginFailed, component: LoginComponent },
 				{ path: ApplicationPaths.LoginCallback, component: LoginComponent },
 				{ path: ApplicationPaths.LogOut, component: LogoutComponent },
@@ -26,7 +28,7 @@ import { MaterialModule } from '../app/material.module';
 			]
 		)
 	],
-	declarations: [LoginMenuComponent, LoginComponent, LogoutComponent],
+	declarations: [LoginMenuComponent, LoginComponent, LogoutComponent, LoginInterfaceComponent],
 	exports: [LoginMenuComponent, LoginComponent, LogoutComponent]
 })
 export class ApiAuthorizationModule { }

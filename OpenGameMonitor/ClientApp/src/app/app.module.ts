@@ -2,7 +2,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { RouterModule } from '@angular/router';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -17,6 +16,7 @@ import { MaterialModule } from './material.module';
 import { ApiAuthorizationModule } from '../api-authorization/api-authorization.module';
 import { AuthorizeGuard } from '../api-authorization/authorize.guard';
 import { AuthorizeInterceptor } from '../api-authorization/authorize.interceptor';
+import { DialogsModule } from './main/dialogs/dialogs.module';
 
 @NgModule({
 	declarations: [
@@ -25,7 +25,7 @@ import { AuthorizeInterceptor } from '../api-authorization/authorize.interceptor
 		NavMenuComponent,
 
 		CounterComponent,
-		FetchDataComponent,
+		FetchDataComponent
 	],
 	imports: [
 		BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -37,7 +37,9 @@ import { AuthorizeInterceptor } from '../api-authorization/authorize.interceptor
 
 		BrowserAnimationsModule,
 		LayoutModule,
-		MaterialModule
+		MaterialModule,
+
+		DialogsModule
 	],
 	providers: [
 		{ provide: HTTP_INTERCEPTORS, useClass: AuthorizeInterceptor, multi: true }

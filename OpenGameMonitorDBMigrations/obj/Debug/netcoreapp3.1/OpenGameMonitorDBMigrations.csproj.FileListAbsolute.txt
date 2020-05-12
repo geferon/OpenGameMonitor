@@ -1,0 +1,12 @@
+C:\Users\gefer\source\repos\OpenGameMonitor\OpenGameMonitorDBMigrations\bin\Debug\netcoreapp3.1\OpenGameMonitorDBMigrations.deps.json
+C:\Users\gefer\source\repos\OpenGameMonitor\OpenGameMonitorDBMigrations\bin\Debug\netcoreapp3.1\OpenGameMonitorDBMigrations.dll
+C:\Users\gefer\source\repos\OpenGameMonitor\OpenGameMonitorDBMigrations\bin\Debug\netcoreapp3.1\OpenGameMonitorDBMigrations.pdb
+C:\Users\gefer\source\repos\OpenGameMonitor\OpenGameMonitorDBMigrations\obj\Debug\netcoreapp3.1\OpenGameMonitorDBMigrations.csprojAssemblyReference.cache
+C:\Users\gefer\source\repos\OpenGameMonitor\OpenGameMonitorDBMigrations\obj\Debug\netcoreapp3.1\OpenGameMonitorDBMigrations.AssemblyInfoInputs.cache
+C:\Users\gefer\source\repos\OpenGameMonitor\OpenGameMonitorDBMigrations\obj\Debug\netcoreapp3.1\OpenGameMonitorDBMigrations.AssemblyInfo.cs
+C:\Users\gefer\source\repos\OpenGameMonitor\OpenGameMonitorDBMigrations\obj\Debug\netcoreapp3.1\OpenGameMonitorDBMigrations.dll
+C:\Users\gefer\source\repos\OpenGameMonitor\OpenGameMonitorDBMigrations\obj\Debug\netcoreapp3.1\OpenGameMonitorDBMigrations.pdb
+C:\Users\gefer\source\repos\OpenGameMonitor\OpenGameMonitorDBMigrations\bin\Debug\netcoreapp3.1\OpenGameMonitorDBMigrations.runtimeconfig.json
+C:\Users\gefer\source\repos\OpenGameMonitor\OpenGameMonitorDBMigrations\bin\Debug\netcoreapp3.1\OpenGameMonitorDBMigrations.runtimeconfig.dev.json
+C:\Users\gefer\source\repos\OpenGameMonitor\OpenGameMonitorDBMigrations\obj\Debug\netcoreapp3.1\OpenGameMonitorDBMigrations.genruntimeconfig.cache
+C:\Users\gefer\source\repos\OpenGameMonitor\OpenGameMonitorDBMigrations\obj\Debug\netcoreapp3.1\OpenGameMonitorDBMigrations.csproj.CoreCompileInputs.cache

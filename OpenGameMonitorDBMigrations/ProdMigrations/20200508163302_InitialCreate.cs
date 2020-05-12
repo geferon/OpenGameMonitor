@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace OpenGameMonitorWorker.Migrations
+namespace OpenGameMonitorDBMigrations.ProdMigrations
 {
     public partial class InitialCreate : Migration
     {
@@ -71,7 +71,7 @@ namespace OpenGameMonitorWorker.Migrations
                     Id = table.Column<string>(nullable: false),
                     Name = table.Column<string>(nullable: false),
                     Engine = table.Column<string>(nullable: false),
-                    SteamID = table.Column<uint>(nullable: false)
+                    SteamID = table.Column<uint>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -262,14 +262,17 @@ namespace OpenGameMonitorWorker.Migrations
                     Updated = table.Column<DateTime>(nullable: false),
                     Name = table.Column<string>(nullable: false),
                     OwnerId = table.Column<string>(nullable: false),
-                    GroupId = table.Column<int>(nullable: false),
+                    GroupId = table.Column<int>(nullable: true),
                     Enabled = table.Column<bool>(nullable: false, defaultValue: true),
-                    Executable = table.Column<string>(nullable: false),
-                    Path = table.Column<string>(nullable: false),
+                    Executable = table.Column<string>(nullable: true),
+                    Path = table.Column<string>(nullable: true),
                     Graceful = table.Column<bool>(nullable: false, defaultValue: true),
                     RestartOnClose = table.Column<bool>(nullable: false, defaultValue: true),
                     StartParams = table.Column<string>(nullable: true),
                     StartParamsHidden = table.Column<string>(nullable: true),
+                    StartParamsModifyAllowed = table.Column<bool>(nullable: false, defaultValue: true),
+                    ProcessPriority = table.Column<int>(nullable: false, defaultValue: 32),
+                    EnvironmentVariables = table.Column<string>(nullable: true),
                     IP = table.Column<string>(nullable: true),
                     DisplayIP = table.Column<string>(nullable: true),
                     Port = table.Column<int>(nullable: false),
@@ -296,7 +299,7 @@ namespace OpenGameMonitorWorker.Migrations
                         column: x => x.GroupId,
                         principalTable: "Groups",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Servers_AspNetUsers_OwnerId",
                         column: x => x.OwnerId,

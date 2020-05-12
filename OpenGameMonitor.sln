@@ -11,11 +11,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenGameMonitorWorker", "Op
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreRCON", "CoreRCON\CoreRCON.csproj", "{6029C5ED-CD96-4DAF-9899-FE1F249D695B}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenGameMonitorDBMigrations", "OpenGameMonitorDBMigrations\OpenGameMonitorDBMigrations.csproj", "{ECAFC154-E419-42C0-AA85-74B5AA02F7FC}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		OpenGameMonitorLibraries\OpenGameMonitorLibraries.projitems*{5f697cc5-72bc-4d76-87e8-e8b9d1badc15}*SharedItemsImports = 5
 		OpenGameMonitorLibraries\OpenGameMonitorLibraries.projitems*{b82eaa51-96b0-4ead-9d5f-52343ea10a99}*SharedItemsImports = 13
-		OpenGameMonitorLibraries\OpenGameMonitorLibraries.projitems*{efedec27-5a9b-4069-81a5-eb36a7bc6862}*SharedItemsImports = 5
+		OpenGameMonitorLibraries\OpenGameMonitorLibraries.projitems*{ecafc154-e419-42c0-aa85-74b5aa02f7fc}*SharedItemsImports = 5
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,6 +49,14 @@ Global
 		{6029C5ED-CD96-4DAF-9899-FE1F249D695B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6029C5ED-CD96-4DAF-9899-FE1F249D695B}.Release|x86.ActiveCfg = Release|Any CPU
 		{6029C5ED-CD96-4DAF-9899-FE1F249D695B}.Release|x86.Build.0 = Release|Any CPU
+		{ECAFC154-E419-42C0-AA85-74B5AA02F7FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECAFC154-E419-42C0-AA85-74B5AA02F7FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECAFC154-E419-42C0-AA85-74B5AA02F7FC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{ECAFC154-E419-42C0-AA85-74B5AA02F7FC}.Debug|x86.Build.0 = Debug|Any CPU
+		{ECAFC154-E419-42C0-AA85-74B5AA02F7FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECAFC154-E419-42C0-AA85-74B5AA02F7FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECAFC154-E419-42C0-AA85-74B5AA02F7FC}.Release|x86.ActiveCfg = Release|Any CPU
+		{ECAFC154-E419-42C0-AA85-74B5AA02F7FC}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

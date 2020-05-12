@@ -18,6 +18,12 @@ export class ValidateRoutePipe implements PipeTransform {
 	}
 }
 
+const isValidString = function(variable?: string) {
+	if (variable) {
+		return true;
+	}
+	return false;
+};
 @Component({
 	selector: 'app-main',
 	templateUrl: './main.component.html',
@@ -35,6 +41,6 @@ export class MainComponent {
 	constructor(private breakpointObserver: BreakpointObserver) { }
 
 	filterRoute(route: RouteItem): boolean {
-		return (!(route.title === undefined || route.title === null) && (route.path === undefined || route.path === null));
+		return isValidString(route.title) && isValidString(route?.path);
 	}
 }

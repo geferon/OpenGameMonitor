@@ -17,8 +17,8 @@ namespace OpenGameMonitorWorker.Utils
         {
             string[] startParamsUnparsed = new string[]
             {
-                server.StartParams,
-                server.StartParamsHidden
+                server.StartParams ?? "",
+                server.StartParamsHidden ?? ""
             };
             string startParams = String.Join(" ", startParamsUnparsed.Where(s => !String.IsNullOrEmpty(s)));
 

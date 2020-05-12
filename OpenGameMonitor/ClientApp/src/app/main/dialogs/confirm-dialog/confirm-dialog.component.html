@@ -1,0 +1,7 @@
+<h3 mat-dialog-title>{{DialogData.Title}}</h3>
+<div mad-dialog-content [innerHTML]="DialogData.Text" style="margin: 16px 0;">
+</div>
+<div mat-dialog-actions style="justify-content: flex-end;">
+	<button mat-raised-button color="warn" (click)="onCancel()">{{DialogData.CancelText ? DialogData.CancelText : "Cancel"}}</button>
+	<button mat-raised-button color="primary" [mat-dialog-close]="true" cdkFocusInitial>{{DialogData.ConfirmText ? DialogData.ConfirmText : "Accept"}}</button>
+</div>

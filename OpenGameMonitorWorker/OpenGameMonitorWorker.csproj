@@ -39,11 +39,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CoreRCON\CoreRCON.csproj" />
+    <ProjectReference Include="..\OpenGameMonitorDBMigrations\OpenGameMonitorDBMigrations.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Protobuf Include="..\OpenGameMonitorLibraries\Protos\*.proto" />
   </ItemGroup>
-
-  <Import Project="..\OpenGameMonitorLibraries\OpenGameMonitorLibraries.projitems" Label="Shared" />
 </Project>

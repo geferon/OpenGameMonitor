@@ -22,3 +22,4 @@ C:\Users\gefer\source\repos\OpenGameMonitor\CoreRCON\obj\Debug\netstandard2.1\Co
 C:\Users\gefer\source\repos\OpenGameMonitor\CoreRCON\obj\Debug\netstandard2.1\CoreRCON.AssemblyInfo.cs
 C:\Users\gefer\source\repos\OpenGameMonitor\CoreRCON\obj\Debug\netstandard2.1\CoreRCON.dll
 C:\Users\gefer\source\repos\OpenGameMonitor\CoreRCON\obj\Debug\netstandard2.1\CoreRCON.pdb
+C:\Users\gefer\source\repos\OpenGameMonitor\CoreRCON\obj\Debug\netstandard2.1\CoreRCON.csproj.CoreCompileInputs.cache
