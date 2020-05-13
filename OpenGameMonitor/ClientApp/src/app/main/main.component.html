@@ -16,16 +16,33 @@
 	</mat-sidenav>
 	<mat-sidenav-content>
 		<mat-toolbar color="primary">
-			<button
-				type="button"
-				aria-label="Toggle sidenav"
-				mat-icon-button
-				(click)="drawer.toggle()"
-				*ngIf="isHandset$ | async">
-				<mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
-			</button>
+			<ng-container *ngIf="isRoot$ | async">
+				<button
+					type="button"
+					aria-label="Toggle sidenav"
+					mat-icon-button
+					(click)="drawer.toggle()"
+					*ngIf="isHandset$ | async">
+					<mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+				</button>
+			</ng-container>
+			<ng-container *ngIf="!(isRoot$ | async)">
+				<button
+					type="button"
+					aria-label="Go back"
+					mat-icon-button
+					(click)="goBack()">
+					<mat-icon aria-label="Back button">arrow_back</mat-icon>
+				</button>
+			</ng-container>
 			<span>OpenGameMonitor</span>
 		</mat-toolbar>
+		<ng-container *ngIf="{ loading: isLoading$ | async, loadingExt: isLoadingExternally$ | async } as loadingData;">
+		<mat-progress-bar @loadingState mode="indeterminate" *ngIf="loadingData.loading || loadingData.loadingExt"
+			class="toolbar-loading-bar">
+		</mat-progress-bar>
+		</ng-container>
+
 		<div class="content">
 			<router-outlet></router-outlet>
 		</div>

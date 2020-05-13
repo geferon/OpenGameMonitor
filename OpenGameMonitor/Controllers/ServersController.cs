@@ -46,7 +46,7 @@ namespace OpenGameMonitorWeb.Controllers
             var test = await _userManager.GetRolesAsync(user);
 
             IQueryable<Server> servers = _context.Servers;
-            if (!User.IsInRole("Admin"))
+            if (!User.HasClaim("Permission", "Servers.ViewAll"))
             {
                 servers = servers.Where((server) =>
                     user == server.Owner ||
@@ -80,7 +80,7 @@ namespace OpenGameMonitorWeb.Controllers
 
             var user = await _userManager.GetUserAsync(User);
 
-            var authResult = await _authorizationService.AuthorizeAsync(User, server, "ServerPolicy");
+            var authResult = await _authorizationService.AuthorizeAsync(User, server, "ServersView");
 
             if (!authResult.Succeeded)
             {
@@ -95,7 +95,6 @@ namespace OpenGameMonitorWeb.Controllers
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
         //[Authorize(Policy = "ServerPolicy")]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> PutServer(int id, DTOServer dtoserver)
         {
             if (id != dtoserver.Id)
@@ -105,6 +104,15 @@ namespace OpenGameMonitorWeb.Controllers
 
             var server = _mapper.Map<Server>(dtoserver);
 
+            // Auth
+            var authResult = await _authorizationService.AuthorizeAsync(User, server, "ServersModify");
+
+            if (!authResult.Succeeded)
+            {
+                return Forbid();
+            }
+
+            // Modify it
             _context.Entry(server).State = EntityState.Modified;
 
             // Read only properties
@@ -161,6 +169,14 @@ namespace OpenGameMonitorWeb.Controllers
 
             var server = _mapper.Map<Server>(dtoserver);
 
+            // Auth
+            var authResult = await _authorizationService.AuthorizeAsync(User, server, "ServersModify");
+
+            if (!authResult.Succeeded)
+            {
+                return Forbid();
+            }
+
             if (await ParseServer(server))
                 return BadRequest();
 
@@ -209,7 +225,6 @@ namespace OpenGameMonitorWeb.Controllers
         }
 
         [HttpPost("{id}/{action}")]
-        [Authorize(Policy = "ServerPolicy")]
         public async Task<ActionResult> PostServerAction(int id, string action)
         {
             var server = await _context.Servers.FindAsync(id);
@@ -221,7 +236,7 @@ namespace OpenGameMonitorWeb.Controllers
 
             var user = await _userManager.GetUserAsync(User);
 
-            var authResult = await _authorizationService.AuthorizeAsync(User, server, "ServerPolicy");
+            var authResult = await _authorizationService.AuthorizeAsync(User, server, "ServersInteract");
 
             if (!authResult.Succeeded)
             {
@@ -273,7 +288,7 @@ namespace OpenGameMonitorWeb.Controllers
         // more details see https://aka.ms/RazorPagesCRUD.
         // TODO: Only specific valid properties
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "ServersCreate")]
         public async Task<ActionResult<DTOServer>> PostServer(DTOServer dtoserver)
         {
             var server = _mapper.Map<Server>(dtoserver);
@@ -289,7 +304,7 @@ namespace OpenGameMonitorWeb.Controllers
 
         // DELETE: api/Servers/5
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "ServersCreate")]
         public async Task<ActionResult<DTOServer>> DeleteServer(int id)
         {
             var server = await _context.Servers.FindAsync(id);

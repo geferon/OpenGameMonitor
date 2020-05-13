@@ -194,5 +194,5 @@
 </form>
 
 <p style="text-align: right;">
-	<button mat-raised-button color="primary" [disabled]="!serverForm.valid" (click)="update()">{{this.Id ? 'Update' : 'Create'}}</button>
+	<button mat-raised-button color="primary" [disabled]="!serverForm.valid && !(Loading$ | async)" (click)="update()">{{this.Id ? 'Update' : 'Create'}}</button>
 </p>

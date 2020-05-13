@@ -12,7 +12,7 @@ namespace OpenGameMonitorWeb.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     public class GroupsController : ControllerBase
     {
         private readonly MonitorDBContext _context;
@@ -24,6 +24,7 @@ namespace OpenGameMonitorWeb.Controllers
 
         // GET: api/Groups
         [HttpGet]
+        [Authorize(Policy = "GroupsView")]
         public async Task<ActionResult<IEnumerable<Group>>> GetGroups()
         {
             return await _context.Groups.ToListAsync();
@@ -31,6 +32,7 @@ namespace OpenGameMonitorWeb.Controllers
 
         // GET: api/Groups/5
         [HttpGet("{id}")]
+        [Authorize(Policy = "GroupsView")]
         public async Task<ActionResult<Group>> GetGroup(int id)
         {
             var @group = await _context.Groups.FindAsync(id);
@@ -47,6 +49,7 @@ namespace OpenGameMonitorWeb.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
+        [Authorize(Policy = "GroupsModify")]
         public async Task<IActionResult> PutGroup(int id, Group @group)
         {
             if (id != @group.Id)
@@ -79,6 +82,7 @@ namespace OpenGameMonitorWeb.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
+        [Authorize(Policy = "GroupsCreate")]
         public async Task<ActionResult<Group>> PostGroup(Group @group)
         {
             _context.Groups.Add(@group);
@@ -89,6 +93,7 @@ namespace OpenGameMonitorWeb.Controllers
 
         // DELETE: api/Groups/5
         [HttpDelete("{id}")]
+        [Authorize(Policy = "GroupsCreate")]
         public async Task<ActionResult<Group>> DeleteGroup(int id)
         {
             var @group = await _context.Groups.FindAsync(id);

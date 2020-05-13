@@ -19,26 +19,43 @@ namespace OpenGameMonitorWeb.Policies
                 //initializing custom roles
                 var RoleManager = services.ServiceProvider.GetRequiredService<RoleManager<MonitorRole>>();
                 var UserManager = services.ServiceProvider.GetRequiredService<UserManager<MonitorUser>>();
-                string[] roleNames = { "Admin", "Developer", "Moderator" };
+                var roleNames = new (string, string[])[]
+                {
+                    ( "Moderator", new string[] { "Servers.ViewAll", "Users.View", "Groups.View" } ),
+                    ( "Developer", new string[] { "Servers.InteractAll" } ),
+                    ( "Admin", new string[] { "Servers.EditAll", "Servers.Create", "Users.Modify", "Users.Create", "Groups.Modify", "Groups.Create" } )
+                };
+
                 IdentityResult roleResult;
 
                 Dictionary<string, bool> rolesCreated = new Dictionary<string, bool>();
 
-                foreach (var roleName in roleNames)
+                List<Claim> baseClaims = new List<Claim>();
+
+                foreach (var role in roleNames)
                 {
+                    var roleName = role.Item1;
+
+                    foreach (string claim in role.Item2)
+                    {
+                        baseClaims.Add(new Claim("Permission", claim));
+                    }
+
                     var roleExist = await RoleManager.RoleExistsAsync(roleName);
                     rolesCreated[roleName] = !roleExist;
                     if (!roleExist)
                     {
                         //create the roles and seed them to the database: Question 1
-                        var role = new MonitorRole(roleName)
+                        var roleObj = new MonitorRole(roleName)
                         {
                             Id = Guid.NewGuid().ToString()
                         };
 
-                        roleResult = await RoleManager.CreateAsync(role);
+                        roleResult = await RoleManager.CreateAsync(roleObj);
 
-                        //RoleManager.AddClaimAsync(role, new System.Security.Claims.Claim(ClaimTypes.AuthorizationDecision, ))
+                        foreach (var claim in baseClaims) {
+                            await RoleManager.AddClaimAsync(roleObj, claim);
+                        }
                     }
                 }
 

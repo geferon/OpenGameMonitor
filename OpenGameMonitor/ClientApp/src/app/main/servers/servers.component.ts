@@ -1,15 +1,18 @@
 import { Component, OnInit, ViewChild, OnDestroy, SecurityContext } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Server, Game } from '../../definitions/interfaces';
-import { ServerService } from '../../services/server.service';
+import { MatDialog } from '@angular/material/dialog';
+import { DomSanitizer } from '@angular/platform-browser';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { SelectionModel } from '@angular/cdk/collections';
-import { catchError, map, takeUntil } from 'rxjs/operators';
+
+import { catchError, map, takeUntil, delay } from 'rxjs/operators';
 import { Observable, of, BehaviorSubject, pipe, Subject } from 'rxjs';
-import { MatDialog } from '@angular/material/dialog';
+
+import { Server, Game } from '../../definitions/interfaces';
+import { ServerService } from '../../services/server.service';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../dialogs/confirm-dialog/confirm-dialog.component';
-import { DomSanitizer } from '@angular/platform-browser';
+import { EventService } from '../../services/event.service';
 
 @Component({
 	selector: 'app-servers',
@@ -20,12 +23,14 @@ export class ServersComponent implements OnInit, OnDestroy {
 
 	constructor(
 		private dialog: MatDialog,
+		private dom: DomSanitizer,
 		private servers: ServerService,
-		private dom: DomSanitizer
+		private events: EventService
 	) { }
 
 	@ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
 
+	public Loading$ = new Subject<boolean>();
 	public Errored = false;
 
 	// public Servers: Server[] = [];
@@ -52,6 +57,14 @@ export class ServersComponent implements OnInit, OnDestroy {
 		const allowMultiSelect = true;
 		this.Selection = new SelectionModel<Server>(allowMultiSelect, initialSelection);
 
+		this.Loading$
+		.pipe(delay(0))
+		.subscribe(loading => this.events.emit("Loading", loading));
+
+		this.Servers$.subscribe(servers => {
+			this.ServersSource.data = servers;
+		});
+
 		this.fetchData();
 	}
 
@@ -61,6 +74,8 @@ export class ServersComponent implements OnInit, OnDestroy {
 	}
 
 	fetchData() {
+		this.Loading$.next(true);
+
 		this.Errored = false;
 		this.servers.getServersRealtime()
 			.pipe(
@@ -72,12 +87,10 @@ export class ServersComponent implements OnInit, OnDestroy {
 					return of([]);
 				})
 			)
-			.subscribe(servers => this.Servers$.next(servers));
-
-		this.Servers$.subscribe(servers => {
-			this.ServersSource.data = servers;
-		});
-
+			.subscribe(servers => {
+				this.Servers$.next(servers);
+				this.Loading$.next(false);
+			});
 	}
 
 	deleteServer(server: Server) {
@@ -90,14 +103,19 @@ export class ServersComponent implements OnInit, OnDestroy {
 
 		dialog.afterClosed().subscribe((result: boolean) => {
 			if (result) {
+				this.Loading$.next(true);
+
 				this.servers.deleteServer(server)
 				.subscribe(() => {
 					let currentServers = this.Servers$.getValue();
 					let index = currentServers.indexOf(server);
+
 					if (index > 0) {
 						currentServers.splice(index, 1);
 						this.Servers$.next(currentServers);
 					}
+
+					this.Loading$.next(false);
 				});
 			}
 		});

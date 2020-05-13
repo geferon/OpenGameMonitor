@@ -57,6 +57,7 @@
 
 		<!-- Headers displayed -->
 		<tr mat-header-row *matHeaderRowDef="ColumnsToDisplay"></tr>
+
 		<!-- Rows displayed -->
 		<tr mat-row *matRowDef="let rowData; columns: ColumnsToDisplay" [routerLink]="'/main/server-details/' + rowData.Id"></tr>
 	</table>

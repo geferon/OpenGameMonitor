@@ -15,7 +15,6 @@ namespace OpenGameMonitorWeb.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
     public class UsersController : ControllerBase
     {
         private readonly MonitorDBContext _context;
@@ -37,6 +36,7 @@ namespace OpenGameMonitorWeb.Controllers
 
         // GET: api/Users
         [HttpGet]
+        [Authorize(Policy = "UsersView")]
         public async Task<ActionResult<IEnumerable<DTOMonitorUser>>> GetUsers()
         {
             return await Task.WhenAll(
@@ -53,6 +53,7 @@ namespace OpenGameMonitorWeb.Controllers
 
         // GET: api/Users/5
         [HttpGet("{username}")]
+        [Authorize(Policy = "UsersView")]
         public async Task<ActionResult<DTOMonitorUser>> GetUser(string username)
         {
             var userObj = await _context.Users.Include(b => b.Groups)
@@ -73,6 +74,7 @@ namespace OpenGameMonitorWeb.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{username}")]
+        [Authorize(Policy = "UsersModify")]
         public async Task<IActionResult> PutUser(string username, DTOMonitorUser user)
         {
             if (username != user.UserName)
@@ -107,6 +109,7 @@ namespace OpenGameMonitorWeb.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
+        [Authorize(Policy = "UsersCreate")]
         public async Task<ActionResult<DTOMonitorUser>> PostUser(DTOMonitorUserSend user)
         {
             //_context.Users.Add(user);
@@ -141,6 +144,7 @@ namespace OpenGameMonitorWeb.Controllers
 
         // DELETE: api/Users/5
         [HttpDelete("{username}")]
+        [Authorize(Policy = "UsersCreate")]
         public async Task<ActionResult<DTOMonitorUser>> DeleteUser(string username)
         {
             var user = await _context.Users.FindAsync(username);

@@ -1,17 +1,20 @@
 import { Component, OnInit, NgZone } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+import { FormGroup, FormControl, Validators, FormArray } from '@angular/forms';
+
+import { Observable, of, Subject, BehaviorSubject, combineLatest } from 'rxjs';
+import { catchError, map, tap, delay, skip, take } from 'rxjs/operators';
+
+import * as ipAddr from 'ipaddr.js';
+
 import { Server, MonitorUser, Game, Group, ProcessPriorityClass } from '../../definitions/interfaces';
 import { ServerService } from '../../services/server.service';
 import { UserService } from '../../services/user.service';
-import { Observable, of, Subject, BehaviorSubject } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
-import { MatDialog } from '@angular/material/dialog';
 import { GameDialogComponent } from '../dialogs/game-dialog/game-dialog.component';
-import { FormGroup, FormControl, Validators, FormArray } from '@angular/forms';
-
-import * as ipAddr from 'ipaddr.js';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { EventService } from '../../services/event.service';
 
 interface CategoryOrganized {
 	Category: string;
@@ -28,30 +31,29 @@ export class ServerDetailsComponent implements OnInit {
 	constructor(
 		private route: ActivatedRoute,
 		private router: Router,
+		private dialog: MatDialog,
+		private snackBar: MatSnackBar,
 		private servers: ServerService,
 		private users: UserService,
-		private dialog: MatDialog,
-		private snackBar: MatSnackBar
+		private events: EventService
 	) { }
 
 	// Editable data
 	public Id?: number;
-	public Server: Server;
+	public Server$ = new BehaviorSubject<Server>(new Server());
 
 	public serverForm: FormGroup;
 
 	// Required data
-	public Users$: Observable<MonitorUser[]>;
-	// public Games$: Observable<Game[]>;
-	public Games$: BehaviorSubject<Game[]> = new BehaviorSubject<Game[]>([]);
-	public GamesCategorized$: Subject<CategoryOrganized[]> = new Subject<CategoryOrganized[]>();
-	// private lastGames: Game[];
-	public Groups$: Observable<Group[]>;
+	public Users$ = new BehaviorSubject<MonitorUser[]>([]);
+	public Games$ = new BehaviorSubject<Game[]>([]);
+	public GamesCategorized$ = new Subject<CategoryOrganized[]>();
+	public Groups$ = new BehaviorSubject<Group[]>([]);
 
 	public processPriorityClass = ProcessPriorityClass;
 
 	// Current state data
-	public Updating = false;
+	public Loading$ = new Subject<boolean>();
 	public AllowedUserEdit = false;
 	public Errored = false;
 
@@ -122,23 +124,30 @@ export class ServerDetailsComponent implements OnInit {
 			this.GamesCategorized$.next(categoryObjects as any);
 		});
 
-		if (!this.Id) {
-			this.Server = new Server();
-			this.serverForm.patchValue(this.Server);
-		}
+		this.Loading$
+		.pipe(delay(0))
+		.subscribe(loading => this.events.emit("Loading", loading));
+
+		this.Server$
+		.subscribe(server => this.serverForm.patchValue(server));
+
 		this.fetchDetails();
 	}
 
-	fetchServer() {
-		this.servers.getServer(this.Id)
-		.subscribe((server) => {
+	private fetchServer() {
+		this.Loading$.next(true);
+
+		combineLatest([
+			this.servers.getServer(this.Id),
+			this.Users$.pipe(skip(1)),
+			this.Groups$.pipe(skip(1)),
+			this.Games$.pipe(skip(1))
+		])
+		.pipe(take(1))
+		.subscribe(([server, users, groups, games]) => {
 			let serverEnvVars = server.EnvironmentVariables;
 			delete server.EnvironmentVariables;
 
-			this.Server = server;
-			this.serverForm.patchValue(this.Server);
-
-			// TODO: Test
 			for (let envVar of serverEnvVars) {
 				let keyArray = {};
 				for (let key of Object.keys(envVar)) {
@@ -147,20 +156,31 @@ export class ServerDetailsComponent implements OnInit {
 
 				this.getEnvVariables().push(new FormGroup(keyArray));
 			}
+
+			if (server.Game) server.Game = games.find(g => g.Id == server.Game.Id);
+			if (server.Owner) server.Owner = users.find(u => u.Id == server.Owner.Id);
+			if (server.Group) server.Group = groups.find(g => g.Id == server.Group.Id);
+
+			this.Server$.next(server);
 		}, (err) => {
 			this.Errored = true;
 		}, () => {
-			// Loading done?
+			this.Loading$.next(false);
 		});
 	}
 
 	fetchDetails() {
 		this.Errored = false;
 
+		// Load server data
+
 		if (this.Id) {
+			this.serverForm.disable();
 			this.fetchServer();
+			this.Server$.pipe(skip(1), take(1)).subscribe(() => this.serverForm.enable());
 		}
 
+		// Load all required data
 		this.servers.getGames()
 			.pipe(
 				catchError((err, caught) => {
@@ -172,45 +192,46 @@ export class ServerDetailsComponent implements OnInit {
 			)
 			.subscribe((games) => this.Games$.next(games));
 
-		this.Users$ =
-			this.users.getUsers()
-				.pipe(
-					tap(
-						res => this.AllowedUserEdit = true,
-						err => {
-							this.Errored = true;
-							this.AllowedUserEdit = false;
-						}
-					),
-					catchError((err, caught) => {
-						console.error(err);
+		this.users.getUsers()
+			.pipe(
+				tap(
+					res => this.AllowedUserEdit = true,
+					err => {
+						this.Errored = true;
+						this.AllowedUserEdit = false;
+					} //,
+					// () => this.Loading$.next(false)
+				),
+				catchError((err, caught) => {
+					console.error(err);
 
-						return of([
-							this.Server.Owner
-						]);
-					})
-				);
+					return of([
+						this.Server$.getValue().Owner
+					]);
+				})
+			)
+			.subscribe((users) => this.Users$.next(users));
 
-		this.Groups$ =
-			this.users.getGroups()
-				.pipe(
-					catchError((err, caught) => {
-						console.error(err);
+		this.users.getGroups()
+			.pipe(
+				catchError((err, caught) => {
+					console.error(err);
 
-						return of([]);
-					})
-				);
+					return of([]);
+				})
+			)
+			.subscribe((groups) => this.Groups$.next(groups));
 	}
 
 	update() {
-		this.Updating = true;
+		this.Loading$.next(true);
 
-		Object.assign(this.Server, this.serverForm.value);
+		let server = this.Server$.getValue();
+		Object.assign(server, this.serverForm.value);
 
 		if (!this.Id) {
-			this.servers.addServer(this.Server)
+			this.servers.addServer(server)
 			.subscribe((server) => {
-				this.Server = server;
 				this.Id = server.Id;
 
 				this.snackBar.open('Server created succesfully!', undefined, {
@@ -223,10 +244,10 @@ export class ServerDetailsComponent implements OnInit {
 				console.error(err);
 				this.Errored = true;
 			}, () => {
-				this.Updating = false;
+				this.Loading$.next(false);
 			});
 		} else {
-			this.servers.updateServer(this.Server)
+			this.servers.updateServer(server)
 				.subscribe(() => {
 					this.snackBar.open('Server updated succesfully!', undefined, {
 						duration: 5000
@@ -238,7 +259,7 @@ export class ServerDetailsComponent implements OnInit {
 					console.error(err);
 					this.Errored = true;
 				}, () => {
-					this.Updating = false;
+					this.Loading$.next(false);
 				});
 		}
 	}

@@ -265,6 +265,36 @@ namespace OpenGameMonitor
             {
                 options.AddPolicy("ServerPolicy", policy => 
                     policy.Requirements.Add(new ServerPolicyRequirement()));
+
+                options.AddPolicy("ServersViewAll", policy =>
+                    policy.RequireClaim("Permission", "Servers.ViewAll"));
+                options.AddPolicy("ServersInteractAll", policy =>
+                    policy.RequireClaim("Permission", "Servers.InteractAll"));
+                options.AddPolicy("ServerModifyAll", policy =>
+                    policy.RequireClaim("Permission", "Servers.EditAll"));
+
+                options.AddPolicy("ServersView", policy =>
+                    policy.Requirements.Add(new ServerPolicyRequirement("Servers.ViewAll")));
+                options.AddPolicy("ServersInteract", policy =>
+                    policy.Requirements.Add(new ServerPolicyRequirement("Servers.InteractAll")));
+                options.AddPolicy("ServersModify", policy =>
+                    policy.Requirements.Add(new ServerPolicyRequirement("Servers.EditAll")));
+                options.AddPolicy("ServersCreate", policy =>
+                    policy.RequireClaim("Permission", "Servers.Create"));
+
+                options.AddPolicy("UsersView", policy =>
+                    policy.RequireClaim("Permission", "Users.View"));
+                options.AddPolicy("UsersModify", policy =>
+                    policy.RequireClaim("Permission", "Users.Modify"));
+                options.AddPolicy("UsersCreate", policy =>
+                    policy.RequireClaim("Permission", "Users.Create"));
+
+                options.AddPolicy("GroupsView", policy =>
+                    policy.RequireClaim("Permission", "Groups.View"));
+                options.AddPolicy("GroupsModify", policy =>
+                    policy.RequireClaim("Permission", "Groups.Modify"));
+                options.AddPolicy("GroupsCreate", policy =>
+                    policy.RequireClaim("Permission", "Groups.Create"));
             });
 
             services.AddTransient<IAuthorizationHandler, ServerPolicyHandler>();

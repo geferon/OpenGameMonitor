@@ -29,6 +29,14 @@ namespace OpenGameMonitorLibraries
 		public string Value { get; set; }
 	}
 
+	public enum ServerProcessStatus
+	{
+		Stopped = 1,
+		Started = 2,
+		//Starting = 3,
+		Updating = 4
+	}
+
 	public class Server : Trackable
 	{
 		[Key]
@@ -71,6 +79,18 @@ namespace OpenGameMonitorLibraries
 		public int? UpdatePID { get; set; }
 		public DateTime? LastStart { get; set; }
 
+		[NotMapped]
+		public ServerProcessStatus ProcessStatus {
+			get
+			{
+				return this.UpdatePID.HasValue ? ServerProcessStatus.Updating :
+					(this.PID.HasValue ? ServerProcessStatus.Started :
+						ServerProcessStatus.Stopped
+					);
+			}
+		}
+
+
 		public DateTime? LastUpdate { get; set; }
 		public bool LastUpdateFailed { get; set; }
 	}
@@ -108,6 +128,8 @@ namespace OpenGameMonitorLibraries
 		public string? BranchPassword { get; set; }
 
 		public DateTime? LastStart { get; set; }
+
+		public ServerProcessStatus ProcessStatus { get; set; }
 
 		public DateTime? LastUpdate { get; set; }
 		public bool LastUpdateFailed { get; set; }

@@ -8,7 +8,19 @@ using Microsoft.AspNetCore.Identity;
 
 namespace OpenGameMonitorWeb.Policies
 {
-    public class ServerPolicyRequirement : IAuthorizationRequirement { }
+    public class ServerPolicyRequirement : IAuthorizationRequirement
+    {
+        public ServerPolicyRequirement() : this(Array.Empty<string>()) { }
+
+        //public ServerPolicyRequirement(params string[] permissions) : this(permissions) { }
+
+        public ServerPolicyRequirement(params string[] permissions)
+        {
+            this.Permissions = permissions;
+        }
+
+        public string[] Permissions;
+    }
 
     public class ServerPolicyHandler : AuthorizationHandler<ServerPolicyRequirement, Server>
     {
@@ -23,16 +35,23 @@ namespace OpenGameMonitorWeb.Policies
             ServerPolicyRequirement requirement,
             Server server
         ) {
-            //var user = (MonitorUser)context.User.Identity;
-            var user = await _userManager.GetUserAsync(context.User);
+            // Has permissions or next
+            if (requirement.Permissions.All(perm => context.User.HasClaim("Permission", perm)))
+            {
+                context.Succeed(requirement);
+                return;
+            }
 
-            if (user == null || server == null)
+            //var user = (MonitorUser)context.User.Identity;
+            //var user = await _userManager.GetUserAsync(context.User);
+            var userId = _userManager.GetUserId(context.User);
+
+            if (userId == null || server == null)
                 return;
 
-            if (context.User.IsInRole("Admin") ||
-                user.Id == server.Owner.Id ||
+            if (userId == server.Owner.Id ||
                 //(server.Group?.Members.Contains(user) ?? false))
-                (server.Group?.Members.Any((group) => group.User.Id == user.Id) ?? false))
+                (server.Group?.Members.Any((group) => group.User.Id == userId) ?? false))
             {
                 context.Succeed(requirement);
             }

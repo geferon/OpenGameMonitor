@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { MaterialModule } from './material.module';
 import { AuthorizeGuard } from '../api-authorization/authorize.guard';
@@ -30,6 +31,7 @@ const appRoutes: Routes = [
 @NgModule({
 	imports: [
 		CommonModule,
+		BrowserAnimationsModule,
 		MaterialModule,
 		RouterModule.forRoot(
 			appRoutes,
