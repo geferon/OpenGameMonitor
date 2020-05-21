@@ -1,9 +1,0 @@
-arm64-uwp-mixed/
-arm64-uwp-mixed/include/
-arm64-uwp-mixed/include/boost/
-arm64-uwp-mixed/include/boost/assert.hpp
-arm64-uwp-mixed/include/boost/current_function.hpp
-arm64-uwp-mixed/share/
-arm64-uwp-mixed/share/boost-assert/
-arm64-uwp-mixed/share/boost-assert/copyright
-arm64-uwp-mixed/share/boost-assert/vcpkg_abi_info.txt

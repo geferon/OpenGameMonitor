@@ -1,7 +1,0 @@
-arm64-uwp-mixed/
-arm64-uwp-mixed/include/
-arm64-uwp-mixed/include/gsl-lite.hpp
-arm64-uwp-mixed/share/
-arm64-uwp-mixed/share/gsl-lite/
-arm64-uwp-mixed/share/gsl-lite/copyright
-arm64-uwp-mixed/share/gsl-lite/vcpkg_abi_info.txt
