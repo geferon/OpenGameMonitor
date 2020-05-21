@@ -1,0 +1,13 @@
+arm64-uwp-mixed/
+arm64-uwp-mixed/include/
+arm64-uwp-mixed/include/boost/
+arm64-uwp-mixed/include/boost/tuple/
+arm64-uwp-mixed/include/boost/tuple/detail/
+arm64-uwp-mixed/include/boost/tuple/detail/tuple_basic.hpp
+arm64-uwp-mixed/include/boost/tuple/tuple.hpp
+arm64-uwp-mixed/include/boost/tuple/tuple_comparison.hpp
+arm64-uwp-mixed/include/boost/tuple/tuple_io.hpp
+arm64-uwp-mixed/share/
+arm64-uwp-mixed/share/boost-tuple/
+arm64-uwp-mixed/share/boost-tuple/copyright
+arm64-uwp-mixed/share/boost-tuple/vcpkg_abi_info.txt

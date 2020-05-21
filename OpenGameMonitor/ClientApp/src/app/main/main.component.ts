@@ -1,4 +1,4 @@
-import { Component, Pipe, PipeTransform, OnInit, OnDestroy } from "@angular/core";
+import { Component, Pipe, PipeTransform, OnInit, OnDestroy, ViewChild } from "@angular/core";
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Router, NavigationEnd, NavigationStart } from '@angular/router';
 import { Location } from '@angular/common';
@@ -7,21 +7,15 @@ import { trigger, transition, style, animate } from '@angular/animations';
 import { Observable, Subject, combineLatest } from 'rxjs';
 import { map, shareReplay, filter, startWith, takeUntil } from 'rxjs/operators';
 
+import { AuthorizeService } from '../../api-authorization/authorize.service';
 import { EventService } from '../services/event.service';
 import { appRoutes, RouteItem } from './main.module';
+import { MatSidenavContainer } from '@angular/material/sidenav';
 
-@Pipe({
-	name: 'validateroute',
-	pure: false
-})
-
-export class ValidateRoutePipe implements PipeTransform {
-	transform(items: any[], filter: (item: any) => boolean): any {
-		if (!items || !filter) {
-			return items;
-		}
-		return items.filter(item => filter(item));
-	}
+interface TabItem {
+	title: string;
+	path: string;
+	shouldShow?: (() => boolean) | Observable<boolean> | Promise<boolean>;
 }
 
 const isValidString = function(variable?: string) {
@@ -56,7 +50,21 @@ const isValidString = function(variable?: string) {
 	]
 })
 export class MainComponent implements OnInit, OnDestroy {
-	SidebarItems = appRoutes;
+	SidebarItems: TabItem[] = [
+		{
+			title: 'Home',
+			path: 'home'
+		},
+		{
+			title: 'Servers',
+			path: 'servers'
+		},
+		{
+			title: 'Settings',
+			path: 'settings',
+			shouldShow: this.auth.hasUserPermission("Settings.View")
+		}
+	];
 
 	isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
 		.pipe(
@@ -91,11 +99,14 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	private readonly onDestroy = new Subject();
 
+	@ViewChild(MatSidenavContainer) sidenavContainer: MatSidenavContainer;
+
 	constructor(
 		private breakpointObserver: BreakpointObserver,
 		private router: Router,
 		private location: Location,
-		private events: EventService
+		private events: EventService,
+		private auth: AuthorizeService
 	) { }
 
 	ngOnInit(): void {
@@ -119,14 +130,24 @@ export class MainComponent implements OnInit, OnDestroy {
 
 		let routeFound = appRoutes.find(route => url[1] == route.path);
 
-		return this.filterRoute(routeFound);
+		return typeof routeFound != 'undefined';
 	}
 
-	filterRoute(route: RouteItem): boolean {
-		return isValidString(route.title) && isValidString(route?.path);
+	filterItems(route: TabItem): boolean | Promise<boolean> | Observable<boolean> {
+		if (route.shouldShow) {
+			return typeof route.shouldShow == 'function' ? route.shouldShow() : route.shouldShow;
+		}
+
+		return true;
 	}
 
 	goBack(): void {
 		this.location.back();
+	}
+
+	linkOpened(): void {
+		if (this.breakpointObserver.isMatched(Breakpoints.Handset)) {
+			this.sidenavContainer.close();
+		}
 	}
 }

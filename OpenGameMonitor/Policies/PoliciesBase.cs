@@ -22,8 +22,8 @@ namespace OpenGameMonitorWeb.Policies
                 var roleNames = new (string, string[])[]
                 {
                     ( "Moderator", new string[] { "Servers.ViewAll", "Users.View", "Groups.View" } ),
-                    ( "Developer", new string[] { "Servers.InteractAll" } ),
-                    ( "Admin", new string[] { "Servers.EditAll", "Servers.Create", "Users.Modify", "Users.Create", "Groups.Modify", "Groups.Create" } )
+                    ( "Developer", new string[] { "Settings.View", "Servers.InteractAll" } ),
+                    ( "Admin", new string[] { "Settings.Edit", "Servers.EditAll", "Servers.Create", "Users.Modify", "Users.Create", "Groups.Modify", "Groups.Create" } )
                 };
 
                 IdentityResult roleResult;

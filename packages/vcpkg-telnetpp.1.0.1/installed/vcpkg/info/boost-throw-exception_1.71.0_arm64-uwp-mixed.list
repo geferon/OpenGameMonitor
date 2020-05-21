@@ -1,0 +1,10 @@
+arm64-uwp-mixed/
+arm64-uwp-mixed/include/
+arm64-uwp-mixed/include/boost/
+arm64-uwp-mixed/include/boost/exception/
+arm64-uwp-mixed/include/boost/exception/exception.hpp
+arm64-uwp-mixed/include/boost/throw_exception.hpp
+arm64-uwp-mixed/share/
+arm64-uwp-mixed/share/boost-throw-exception/
+arm64-uwp-mixed/share/boost-throw-exception/copyright
+arm64-uwp-mixed/share/boost-throw-exception/vcpkg_abi_info.txt

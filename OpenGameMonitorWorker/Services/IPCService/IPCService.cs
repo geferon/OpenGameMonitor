@@ -4,11 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 //using JKang.IpcServiceFramework;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.VisualBasic;
 using OpenGameMonitorLibraries;
 using OpenGameMonitorWorker.Handlers;
 using Xeeny.Api.Server;
@@ -50,13 +52,13 @@ namespace OpenGameMonitorWorker.Services
             //serviceInstance = ActivatorUtilities.CreateInstance<MonitorComsService>(_serviceProvider);
 
             var ip = _config.GetValue<String>("MonitorSettings:Address", "localhost");
-            var port = _config.GetValue<int>("MonitorSettings:Port", 5001);
+            var port = _config.GetValue<int>("MonitorSettings:Port", 5010);
             var address = $"tcp://{ip}:{port}/opengameserver";
 
             //service = new ServiceHostBuilder<MonitorComsService>(serviceInstance)
             service = new ServiceHostBuilder<MonitorComsService>(InstanceMode.Single)
                 .WithCallback<IMonitorComsCallback>()
-                .AddTcpServer("tcp://localhost:5001/opengameserver")
+                .AddTcpServer(address)
                 .CreateHost();
 
             service.ServiceInstanceCreated += (callback) =>
@@ -139,14 +141,21 @@ namespace OpenGameMonitorWorker.Services
             {
                 foreach (KeyValuePair<string, IMonitorComsCallback> client in _clients)
                 {
-                    await client.Value.ServerMessageConsole(((Server)serverObj).Id, args.NewLine);
+                    await client.Value.ServerMessageConsole(((Server)serverObj).Id, args.NewLine ?? (args.IsError ? "Error" : ""));
                 }
             });
             _eventHandlerService.ListenForEventType<ConsoleEventArgs>("Server:UpdateMessage", async (Object serverObj, ConsoleEventArgs args) =>
             {
                 foreach (KeyValuePair<string, IMonitorComsCallback> client in _clients)
                 {
-                    await client.Value.ServerMessageConsole(((Server)serverObj).Id, args.NewLine);
+                    await client.Value.ServerMessageUpdate(((Server)serverObj).Id, args.NewLine ?? (args.IsError ? "Error" : ""));
+                }
+            });
+            _eventHandlerService.ListenForEventType<ServerUpdateProgressEventArgs>("Server:UpdateProgress", async (Object serverObj, ServerUpdateProgressEventArgs args) =>
+            {
+                foreach (KeyValuePair<string, IMonitorComsCallback> client in _clients)
+                {
+                    await client.Value.ServerUpdateProgress(((Server)serverObj).Id, args.Progress);
                 }
             });
             _eventHandlerService.ListenForEvent("Server:Opened", async (Object serverObj, EventArgs e) =>
@@ -161,6 +170,13 @@ namespace OpenGameMonitorWorker.Services
                 foreach (KeyValuePair<string, IMonitorComsCallback> client in _clients)
                 {
                     await client.Value.ServerClosed(((Server) serverObj).Id);
+                }
+            });
+            _eventHandlerService.ListenForEvent("Server:UpdateStart", async (Object serverObj, EventArgs e) =>
+            {
+                foreach (KeyValuePair<string, IMonitorComsCallback> client in _clients)
+                {
+                    await client.Value.ServerUpdateStart(((Server)serverObj).Id);
                 }
             });
             _eventHandlerService.ListenForEvent("Server:Updated", async (Object serverObj, EventArgs e) =>
@@ -187,16 +203,20 @@ namespace OpenGameMonitorWorker.Services
             };
         }
 
-        private Server GetServer(int server)
+        private async Task<Server> GetServer(int server)
         {
-            using (var db = _serviceProvider.GetService<MonitorDBContext>())
+            using (var scope = _serviceProvider.CreateScope())
+            using (var db = scope.ServiceProvider.GetService<MonitorDBContext>())
             {
                 /*List<OpenGameMonitorLibraries.Server> servers = db.Servers
                     .Where(r => r.PID != null && r.PID != default(int))
                     .ToList();*/
 
-                return db.Servers.Where(r => r.Id == server)
-                    .FirstOrDefault<OpenGameMonitorLibraries.Server>();
+                return await db.Servers.Where(r => r.Id == server)
+                    .Include(s => s.Group)
+                    .Include(s => s.Owner)
+                    .Include(s => s.Game)
+                    .FirstOrDefaultAsync<OpenGameMonitorLibraries.Server>();
             }
         }
 
@@ -205,9 +225,9 @@ namespace OpenGameMonitorWorker.Services
             return _gameHandler.GetServerHandler(server);
         }
 
-        private IGameHandlerBase GetServerHandler(int serverId)
+        private async Task<IGameHandlerBase> GetServerHandler(int serverId)
         {
-            OpenGameMonitorLibraries.Server server = GetServer(serverId);
+            OpenGameMonitorLibraries.Server server = await GetServer(serverId);
 
             return GetServerHandler(server);
         }
@@ -234,7 +254,7 @@ namespace OpenGameMonitorWorker.Services
 
         public async Task<bool> ServerOpen(int serverId)
         {
-            var server = GetServer(serverId);
+            var server = await GetServer(serverId);
             var svHandler = GetServerHandler(server);
 
             try
@@ -248,9 +268,10 @@ namespace OpenGameMonitorWorker.Services
 
             return true;
         }
+
         public async Task<bool> ServerClose(int serverId)
         {
-            var server = GetServer(serverId);
+            var server = await GetServer(serverId);
             var svHandler = GetServerHandler(server);
 
             try
@@ -265,21 +286,34 @@ namespace OpenGameMonitorWorker.Services
             return true;
         }
 
-        public async Task<bool> ServerUpdate(int serverId)
+        public async Task<bool> ServerInstall(int serverId)
         {
-            var server = GetServer(serverId);
+            var server = await GetServer(serverId);
             var svHandler = GetServerHandler(server);
 
             try
             {
-                await svHandler.UpdateServer(server);
+                return await svHandler.InitialInstall(server);
             }
             catch
             {
                 return false;
             }
+        }
 
-            return true;
+        public async Task<bool> ServerUpdate(int serverId)
+        {
+            var server = await GetServer(serverId);
+            var svHandler = GetServerHandler(server);
+
+            try
+            {
+                return await svHandler.UpdateServer(server);
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

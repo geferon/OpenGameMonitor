@@ -170,11 +170,11 @@ namespace OpenGameMonitorLibraries
 				//dbContext.Database.EnsureCreated();
 				try
 				{
-					Data = (!dbContext.Settings.Any()
-						? CreateAndSaveDefaultValues(dbContext)
-						: dbContext.Settings.ToDictionary(c => c.Key, c => c.Value))
+					CreateAndSaveDefaultValues(dbContext);
+
+					Data = dbContext.Settings.ToDictionary(c => c.Key, c => c.Value)
 						.Select(pair => new KeyValuePair<string, string>(
-							pair.Key,
+							$"MonitorDBConfig:{pair.Key}",
 							//System.Text.Json.JsonSerializer.Serialize(pair.Value, null)
 							pair.Value.ToString()
 						))
@@ -197,20 +197,21 @@ namespace OpenGameMonitorLibraries
 			MonitorDBContext dbContext)
 		{
 			// TODO: Set Settings
-			var configValues = new Dictionary<string, object>
-			{
-				{ "quote1", "I aim to misbehave." },
-				{ "quote2", "I swallowed a bug." },
-				{ "quote3", "You can't stop the signal, Mal." }
-			};
+			var configValues = MonitorConfig.DefaultConfig;
 
-			dbContext.Settings.AddRange(configValues
+			foreach (
+				var config in
+				configValues
 				.Select(kvp => new Setting
 				{
 					Key = kvp.Key,
 					Value = kvp.Value
 				})
-				.ToArray());
+				.ToArray()
+				.Where(conf => !dbContext.Settings.Any(con => con.Key == conf.Key))
+			) {
+				dbContext.Settings.Add(config);
+			}
 
 			dbContext.SaveChanges();
 

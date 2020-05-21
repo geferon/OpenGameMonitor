@@ -1,0 +1,9 @@
+x86-uwp-mixed/
+x86-uwp-mixed/include/
+x86-uwp-mixed/include/boost/
+x86-uwp-mixed/include/boost/assert.hpp
+x86-uwp-mixed/include/boost/current_function.hpp
+x86-uwp-mixed/share/
+x86-uwp-mixed/share/boost-assert/
+x86-uwp-mixed/share/boost-assert/copyright
+x86-uwp-mixed/share/boost-assert/vcpkg_abi_info.txt

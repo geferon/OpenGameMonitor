@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Xeeny;
 using Xeeny.Api.Client;
 using Xeeny.Connections;
 
@@ -41,7 +42,7 @@ namespace OpenGameMonitor.Services
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             var ip = _config.GetValue<String>("MonitorConnection:Address", "localhost");
-            var port = _config.GetValue<int>("MonitorConnection:Port", 5001);
+            var port = _config.GetValue<int>("MonitorConnection:Port", 5010);
             var address = $"tcp://{ip}:{port}/opengameserver";
             var builder = new DuplexConnectionBuilder<IMonitorComsInterface, MonitorComsCallback>(Xeeny.Dispatching.InstanceMode.Single)
                 .WithTcpTransport(address, options => {
@@ -90,6 +91,11 @@ namespace OpenGameMonitor.Services
                 }
                 else
                 {
+                    if (connection.State == Xeeny.Transports.ConnectionState.Connecting)
+                    {
+                        connection.Close();
+                    }
+
                     _logger.LogWarning("Couldn't stablish connection to the Monitor... Retrying again in {0} seconds.", RetryTime);
                     await Task.Delay((int)(RetryTime * 1000), cancellationToken);
                 }
@@ -102,10 +108,13 @@ namespace OpenGameMonitor.Services
         public int ServerID;
     }
 
-    public class ServerMessageEventArgs : EventArgs
+    public class ServerMessageEventArgs : ServerEventArgs
     {
-        public int ServerID;
         public string Message;
+    }
+    public class ServerUpdateProgressEventArgs : ServerEventArgs
+    {
+        public float Progress;
     }
 
     public class MonitorComsCallback : IMonitorComsCallback
@@ -114,10 +123,12 @@ namespace OpenGameMonitor.Services
 
         private event EventHandler panelConfigReloadedEvent;
         private event EventHandler<ServerEventArgs> serverClosedEvent;
-        private event EventHandler<ServerMessageEventArgs> serverMessageConsoleEvent;
-        private event EventHandler<ServerMessageEventArgs> serverMessageUpdateEvent;
         private event EventHandler<ServerEventArgs> serverOpenedEvent;
         private event EventHandler<ServerEventArgs> serverUpdatedEvent;
+        private event EventHandler<ServerEventArgs> serverUpdateStartedEvent;
+        private event EventHandler<ServerMessageEventArgs> serverMessageConsoleEvent;
+        private event EventHandler<ServerMessageEventArgs> serverMessageUpdateEvent;
+        private event EventHandler<ServerUpdateProgressEventArgs> serverUpdateProgressEvent;
 
         public void Init()
         {
@@ -125,8 +136,10 @@ namespace OpenGameMonitor.Services
             eventHandlerService.RegisterHandler("Monitor:ServerClosed", (handler) => serverClosedEvent += handler.Listener);
             eventHandlerService.RegisterHandler("Monitor:ServerOpened", (handler) => serverOpenedEvent += handler.Listener);
             eventHandlerService.RegisterHandler("Monitor:ServerUpdated", (handler) => serverUpdatedEvent += handler.Listener);
+            eventHandlerService.RegisterHandler("Monitor:ServerUpdateStarted", (handler) => serverUpdateStartedEvent += handler.Listener);
             eventHandlerService.RegisterHandler("Monitor:ServerMessageConsole", (handler) => serverMessageConsoleEvent += handler.Listener);
             eventHandlerService.RegisterHandler("Monitor:ServerMessageUpdate", (handler) => serverMessageUpdateEvent += handler.Listener);
+            eventHandlerService.RegisterHandler("Monitor:ServerUpdateProgress", (handler) => serverUpdateProgressEvent += handler.Listener);
         }
 
         public async Task PanelConfigReloaded()
@@ -137,6 +150,29 @@ namespace OpenGameMonitor.Services
         public async Task ServerClosed(int server)
         {
             serverClosedEvent?.Invoke(this, new ServerEventArgs()
+            {
+                ServerID = server
+            });
+        }
+        public async Task ServerOpened(int server)
+        {
+            serverOpenedEvent?.Invoke(this, new ServerEventArgs()
+            {
+                ServerID = server
+            });
+        }
+
+        public async Task ServerUpdated(int server)
+        {
+            serverUpdatedEvent?.Invoke(this, new ServerEventArgs()
+            {
+                ServerID = server
+            });
+        }
+
+        public async Task ServerUpdateStart(int server)
+        {
+            serverUpdateStartedEvent?.Invoke(this, new ServerEventArgs()
             {
                 ServerID = server
             });
@@ -160,20 +196,14 @@ namespace OpenGameMonitor.Services
             });
         }
 
-        public async Task ServerOpened(int server)
+        public async Task ServerUpdateProgress(int server, float progress)
         {
-            serverOpenedEvent?.Invoke(this, new ServerEventArgs()
+            serverUpdateProgressEvent?.Invoke(this, new ServerUpdateProgressEventArgs()
             {
-                ServerID = server
+                ServerID = server,
+                Progress = progress
             });
         }
 
-        public async Task ServerUpdated(int server)
-        {
-            serverUpdatedEvent?.Invoke(this, new ServerEventArgs()
-            {
-                ServerID = server
-            });
-        }
     }
 }

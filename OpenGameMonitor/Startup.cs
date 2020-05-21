@@ -266,6 +266,11 @@ namespace OpenGameMonitor
                 options.AddPolicy("ServerPolicy", policy => 
                     policy.Requirements.Add(new ServerPolicyRequirement()));
 
+                options.AddPolicy("SettingsView", policy =>
+                    policy.RequireClaim("Permission", "Settings.View"));
+                options.AddPolicy("SettingsEdit", policy =>
+                    policy.RequireClaim("Permission", "Settings.Edit"));
+
                 options.AddPolicy("ServersViewAll", policy =>
                     policy.RequireClaim("Permission", "Servers.ViewAll"));
                 options.AddPolicy("ServersInteractAll", policy =>

@@ -1,0 +1,14 @@
+x86-uwp-mixed/
+x86-uwp-mixed/debug/
+x86-uwp-mixed/debug/lib/
+x86-uwp-mixed/debug/lib/zlibd.lib
+x86-uwp-mixed/include/
+x86-uwp-mixed/include/zconf.h
+x86-uwp-mixed/include/zlib.h
+x86-uwp-mixed/lib/
+x86-uwp-mixed/lib/zlib.lib
+x86-uwp-mixed/share/
+x86-uwp-mixed/share/zlib/
+x86-uwp-mixed/share/zlib/copyright
+x86-uwp-mixed/share/zlib/usage
+x86-uwp-mixed/share/zlib/vcpkg_abi_info.txt

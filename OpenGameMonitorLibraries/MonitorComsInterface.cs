@@ -10,6 +10,7 @@ namespace OpenGameMonitorLibraries
         Task<bool> ServerOpen(int server);
         Task<bool> ServerClose(int server);
         Task<bool> ServerUpdate(int server);
+        Task<bool> ServerInstall(int server);
         Task ConfigReloaded();
         Task Connected();
     }
@@ -20,7 +21,9 @@ namespace OpenGameMonitorLibraries
         Task ServerOpened(int server);
         Task ServerClosed(int server);
         Task ServerUpdated(int server);
+        Task ServerUpdateStart(int server);
         Task ServerMessageConsole(int server, string message);
         Task ServerMessageUpdate(int server, string message);
+        Task ServerUpdateProgress(int server, float progress);
     }
 }

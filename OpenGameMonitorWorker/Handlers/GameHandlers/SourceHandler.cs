@@ -2,242 +2,348 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using CoreRCON;
 using CoreRCON.PacketFormats;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using OpenGameMonitorLibraries;
 using OpenGameMonitorWorker.Services;
 using OpenGameMonitorWorker.Utils;
+using Pty.Net;
+using SmartFormat;
 
 namespace OpenGameMonitorWorker.Handlers
 {
-    internal class SourceHandler : SteamCMDBaseHandler
-    {
-        public override string Engine => "source";
+	internal class SourceHandler : SteamCMDBaseHandler
+	{
+		public override string Engine => "Source";
 
-        public override event EventHandler ServerClosed;
-        public override event EventHandler ServerOpened;
-        public override event EventHandler<ConsoleEventArgs> ConsoleMessage;
+		public override event EventHandler ServerClosed;
+		public override event EventHandler ServerOpened;
+		public override event EventHandler<ConsoleEventArgs> ConsoleMessage;
 
-        private readonly Dictionary<int, Process> serverProcess;
+		private readonly ILogger<SourceHandler> _logger;
 
-        public SourceHandler(
-            IServiceProvider serviceProvider,
-            IServiceScopeFactory serviceScopeFactory,
-            SteamCMDService steamCMDServ,
-            SteamAPIService steamAPIService) :
-            base(serviceProvider, serviceScopeFactory, steamCMDServ, steamAPIService)
-        {
+		private readonly Dictionary<int, Process> serverProcess = new Dictionary<int, Process>();
+		//private readonly Dictionary<int, Tuple<Process, IPtyConnection>> serverProcess = new Dictionary<int, Tuple<Process, IPtyConnection>>();
 
-        }
+		public SourceHandler(
+			IServiceProvider serviceProvider,
+			IServiceScopeFactory serviceScopeFactory,
+			SteamCMDService steamCMDServ,
+			SteamAPIService steamAPIService,
+			IConfiguration configuration,
+			ILogger<SourceHandler> logger) :
+			base(serviceProvider, serviceScopeFactory, steamCMDServ, steamAPIService, configuration)
+		{
+			_logger = logger;
+		}
 
-        private IPEndPoint GetServerEndpoint(Server server)
-        {
-            var endpoint = new IPEndPoint(
-                IPAddress.Parse(GameHandler.GetServerIP(server)),
-                server.Port
-            );
+		private IPEndPoint GetServerEndpoint(Server server)
+		{
+			var endpoint = new IPEndPoint(
+				IPAddress.Parse(GameHandler.GetServerIP(server)),
+				server.Port
+			);
 
-            return endpoint;
-        }
+			return endpoint;
+		}
 
-        public override async Task InitServer(Server server)
-        {
-            if (server.PID != null && server.PID != default)
-            {
-                try
-                {
-                    Process ps = Process.GetProcessById((int) server.PID);
-                    ps.OutputDataReceived += (sender, e) =>
-                    {
-                        ConsoleMessage?.Invoke(server, new ConsoleEventArgs()
-                        {
-                            NewLine = e.Data
-                        });
-                    };
-                    ps.ErrorDataReceived += (sender, e) =>
-                    {
-                        ConsoleMessage?.Invoke(server, new ConsoleEventArgs()
-                        {
-                            NewLine = e.Data,
-                            IsError = true
-                        });
-                    };
-                    ps.Exited += (sender, e) =>
-                    {
-                        serverProcess[server.Id].Close();
-                        serverProcess.Remove(server.Id);
+		public override async Task InitServer(Server server)
+		{
+			if (server.PID != null && server.PID != default)
+			{
+				try
+				{
+					Process ps = Process.GetProcessById((int) server.PID);
+					/*
+					ps.OutputDataReceived += (sender, e) =>
+					{
+						ConsoleMessage?.Invoke(server, new ConsoleEventArgs()
+						{
+							NewLine = e.Data
+						});
+					};
+					ps.ErrorDataReceived += (sender, e) =>
+					{
+						ConsoleMessage?.Invoke(server, new ConsoleEventArgs()
+						{
+							NewLine = e.Data,
+							IsError = true
+						});
+					};
+					*/
+					ps.Exited += (sender, e) =>
+					{
+						//serverProcess[server.Id].Close();
+						serverProcess[server.Id].Dispose();
+						serverProcess.Remove(server.Id);
 
-                        ServerClosed?.Invoke(server, e);
-                    };
+						ServerClosed?.Invoke(server, e);
+					};
+					ps.EnableRaisingEvents = true;
 
-                    serverProcess[server.Id] = ps;
-                }
-                catch
-                {
-                    server.PID = default;
-                    using (var scope = _serviceScopeFactory.CreateScope())
-                    using (var db = scope.ServiceProvider.GetRequiredService<MonitorDBContext>())
-                    {
-                        db.Update(server);
-                    }
+					//ps.BeginOutputReadLine();
+					//ps.BeginErrorReadLine();
 
-                    await OpenServer(server);
-                }
-            }
-        }
+					//serverProcess[server.Id] = new Tuple<Process, IPtyConnection>(ps, null);
+					serverProcess[server.Id] = ps;
+				}
+				catch
+				{
+					server.PID = default;
+					using (var scope = _serviceScopeFactory.CreateScope())
+					using (var db = scope.ServiceProvider.GetRequiredService<MonitorDBContext>())
+					{
+						db.Update(server);
+						await db.SaveChangesAsync();
+					}
 
-        public override async Task<bool> IsOpen(Server server)
-        {
-            return serverProcess.ContainsKey(server.Id) && !serverProcess[server.Id].HasExited;
-        }
+					await OpenServer(server);
+				}
+			}
+		}
 
-        public override async Task OpenServer(Server server)
-        {
-            if (serverProcess.ContainsKey(server.Id) && !serverProcess[server.Id].HasExited)
-            {
-                return; // Server is open?
-            }
+		public override string GetServerExecutable(Server server)
+		{
+			var postFix = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows) ? ".exe" : "";
+			return $"srcds{postFix}";
+		}
 
-            var proc = new Process();
-            proc.StartInfo.FileName = Path.Combine(server.Path, server.Executable);
-            proc.StartInfo.WorkingDirectory = Path.GetDirectoryName(Path.Combine(server.Path, server.Executable));
-            
-            List<string> startParameters = new List<string>();
-            if (!String.IsNullOrWhiteSpace(server.StartParamsHidden)) startParameters.Add(server.StartParamsHidden);
-            if (!String.IsNullOrWhiteSpace(server.StartParams)) startParameters.Add(server.StartParams);
-            proc.StartInfo.Arguments = String.Join(" ", startParameters);
+		public override async Task<bool> IsOpen(Server server)
+		{
+			return serverProcess.ContainsKey(server.Id) && !serverProcess[server.Id].HasExited;
+		}
 
-            proc.PriorityClass = server.ProcessPriority;
+		public override async Task OpenServer(Server server)
+		{
+			if (serverProcess.ContainsKey(server.Id) && !serverProcess[server.Id].HasExited)
+			{
+				return; // Server is open?
+			}
 
-            proc.StartInfo.RedirectStandardError = true;
-            proc.StartInfo.RedirectStandardOutput = true;
-            proc.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            proc.StartInfo.CreateNoWindow = true;
-            proc.StartInfo.UseShellExecute = true;
-            proc.EnableRaisingEvents = true; // Investigate?
-            //activeSteamCMD.EnableRaisingEvents = false;
-            // activeSteamCMD.OutputDataReceived += (sender, eventArgs) => outputStringBuilder.AppendLine(eventArgs.Data);
-            // activeSteamCMD.ErrorDataReceived += (sender, eventArgs) => outputStringBuilder.AppendLine(eventArgs.Data);
+			var proc = new Process();
+			proc.StartInfo.FileName = Path.Combine(server.Path, server.Executable);
+			proc.StartInfo.WorkingDirectory = Path.GetDirectoryName(Path.Combine(server.Path, server.Executable));
 
-            proc.OutputDataReceived += (sender, e) =>
-            {
-                ConsoleMessage?.Invoke(server, new ConsoleEventArgs()
-                {
-                    NewLine = e.Data
-                });
-            };
-            proc.ErrorDataReceived += (sender, e) =>
-            {
-                ConsoleMessage?.Invoke(server, new ConsoleEventArgs()
-                {
-                    NewLine = e.Data,
-                    IsError = true
-                });
-            };
+			/*var options = new PtyOptions()
+			{
+				Name = $"srcds Server {server.Id}",
+				App = Path.Combine(server.Path, server.Executable),
+				CommandLine = (this as IGameHandlerBase).ServerStartParameters(server).ToArray(),
+				VerbatimCommandLine = true,
+				Cwd = Path.GetDirectoryName(Path.Combine(server.Path, server.Executable)),
+				Cols = 100,
+				Rows = 80,
+				Environment = server.EnvironmentVariables.ToDictionary(v => v.Key, v => v.Value)
+			};
 
-            proc.Exited += (sender, e) =>
-            {
-                serverProcess[server.Id].Close();
-                serverProcess.Remove(server.Id);
+			IPtyConnection proc = await PtyProvider.SpawnAsync(options, new System.Threading.CancellationToken());
+			var procObj = Process.GetProcessById(proc.Pid);
+			procObj.PriorityClass = server.ProcessPriority;
+			*/
 
-                ServerClosed?.Invoke(server, e);
-            };
 
-            proc.Start();
+			proc.StartInfo.Arguments = (this as IGameHandlerBase).ServerStartParametersFormed(server);
 
-            serverProcess[server.Id] = proc;
+			proc.StartInfo.RedirectStandardError = true;
+			proc.StartInfo.RedirectStandardOutput = true;
+			proc.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+			proc.StartInfo.CreateNoWindow = true;
+			proc.StartInfo.UseShellExecute = false;
+			proc.EnableRaisingEvents = true; // Investigate?
+			//activeSteamCMD.EnableRaisingEvents = false;
+			// activeSteamCMD.OutputDataReceived += (sender, eventArgs) => outputStringBuilder.AppendLine(eventArgs.Data);
+			// activeSteamCMD.ErrorDataReceived += (sender, eventArgs) => outputStringBuilder.AppendLine(eventArgs.Data);
 
-            ServerOpened?.Invoke(server, new EventArgs());
-        }
+			proc.OutputDataReceived += (sender, e) =>
+			{
+				_logger.LogDebug("Log received from server {0}: {1}", server.Id, e.Data);
+				ConsoleMessage?.Invoke(server, new ConsoleEventArgs()
+				{
+					NewLine = e.Data
+				});
+			};
+			proc.ErrorDataReceived += (sender, e) =>
+			{
+				_logger.LogError("Error received from server {0}", server.Id);
+				ConsoleMessage?.Invoke(server, new ConsoleEventArgs()
+				{
+					NewLine = e.Data,
+					IsError = true
+				});
+			};
 
-        public async override Task CloseServer(Server server)
-        {
-            var endpoint = GetServerEndpoint(server);
-            var config = new SourceConfigParser(server);
-            Process serverProc = serverProcess[server.Id];
+			/*
+			var processExitedCTS = new CancellationTokenSource();
+			var processExitedCToken = processExitedCTS.Token;
+			var processExitedTcs = new TaskCompletionSource<uint>();
+			*/
 
-            bool succesfulShutdown = false;
+			proc.Exited += (sender, e) =>
+			{
+				//serverProcess[server.Id].Close();
+				serverProcess.Remove(server.Id);
 
-            if (server.Graceful)
-            {
-                string rconPass = config.Get("rcon_password");
+				//processExitedTcs.TrySetResult((uint)proc.ExitCode);
+				//processExitedCTS.Cancel();
 
-                if (!String.IsNullOrEmpty(rconPass)) {
-                    try
-                    {
-                        using (var rcon = new RCON(endpoint, rconPass))
-                        {
-                            await rcon.ConnectAsync();
+				ServerClosed?.Invoke(server, e);
 
-                            await rcon.SendCommandAsync("quit");
+				proc.Dispose();
+			};
 
-                            succesfulShutdown = true;
-                        }
-                    }
-                    catch (TimeoutException) { }
-                    catch (AuthenticationException) { }
-                }
+			/*
+			var backgroundTask = Task.Run(async () =>
+			{
+				var encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
+				var decoder = encoding.GetDecoder();
+				var sb = new StringBuilder();
 
-                if (succesfulShutdown)
-                {
-                    using (var cts = new CancellationTokenSource())
-                    {
-                        cts.CancelAfter(30 * 1000);
+				var byteBuffer = new byte[1024];
+				var maxCharsPerBuffer = encoding.GetMaxCharCount(1024);
+				var charBuffer = new char[maxCharsPerBuffer];
 
-                        await serverProc.WaitForExitAsync(cts.Token);
+				int currentLinePos = 0;
+				bool bLastCarriageReturn = false;
 
-                        if (!serverProc.HasExited)
-                        {
-                            succesfulShutdown = false;
-                        }
-                    }
-                }
-            }
+				while (!processExitedTcs.Task.IsCompleted)
+				{
+					try
+					{
+						var bytesRead = await proc.ReaderStream.ReadAsync(byteBuffer, 0, byteBuffer.Length).WithCancellation(processExitedCToken);
+						if (bytesRead == 0)
+							break;
 
-            if (!succesfulShutdown)
-            {
-                bool success = serverProc.CloseMainWindow();
+						int charLen = decoder.GetChars(byteBuffer, 0, bytesRead, charBuffer, 0);
+						sb!.Append(charBuffer, 0, charLen);
 
-                if (success)
-                {
-                    using (var cts = new CancellationTokenSource())
-                    {
-                        cts.CancelAfter(10 * 1000);
+						MonitorUtils.MoveLinesFromStringBuilderToMessageQueue(ref currentLinePos, ref bLastCarriageReturn, sb,
+							(line) => ConsoleMessage?.Invoke(server, new ConsoleEventArgs()
+							{
+								NewLine = line
+							}));
+					}
+					catch (OperationCanceledException)
+					{
+						break;
+					}
+				}
+			});
+			*/
 
-                        await serverProc.WaitForExitAsync(cts.Token);
-                    }
-                }
+			proc.Start();
+			proc.BeginOutputReadLine();
+			proc.BeginErrorReadLine();
 
-                if (!serverProc.HasExited)
-                {
-                    serverProc.Kill();
-                }
-            }
+			// Has to be set AFTER it starts
+			proc.PriorityClass = server.ProcessPriority;
 
-            
-        }
+			//serverProcess[server.Id] = new Tuple<Process, IPtyConnection>(procObj, proc);
+			serverProcess[server.Id] = proc;
 
-        public override async Task<object> GetServerInfo(Server server)
-        {
-            var endpoint = GetServerEndpoint(server);
+			ServerOpened?.Invoke(server, new EventArgs());
 
-            var info = await ServerQuery.Info(endpoint, ServerQuery.ServerType.Source) as SourceQueryInfo;
 
-            return info;
-        }
-        
-        public override async Task<object> GetServerPlayers(Server server)
-        {
-            var endpoint = GetServerEndpoint(server);
+			using (var scope = _serviceScopeFactory.CreateScope())
+			using (var db = scope.ServiceProvider.GetRequiredService<MonitorDBContext>())
+			{
+				server.PID = proc.Id;
 
-            var players = await ServerQuery.Players(endpoint);
+				db.Update(server);
+				await db.SaveChangesAsync();
+			}
+		}
 
-            return players;
-        }
-    }
+		public async override Task CloseServer(Server server)
+		{
+			var endpoint = GetServerEndpoint(server);
+			var config = new SourceConfigParser(server);
+			Process serverProc = serverProcess[server.Id];
+
+			bool succesfulShutdown = false;
+
+			if (server.Graceful)
+			{
+				string rconPass = config.Get("rcon_password");
+
+				if (!String.IsNullOrEmpty(rconPass)) {
+					try
+					{
+						using (var rcon = new RCON(endpoint, rconPass))
+						{
+							await rcon.ConnectAsync();
+
+							await rcon.SendCommandAsync("quit");
+
+							succesfulShutdown = true;
+						}
+					}
+					catch (TimeoutException) { }
+					catch (AuthenticationException) { }
+				}
+
+				if (succesfulShutdown)
+				{
+					using (var cts = new CancellationTokenSource())
+					{
+						cts.CancelAfter(30 * 1000);
+
+						await serverProc.WaitForExitAsync(cts.Token);
+
+						if (!serverProc.HasExited)
+						{
+							succesfulShutdown = false;
+						}
+					}
+				}
+			}
+
+			if (!succesfulShutdown)
+			{
+				bool success = serverProc.CloseMainWindow();
+
+				if (success)
+				{
+					using (var cts = new CancellationTokenSource())
+					{
+						cts.CancelAfter(10 * 1000);
+
+						await serverProc.WaitForExitAsync(cts.Token);
+					}
+				}
+
+				if (!serverProc.HasExited)
+				{
+					serverProc.Kill();
+				}
+			}
+
+			
+		}
+
+		public override async Task<object> GetServerInfo(Server server)
+		{
+			var endpoint = GetServerEndpoint(server);
+
+			var info = await ServerQuery.Info(endpoint, ServerQuery.ServerType.Source) as SourceQueryInfo;
+
+			return info;
+		}
+		
+		public override async Task<object> GetServerPlayers(Server server)
+		{
+			var endpoint = GetServerEndpoint(server);
+
+			var players = await ServerQuery.Players(endpoint);
+
+			return players;
+		}
+	}
 }

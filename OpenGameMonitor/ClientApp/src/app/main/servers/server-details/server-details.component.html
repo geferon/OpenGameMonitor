@@ -1,0 +1,225 @@
+
+<form [formGroup]="serverForm">
+	<mat-tab-group dynamicHeight>
+		<mat-tab label="General">
+			<p>
+				<!-- TODO: Decide best appearance? -->
+				<!--  appearance="outline" -->
+				<mat-form-field>
+					<mat-label>Name</mat-label>
+					<input matInput placeholder="Server #1" formControlName="Name" required cdkFocusInitial />
+					<mat-hint>Name that this server will appear with on most interfaces and menus.</mat-hint>
+					<mat-error *ngIf="hasError('Name', 'required')">Name is required</mat-error>
+				</mat-form-field>
+			</p>
+			<p>
+				<mat-checkbox formControlName="Enabled">
+					Enabled
+				</mat-checkbox>
+				<br />
+				<mat-hint>
+					Lets the server be started and stopped. Disabling a server will automatically stop it.
+				</mat-hint>
+			</p>
+			<p>
+				<mat-form-field>
+					<mat-label>Owner</mat-label>
+					<mat-select [disabled]="!AllowedUserEdit" formControlName="Owner" required>
+						<mat-option *ngFor="let user of Users$ | async" [value]="user">
+							{{user.UserName != null && user.UserName != '' ? user.UserName : user.Email}}
+						</mat-option>
+					</mat-select>
+					<mat-hint>Owner of the server. This user will be able to start/stop/modify the server, as well as other actions.</mat-hint>
+					<mat-error *ngIf="hasError('Owner', 'required')">Owner is required</mat-error>
+				</mat-form-field>
+			</p>
+			<p>
+				<mat-form-field>
+					<mat-label>Game</mat-label>
+					<mat-select formControlName="Game" required>
+						<!-- <mat-option *ngFor="let game of Games$ | async" [value]="game">
+							{{game.Name}}
+						</mat-option> -->
+						<mat-optgroup *ngFor="let category of GamesCategorized$ | async" [label]="category.Category">
+							<mat-option *ngFor="let game of category.Members" [value]="game">
+								{{game.Name}}
+							</mat-option>
+						</mat-optgroup>
+						<mat-option (click)="createGame()">
+							New Game
+						</mat-option>
+					</mat-select>
+					<mat-hint>Specifies the game/type of the server, this normally is used for updates, update handling, and others.</mat-hint>
+					<mat-error *ngIf="hasError('Game', 'required')">Game is required</mat-error>
+				</mat-form-field>
+			</p>
+
+			<p>
+				<mat-form-field>
+					<mat-label>Group</mat-label>
+					<mat-select formControlName="Group">
+						<mat-option>
+							None
+						</mat-option>
+						<mat-option *ngFor="let group of Groups$ | async" [value]="group">
+							{{group.Name}}
+						</mat-option>
+					</mat-select>
+					<mat-hint>Specifies the group that has access to this server.</mat-hint>
+				</mat-form-field>
+			</p>
+		</mat-tab>
+		<mat-tab label="Executable">
+			<p>
+				<mat-form-field>
+					<mat-label>Root</mat-label>
+					<input matInput placeholder="C:\Servers\Server 1" formControlName="Path" />
+					<mat-hint>Root path of the server. Leave empty if you want it to be installed automatically.</mat-hint>
+				</mat-form-field>
+			</p>
+			<p>
+				<mat-form-field>
+					<mat-label>Executable</mat-label>
+					<input matInput placeholder="C:\Servers\Server 1\server.exe" formControlName="Executable" />
+					<mat-hint><b>Full</b> path to the server executable. Leave empty if you want it to be installed automatically.</mat-hint>
+				</mat-form-field>
+			</p>
+			<p>
+				<!-- TODO: Description -->
+				<mat-checkbox formControlName="Graceful">
+					Graceful shutdown
+				</mat-checkbox>
+				<br />
+				<mat-hint>
+					When the server should close, the monitor will first try to close it down gracefully (e.g. by sending the 'quit' rcon command).
+				</mat-hint>
+			</p>
+			<p>
+				<!-- TODO: Description -->
+				<mat-checkbox formControlName="RestartOnClose">
+					Restart the server automatically when it closes
+				</mat-checkbox>
+				<br />
+				<mat-hint>
+					If the server crashes, or closes, the monitor will automatically restart it.
+				</mat-hint>
+			</p>
+			<p>
+				<mat-form-field>
+					<mat-label>Start Parameters</mat-label>
+					<textarea matInput placeholder="+maxplayers 16 +map gm_construct +gamemode &quot;sandbox&quot;"
+						formControlName="StartParams"></textarea>
+					<mat-hint>Start parameters of the executable. Use of variables allowed *.</mat-hint>
+				</mat-form-field>
+			</p>
+			<p>
+				<mat-form-field>
+					<mat-label>Hidden Start Parameters</mat-label>
+					<textarea matInput placeholder="-console -game garrysmod -port {ServerPort} +ip {ServerIP} -condebug -nocrashdialog"
+						formControlName="StartParamsHidden"></textarea>
+					<mat-hint>Hidden start parameters of the executable. These aren't shown to any user besides the administrators. Use of variables allowed *.</mat-hint>
+				</mat-form-field>
+			</p>
+			<p>
+				<mat-checkbox formControlName="StartParamsModifyAllowed">Allow authorized users to modify the start parameters of the server.</mat-checkbox>
+			</p>
+			<p>
+				<mat-form-field>
+					<mat-label>Process Priority</mat-label>
+					<mat-select formControlName="ProcessPriority">
+						<mat-option [value]="processPriorityClass.RealTime">
+							Real Time
+						</mat-option>
+						<mat-option [value]="processPriorityClass.High">
+							High
+						</mat-option>
+						<mat-option [value]="processPriorityClass.AboveNormal">
+							Above Normal
+						</mat-option>
+						<mat-option [value]="processPriorityClass.Normal">
+							Normal
+						</mat-option>
+						<mat-option [value]="processPriorityClass.BelowNormal">
+							Below Normal
+						</mat-option>
+						<mat-option [value]="processPriorityClass.Idle">
+							Idle
+						</mat-option>
+					</mat-select>
+					<mat-hint>This is the process priority the server/executable will execute as.</mat-hint>
+				</mat-form-field>
+			</p>
+		</mat-tab>
+		<mat-tab label="Options">
+			<h4>Environment Variables</h4>
+			<div formArrayName="EnvironmentVariables">
+				<mat-card *ngFor="let variable of getEnvVariables().controls; index as i" [formGroupName]="i" style="margin-bottom: 12px;">
+					<mat-card-content style="display: flex;">
+						<mat-form-field style="margin-right: 12px; flex: 1;">
+							<mat-label>Key</mat-label>
+							<input matInput placeholder="SERVER_ENVIRONMENT" formControlName="Key" required />
+							<mat-hint>Key of the environment variable.</mat-hint>
+						</mat-form-field>
+						<mat-form-field style="flex: 1;">
+							<mat-label>Value</mat-label>
+							<input matInput placeholder="Production" formControlName="Value" required />
+							<mat-hint>Value of the environment variable.</mat-hint>
+						</mat-form-field>
+						<button mat-icon-button aria-label="Remove" matTooltip="Remove environment variable" (click)="removeEnvVariable(i)">
+							<mat-icon>delete</mat-icon>
+						</button>
+					</mat-card-content>
+				</mat-card>
+
+				<mat-error *ngIf="hasError('EnvironmentVariables', 'duplicateKey')">Duplicate key found. There can't be any repeating keys.</mat-error>
+				<button mat-icon-button aria-label="Add" matTooltip="Add environment variable"
+				(click)="addEnvVariable()">
+					<mat-icon>add</mat-icon>
+				</button>
+			</div>
+		</mat-tab>
+		<mat-tab label="Network">
+			<p>
+				<mat-form-field>
+					<mat-label>Internal IP Address</mat-label>
+					<input matInput placeholder="192.168.1.123" formControlName="IP" />
+					<mat-hint>IP that the server might have internally, as well as the IP that will be used to query the server data. Leave empty to automatically use the internal IP.</mat-hint>
+					<mat-error *ngIf="hasError('IP', 'invalidIP')">Invalid IP address.</mat-error>
+				</mat-form-field>
+			</p>
+			<p>
+				<mat-form-field>
+					<mat-label>Display IP Address</mat-label>
+					<input matInput placeholder="example.com" formControlName="DisplayIP" />
+					<mat-hint>IP/Address that the interface will always show.</mat-hint>
+				</mat-form-field>
+			</p>
+			<p>
+				<mat-form-field>
+					<mat-label>Port</mat-label>
+					<input matInput placeholder="27015" formControlName="Port" type="number" required />
+					<mat-hint>Port that the server will use.</mat-hint>
+				</mat-form-field>
+			</p>
+		</mat-tab>
+	</mat-tab-group>
+</form>
+
+<p style="text-align: right;">
+	<button mat-raised-button color="primary" [disabled]="!serverForm.valid && !(Loading$ | async)" (click)="update()">{{this.Id ? 'Update' : 'Create'}}</button>
+</p>
+
+
+<h4>* Legend:</h4>
+<p>
+	Variables allowed in server parameters:
+</p>
+<ul>
+	<li>GameID = Game ID</li>
+	<li>GameName = Game Name</li>
+	<li>GameSteamID = Game SteamID</li>
+	<li>ServerID = Server's ID</li>
+	<li>ServerName = Server's Name</li>
+	<li>ServerIP = Server's IP</li>
+	<li>ServerPort = Server's Port</li>
+</ul>

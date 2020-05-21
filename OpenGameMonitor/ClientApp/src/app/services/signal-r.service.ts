@@ -1,6 +1,6 @@
 import { Injectable, isDevMode } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
-import { Subject, Observable } from 'rxjs';
+import { Subject, Observable, from } from 'rxjs';
 import { AuthorizeService } from '../../api-authorization/authorize.service';
 
 @Injectable({
@@ -45,5 +45,9 @@ export class SignalRService {
 		});
 
 		return this.cachedListeners[event].asObservable();
+	}
+
+	sendEvent(method: string, ...data: any[]): Observable<any> {
+		return from(this.hubConnection.send(method, ...data));
 	}
 }

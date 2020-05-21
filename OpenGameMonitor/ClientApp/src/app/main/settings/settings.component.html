@@ -1,0 +1,48 @@
+<form [formGroup]="settingsForm">
+	<mat-tab-group dynamicHeight>
+		<mat-tab label="General">
+			<p>
+				<mat-form-field>
+					<mat-label>Server Installation Root</mat-label>
+					<input matInput placeholder="C:/Servers/" formControlName="DefaultInstallDir" required cdkFocusInitial />
+					<mat-hint>Folder where most servers will be automatically installed</mat-hint>
+					<mat-error *ngIf="hasError('DefaultInstallDir', 'required')">Installation root is required</mat-error>
+				</mat-form-field>
+			</p>
+			<p>
+				<mat-form-field>
+					<mat-label>Server Installation Folder</mat-label>
+					<input matInput placeholder="{GameID}/{ServerID}" formControlName="DefaultServerDir" required cdkFocusInitial />
+					<mat-hint>Folder where servers will be installed inside of the root folder. Subfolders are allowed. Use of variables allowed *.</mat-hint>
+					<mat-error *ngIf="hasError('DefaultServerDir', 'required')">Installation folder is required</mat-error>
+				</mat-form-field>
+			</p>
+			<!-- <p>
+				<mat-checkbox formControlName="InstallSeparateGameDirs">
+					Install servers in separate folders by game? (e.g. csgo/ gmod/ )
+				</mat-checkbox>
+				<br />
+				<mat-hint>Leaving this option off will make all the servers be installed on the root of the "Server Installation Root" folder.</mat-hint>
+			</p> -->
+		</mat-tab>
+	</mat-tab-group>
+</form>
+
+<p style="text-align: right;">
+	<button mat-raised-button color="primary" [disabled]="!settingsForm.valid && !(Loading$ | async)"
+		(click)="update()">Update</button>
+</p>
+
+<h4>* Legend:</h4>
+<p>
+	Variables allowed in server parameters:
+</p>
+<ul>
+	<li>GameID = Game ID</li>
+	<li>GameName = Game Name</li>
+	<li>GameSteamID = Game SteamID</li>
+	<li>ServerID = Server's ID</li>
+	<li>ServerName = Server's Name</li>
+	<li>ServerIP = Server's IP</li>
+	<li>ServerPort = Server's Port</li>
+</ul>

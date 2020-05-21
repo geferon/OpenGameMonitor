@@ -1,0 +1,10 @@
+x64-uwp-mixed/
+x64-uwp-mixed/include/
+x64-uwp-mixed/include/boost/
+x64-uwp-mixed/include/boost/implicit_cast.hpp
+x64-uwp-mixed/include/boost/polymorphic_cast.hpp
+x64-uwp-mixed/include/boost/polymorphic_pointer_cast.hpp
+x64-uwp-mixed/share/
+x64-uwp-mixed/share/boost-conversion/
+x64-uwp-mixed/share/boost-conversion/copyright
+x64-uwp-mixed/share/boost-conversion/vcpkg_abi_info.txt

@@ -2,6 +2,7 @@
 using EntityFrameworkCore.Triggers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OpenGameMonitor.Services;
@@ -43,7 +44,10 @@ namespace OpenGameMonitorWeb.Listeners
             _eventHandlerService.ListenForEventType<ServerEventArgs>("Monitor:ServerClosed", ServerClosed);
             _eventHandlerService.ListenForEventType<ServerEventArgs>("Monitor:ServerOpened", ServerOpened);
             _eventHandlerService.ListenForEventType<ServerEventArgs>("Monitor:ServerUpdated", ServerMonitorUpdated);
+            _eventHandlerService.ListenForEventType<ServerEventArgs>("Monitor:ServerUpdateStarted", ServerMonitorUpdateStarted);
             _eventHandlerService.ListenForEventType<ServerMessageEventArgs>("Monitor:ServerMessageConsole", ServerMessageConsole);
+            _eventHandlerService.ListenForEventType<ServerMessageEventArgs>("Monitor:ServerMessageUpdate", ServerMessageUpdate);
+            _eventHandlerService.ListenForEventType<ServerUpdateProgressEventArgs>("Monitor:ServerUpdateProgress", ServerUpdateProgress);
 
             Triggers<Server>.Inserted += ServerInserted;
             Triggers<Server>.Updating += ServerUpdated;
@@ -57,34 +61,77 @@ namespace OpenGameMonitorWeb.Listeners
 
         private async void ServerClosed(object sender, ServerEventArgs args)
         {
+            /*
             using (var scope = _serviceProvider.CreateScope())
             using (var db = scope.ServiceProvider.GetService<MonitorDBContext>())
             {
                 await NotifyServerUpdated(await db.Servers.FindAsync(args.ServerID), null);
             }
+            */
+            await NotifyServerUpdated(args.ServerID, null);
         }
 
         private async void ServerOpened(object sender, ServerEventArgs args)
         {
+            /*
             using (var scope = _serviceProvider.CreateScope())
             using (var db = scope.ServiceProvider.GetService<MonitorDBContext>())
             {
                 await NotifyServerUpdated(await db.Servers.FindAsync(args.ServerID), null);
             }
+            */
+            await NotifyServerUpdated(args.ServerID, null);
         }
 
         private async void ServerMonitorUpdated(object sender, ServerEventArgs args)
         {
+            /*
             using (var scope = _serviceProvider.CreateScope())
             using (var db = scope.ServiceProvider.GetService<MonitorDBContext>())
             {
                 await NotifyServerUpdated(await db.Servers.FindAsync(args.ServerID), null);
             }
+            */
+            await NotifyServerUpdated(args.ServerID, null);
+        }
+
+        private async void ServerMonitorUpdateStarted(object sender, ServerEventArgs args)
+        {
+            /*
+            using (var scope = _serviceProvider.CreateScope())
+            using (var db = scope.ServiceProvider.GetService<MonitorDBContext>())
+            {
+                await NotifyServerUpdated(await db.Servers.FindAsync(args.ServerID), null);
+            }
+            */
+            await NotifyServerUpdated(args.ServerID, null);
         }
 
         private void ServerMessageConsole(object sender, ServerMessageEventArgs e)
         {
-            _hub.Clients.Group($"Server:{e.ServerID}").SendAsync("Server:ConsoleMessage", e.Message);
+            _hub.Clients.Group($"Server:{e.ServerID}").SendAsync("Server:ConsoleMessage", e.ServerID, e.Message);
+        }
+
+        private void ServerMessageUpdate(object sender, ServerMessageEventArgs e)
+        {
+            _hub.Clients.Group($"Server:{e.ServerID}").SendAsync("Server:UpdateMessage", e.ServerID, e.Message);
+        }
+
+        private async void ServerUpdateProgress(object sender, ServerUpdateProgressEventArgs e)
+        {
+            using (var scope = _serviceProvider.CreateScope())
+            using (var db = scope.ServiceProvider.GetService<MonitorDBContext>())
+            {
+                //_hub.Clients.Group($"Server:{e.ServerID}").SendAsync("Server:UpdateProgress", e.Progress);
+                // Send to all available clients?
+                // TODO: Change
+                var server = await db.Servers.FindAsync(e.ServerID);
+                var connections = await GetDefaultConnections(server);
+
+                //var serverToSend = _mapper.Map<DTOServer>(server);
+                if (connections.Length > 0)
+                    await _hub.Clients.Clients(connections).SendAsync("Server:UpdateProgress", server.Id, e.Progress);
+            }
         }
 
         public async void ServerInserted(IInsertedEntry<Server> server)
@@ -166,6 +213,26 @@ namespace OpenGameMonitorWeb.Listeners
             var serverToSend = _mapper.Map<DTOServer>(server);
             if (connections.Length > 0)
                 await _hub.Clients.Clients(connections).SendAsync("Server:Updated", serverToSend);
+        }
+
+        public async Task NotifyServerUpdated(int serverId, string[] connections)
+        {
+            using (var scope = _serviceProvider.CreateScope())
+            using (var db = scope.ServiceProvider.GetRequiredService<MonitorDBContext>())
+            {
+                var server = await db.Servers
+                    .Include(s => s.Owner)
+                    .Include(s => s.Group)
+                    .Include(s => s.Game)
+                    .FirstAsync(s => s.Id == serverId);
+
+                if (connections == null)
+                    connections = await GetDefaultConnections(server);
+
+                var serverToSend = _mapper.Map<DTOServer>(server);
+                if (connections.Length > 0)
+                    await _hub.Clients.Clients(connections).SendAsync("Server:Updated", serverToSend);
+            }
         }
 
         public async Task NotifyServerDeleted(Server server, string[] connections)

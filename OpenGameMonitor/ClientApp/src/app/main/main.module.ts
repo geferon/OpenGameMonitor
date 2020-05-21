@@ -1,30 +1,33 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes, Route } from '@angular/router';
+import { PermissionGuard } from '../utils/permission.guard';
 // import { HomeComponent } from './home/home.component';
 
 export interface RouteItem extends Route {
-	title?: string;
 	main?: boolean;
 	// children?: RouteItem[];
 }
 
 export const appRoutes: RouteItem[] = [
 	{
-		title: 'Home',
 		path: 'home',
-		// component: HomeComponent,
 		loadChildren: () => import('./home/home.module').then(mod => mod.HomeModule),
 		main: true
 	},
 	{
-		title: 'Servers',
 		path: 'servers',
 		loadChildren: () => import('./servers/servers.module').then(mod => mod.ServersModule)
 	},
 	{
-		path: 'server-details',
-		loadChildren: () => import('./server-details/server-details.module').then(mod => mod.ServerDetailsModule)
-	}
+		path: 'settings',
+		loadChildren: () => import('./settings/settings.module').then(mod => mod.SettingsModule),
+		canActivate: [PermissionGuard],
+		data: { permissions: ["Settings.View"] }
+	},
+	// {
+	// 	path: 'server-details',
+	// 	loadChildren: () => import('./server-details/server-details.module').then(mod => mod.ServerDetailsModule)
+	// }
 ];
 
 // Sidebar items exporting

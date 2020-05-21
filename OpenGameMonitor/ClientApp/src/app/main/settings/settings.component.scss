@@ -1,0 +1,19 @@
+:host {
+	// width: 100%;
+	display: block;
+	padding: 24px;
+}
+
+p > mat-form-field {
+	width: 100%;
+}
+
+:host ::ng-deep .mat-tab-body-content {
+	padding: 0 12px;
+}
+
+
+p > mat-hint {
+	margin-top: 0.5416666667em;
+	font-size: 75%;
+}

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -66,15 +67,13 @@ namespace OpenGameMonitorLibraries
 			}
 		}
 
-		public static void TestConnection(this IHost host)
+		private static void InternalTestConnection(IServiceProvider services)
 		{
-			if (host == null) throw new ArgumentNullException(nameof(host));
-
-			ILoggerFactory loggerF = host.Services.GetService<ILoggerFactory>();
+			ILoggerFactory loggerF = services.GetService<ILoggerFactory>();
 
 			ILogger logger = loggerF.CreateLogger("Program");
 
-			IServiceScopeFactory serviceScopeFactory = host.Services.GetService<IServiceScopeFactory>();
+			IServiceScopeFactory serviceScopeFactory = services.GetService<IServiceScopeFactory>();
 
 			using (var scope = serviceScopeFactory.CreateScope())
 			{
@@ -103,40 +102,87 @@ namespace OpenGameMonitorLibraries
 			}
 		}
 
+		public static void TestConnection(this IHost host)
+		{
+			if (host == null) throw new ArgumentNullException(nameof(host));
+
+			InternalTestConnection(host.Services);
+		}
+
 		public static void TestConnection(this IWebHost host)
 		{
 			if (host == null) throw new ArgumentNullException(nameof(host));
 
-			ILoggerFactory loggerF = host.Services.GetService<ILoggerFactory>();
+			InternalTestConnection(host.Services);
+		}
 
-			ILogger logger = loggerF.CreateLogger("Program");
-
-			IServiceScopeFactory serviceScopeFactory = host.Services.GetService<IServiceScopeFactory>();
+		private static void InternalCheckForUpdate(IServiceProvider services)
+		{
+			IServiceScopeFactory serviceScopeFactory = services.GetService<IServiceScopeFactory>();
 
 			using (var scope = serviceScopeFactory.CreateScope())
 			{
 				MonitorDBContext db = scope.ServiceProvider.GetRequiredService<MonitorDBContext>();
 
-				try
-				{
-					if (!db.Database.CanConnect())
-					{
-						logger.LogError("The database connection settings is invalid, or the server can't connect to the database.");
-						Environment.Exit(-1);
-					}
-				}
-				catch (Exception err)
-				{
-					if (err is MySqlException || err is InvalidOperationException)
-					{
-						string errorText = "The database connection settings is invalid, or the server can't connect to the database.\nError: {0}\nStack trace: {1}";
-						logger.LogError(err, string.Format(errorText, err.Message, err.StackTrace));
+				bool shouldMigrateDatabase = db.Database.GetPendingMigrations().Any();
 
+				ILoggerFactory loggerF = services.GetService<ILoggerFactory>();
+				ILogger logger = loggerF.CreateLogger("Program");
+
+
+				if (shouldMigrateDatabase)
+				{
+					logger.LogInformation("Version out of date or old, performing updating!");
+
+					try
+					{
+						db.Database.Migrate();
+					}
+					catch (Exception err)
+					{
+						logger.LogError(err, "There has been an error while performing the Database upgrade! Err: {0}", err.Message);
 						Environment.Exit(-1);
 						return;
 					}
-					throw;
 				}
+
+				// Write the version file
+				string[] data = new string[]
+				{
+					MonitorConfig.Version.ToString(CultureInfo.InvariantCulture)
+				};
+
+				File.WriteAllLines("application.dat", data);
+
+
+				if (shouldMigrateDatabase)
+				{
+					// After the upgrade, restart
+					logger.LogInformation("Application upgraded succesfully!");
+					//host.Services.GetService<Microsoft.AspNetCore.Hosting.IApplicationLifetime>().StopApplication();
+					ReloadInternalConfigAfterUpgrade(services);
+				}
+			}
+		}
+
+		private static void ReloadInternalConfigAfterUpgrade(IServiceProvider services)
+		{
+			HostBuilderContext hostBuilderContext = services.GetService<HostBuilderContext>();
+
+			IConfigurationRoot rootCfg = (IConfigurationRoot) hostBuilderContext.Configuration;
+			MonitorDBConfigurationProvider dbProv = null;
+			foreach (IConfigurationProvider provider in rootCfg.Providers)
+			{
+				if (provider is MonitorDBConfigurationProvider)
+				{
+					dbProv = (MonitorDBConfigurationProvider)provider;
+					break;
+				}
+			}
+
+			if (dbProv != null)
+			{
+				dbProv.ForceReload();
 			}
 		}
 
@@ -144,155 +190,91 @@ namespace OpenGameMonitorLibraries
 		{
 			if (host == null) throw new ArgumentNullException(nameof(host));
 
-			/*
-			// Migrate by default on development
-#if DEBUG
-			bool shouldMigrateDatabase = true;
-#else
-			bool shouldMigrateDatabase = false;
-#endif
-			// */
-			IServiceScopeFactory serviceScopeFactory = host.Services.GetService<IServiceScopeFactory>();
-
-			using (var scope = serviceScopeFactory.CreateScope())
-			{
-				MonitorDBContext db = scope.ServiceProvider.GetRequiredService<MonitorDBContext>();
-
-				bool shouldMigrateDatabase = db.Database.GetPendingMigrations().Any();
-
-				ILoggerFactory loggerF = host.Services.GetService<ILoggerFactory>();
-				ILogger logger = loggerF.CreateLogger("Program");
-
-				// Might not need this anymore after above
-				/*
-				if (!shouldMigrateDatabase)
-				{
-					try
-					{
-						var appData = File.ReadLines("application.dat").ToList();
-						int oldVer = Convert.ToInt32(appData[0], CultureInfo.InvariantCulture);
-
-						if (oldVer < MonitorConfig.Version)
-						{
-							shouldMigrateDatabase = true;
-						}
-					}
-					catch
-					{
-						shouldMigrateDatabase = true;
-					}
-				}
-				*/
-
-				if (shouldMigrateDatabase)
-				{
-					logger.LogInformation("Version out of date or old, performing updating!");
-
-					try
-					{
-						db.Database.Migrate();
-					}
-					catch (Exception err)
-					{
-						logger.LogError(err, "There has been an error while performing the Database upgrade! Err: {0}", err.Message);
-						Environment.Exit(-1);
-						return;
-					}
-				}
-
-				// Write the version file
-				string[] data = new string[]
-				{
-					MonitorConfig.Version.ToString(CultureInfo.InvariantCulture)
-				};
-
-				File.WriteAllLines("application.dat", data);
-
-
-				if (shouldMigrateDatabase)
-				{
-					// After the upgrade, restart
-					logger.LogInformation("Application upgraded succesfully! Restarting...");
-					host.Services.GetService<Microsoft.Extensions.Hosting.IApplicationLifetime>().StopApplication();
-				}
-			}
+			InternalCheckForUpdate(host.Services);
 		}
 
 		public static void CheckForUpdate(this IWebHost host)
 		{
 			if (host == null) throw new ArgumentNullException(nameof(host));
 
-			/*
-			// Migrate by default on development
-	##if DEBUG
-			bool shouldMigrateDatabase = true;
-	##else
-			bool shouldMigrateDatabase = false;
-	##endif
-			// */
-			IServiceScopeFactory serviceScopeFactory = host.Services.GetService<IServiceScopeFactory>();
+			InternalCheckForUpdate(host.Services);
+		}
 
-			using (var scope = serviceScopeFactory.CreateScope())
+		public static async Task<T> WithCancellation<T>(this Task<T> task, CancellationToken cancellationToken)
+		{
+			var tcs = new TaskCompletionSource<bool>();
+			using (cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).TrySetResult(true), tcs))
 			{
-				MonitorDBContext db = scope.ServiceProvider.GetRequiredService<MonitorDBContext>();
-
-				bool shouldMigrateDatabase = db.Database.GetPendingMigrations().Any();
-
-				ILoggerFactory loggerF = host.Services.GetService<ILoggerFactory>();
-				ILogger logger = loggerF.CreateLogger("Program");
-
-				// Might not need this anymore after above
-				/*
-				if (!shouldMigrateDatabase)
+				if (task != await Task.WhenAny(task, tcs.Task).ConfigureAwait(false))
 				{
-					try
-					{
-						var appData = File.ReadLines("application.dat").ToList();
-						int oldVer = Convert.ToInt32(appData[0], CultureInfo.InvariantCulture);
-
-						if (oldVer < MonitorConfig.Version)
-						{
-							shouldMigrateDatabase = true;
-						}
-					}
-					catch
-					{
-						shouldMigrateDatabase = true;
-					}
+					cancellationToken.ThrowIfCancellationRequested();
 				}
-				*/
+			}
 
-				if (shouldMigrateDatabase)
+			// Rethrow any fault/cancellation exception, even if we awaited above.
+			// But if we skipped the above if branch, this will actually yield
+			// on an incompleted task.
+			return await task.ConfigureAwait(false);
+		}
+
+		public static void MoveLinesFromStringBuilderToMessageQueue(ref int currentLinePos, ref bool bLastCarriageReturn, StringBuilder sb, Action<string?> callback)
+		{
+			int currentIndex = currentLinePos;
+			int lineStart = 0;
+			int len = sb!.Length;
+
+			// skip a beginning '\n' character of new block if last block ended
+			// with '\r'
+			if (bLastCarriageReturn && (len > 0) && sb[0] == '\n')
+			{
+				currentIndex = 1;
+				lineStart = 1;
+				bLastCarriageReturn = false;
+			}
+
+			while (currentIndex < len)
+			{
+				char ch = sb[currentIndex];
+				// Note the following common line feed chars:
+				// \n - UNIX   \r\n - DOS   \r - Mac
+				if (ch == '\r' || ch == '\n')
 				{
-					logger.LogInformation("Version out of date or old, performing updating!");
-
-					try
+					string line = sb.ToString(lineStart, currentIndex - lineStart);
+					lineStart = currentIndex + 1;
+					// skip the "\n" character following "\r" character
+					if ((ch == '\r') && (lineStart < len) && (sb[lineStart] == '\n'))
 					{
-						db.Database.Migrate();
+						lineStart++;
+						currentIndex++;
 					}
-					catch (Exception err)
-					{
-						logger.LogError(err, "There has been an error while performing the Database upgrade! Err: {0}", err.Message);
-						Environment.Exit(-1);
-						return;
-					}
+
+					callback(line);
 				}
-
-				// Write the version file
-				string[] data = new string[]
+				currentIndex++;
+			}
+			if ((len > 0) && sb[len - 1] == '\r')
+			{
+				bLastCarriageReturn = true;
+			}
+			// Keep the rest characters which can't form a new line in string builder.
+			if (lineStart < len)
+			{
+				if (lineStart == 0)
 				{
-					MonitorConfig.Version.ToString(CultureInfo.InvariantCulture)
-				};
-
-				File.WriteAllLines("application.dat", data);
-
-
-				if (shouldMigrateDatabase)
-				{
-					// After the upgrade, restart
-					logger.LogInformation("Application upgraded succesfully! Restarting...");
-					host.Services.GetService<Microsoft.AspNetCore.Hosting.IApplicationLifetime>().StopApplication();
+					// we found no breaklines, in this case we cache the position
+					// so next time we don't have to restart from the beginning
+					currentLinePos = currentIndex;
 				}
+				else
+				{
+					sb.Remove(0, lineStart);
+					currentLinePos = 0;
+				}
+			}
+			else
+			{
+				sb.Length = 0;
+				currentLinePos = 0;
 			}
 		}
 	}

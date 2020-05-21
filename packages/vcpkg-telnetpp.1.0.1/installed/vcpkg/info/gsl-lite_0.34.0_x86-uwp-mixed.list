@@ -1,0 +1,7 @@
+x86-uwp-mixed/
+x86-uwp-mixed/include/
+x86-uwp-mixed/include/gsl-lite.hpp
+x86-uwp-mixed/share/
+x86-uwp-mixed/share/gsl-lite/
+x86-uwp-mixed/share/gsl-lite/copyright
+x86-uwp-mixed/share/gsl-lite/vcpkg_abi_info.txt

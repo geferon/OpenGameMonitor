@@ -6,8 +6,6 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
-import { CounterComponent } from './main/counter/counter.component';
-import { FetchDataComponent } from './main/fetch-data/fetch-data.component';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { LayoutModule } from '@angular/cdk/layout';
@@ -22,10 +20,7 @@ import { DialogsModule } from './main/dialogs/dialogs.module';
 	declarations: [
 		AppComponent,
 
-		NavMenuComponent,
-
-		CounterComponent,
-		FetchDataComponent
+		NavMenuComponent
 	],
 	imports: [
 		BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),

@@ -15,6 +15,15 @@ mat-sidenav-content.content {
 	width: 100%;
 }
 
+a.sidebar-nav-link {
+	transition: background 0.3s ease, font-weight 0.3s ease;
+
+	&.active {
+		// color: #673AB7;
+		background: rgba(0, 0, 0, 0.1);
+		font-weight: bold !important;
+	}
+}
 
 // .mat-toolbar.mat-primary {
 // 	position: sticky;

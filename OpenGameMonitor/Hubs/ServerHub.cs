@@ -19,6 +19,7 @@ namespace OpenGameMonitorWeb.Hubs
         {
             _connectionManager = connectionManager;
             _serviceProvider = serviceProvider;
+            _authorizationService = authorizationService;
         }
 
         public override async Task OnConnectedAsync()
@@ -58,6 +59,12 @@ namespace OpenGameMonitorWeb.Hubs
                 }
 
                 foundServer = server;
+            }
+
+            // If the user has a server active, we remove it
+            if (Context.Items.ContainsKey("ActiveServer"))
+            {
+                await this.StopListenServerConsole();
             }
 
             var authResult = await _authorizationService.AuthorizeAsync(Context.User, foundServer, "ServerPolicy");

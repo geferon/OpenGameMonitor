@@ -41,3 +41,28 @@ tr, td {
 		}
 	}
 }
+
+.server-status {
+	.status-started {
+		color: #64dd17;
+	}
+
+	.status-stopped {
+		color: #f44336;
+	}
+
+	.status-updating {
+		color: #304ffe;
+	}
+
+
+	mat-spinner {
+		// width: 24px !important;
+		// height: 24px !important;
+		margin: 8px;
+
+		&.server-updating {
+			cursor: pointer;
+		}
+	}
+}

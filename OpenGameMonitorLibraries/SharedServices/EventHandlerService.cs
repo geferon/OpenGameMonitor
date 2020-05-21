@@ -5,48 +5,48 @@ using System.Text;
 
 namespace OpenGameMonitorLibraries
 {
-    public static class EventMockupHandlerBase
-    {
-        public static EventHandler Subscribe(this EventHandler kHandler, EventMockupHandler kElement)
-        {
-            kHandler += kElement.Listener;
-            return kHandler;
-        }
-    }
+	public static class EventMockupHandlerBase
+	{
+		public static EventHandler Subscribe(this EventHandler kHandler, EventMockupHandler kElement)
+		{
+			kHandler += kElement.Listener;
+			return kHandler;
+		}
+	}
 
-    public class EventMockupHandler
-    {
-        public event EventHandler InternalEvent;
+	public class EventMockupHandler
+	{
+		public event EventHandler InternalEvent;
 
-        public void Listener(object sender, EventArgs e)
-        {
-            InternalEvent?.Invoke(sender, e);
-        }
+		public void Listener(object sender, EventArgs e)
+		{
+			InternalEvent?.Invoke(sender, e);
+		}
 
-        public static EventMockupHandler operator +(EventHandler kHandler, EventMockupHandler kElement)
-        {
-            kHandler += kElement.Listener;
-            return kElement;
-        }
+		public static EventMockupHandler operator +(EventHandler kHandler, EventMockupHandler kElement)
+		{
+			kHandler += kElement.Listener;
+			return kElement;
+		}
 
-        public static EventMockupHandler operator -(EventHandler kHandler, EventMockupHandler kElement)
-        {
-            kHandler -= kElement.Listener;
-            return kElement;
-        }
+		public static EventMockupHandler operator -(EventHandler kHandler, EventMockupHandler kElement)
+		{
+			kHandler -= kElement.Listener;
+			return kElement;
+		}
 
-        public static EventMockupHandler operator +(EventMockupHandler kElement, EventHandler kHandler)
-        {
-            kElement.InternalEvent += kHandler;
-            return kElement;
-        }
-        
-        public static EventMockupHandler operator -(EventMockupHandler kElement, EventHandler kHandler)
-        {
-            kElement.InternalEvent -= kHandler;
-            return kElement;
-        }
-    }
+		public static EventMockupHandler operator +(EventMockupHandler kElement, EventHandler kHandler)
+		{
+			kElement.InternalEvent += kHandler;
+			return kElement;
+		}
+		
+		public static EventMockupHandler operator -(EventMockupHandler kElement, EventHandler kHandler)
+		{
+			kElement.InternalEvent -= kHandler;
+			return kElement;
+		}
+	}
 
 	public class EventHandlerService
 	{
@@ -59,7 +59,7 @@ namespace OpenGameMonitorLibraries
 			_logger = logger;
 		}
 
-        /*
+		/*
 		public void RegisterHandler(string key, EventHandler handler)
 		{
 			eventHandlers.Add(key, handler);
@@ -72,37 +72,37 @@ namespace OpenGameMonitorLibraries
 				}
 			}
 		}
-        */
+		*/
 
-        public void RegisterHandler(string key, Action<EventMockupHandler> handler)
-        {
-            if (handler == null)
-                throw new ArgumentNullException(nameof(handler));
-
-            //eventHandlers.Add(key, handler);
-            if (!eventHandlers.ContainsKey(key))
-            {
-                eventHandlers.Add(key, new EventMockupHandler());
-            }
-
-            var mainHandler = eventHandlers[key];
-
-            handler(mainHandler);
-
-            if (eventListeners.ContainsKey(key))
-            {
-                foreach (EventHandler evHandler in eventListeners[key])
-                {
-                    mainHandler += evHandler;
-                }
-            }
-        }
-
-        public EventMockupHandler GetEvent(string key)
+		public void RegisterHandler(string key, Action<EventMockupHandler> handler)
 		{
-            eventHandlers.TryGetValue(key, out EventMockupHandler handler);
+			if (handler == null)
+				throw new ArgumentNullException(nameof(handler));
 
-            if (handler == null)
+			//eventHandlers.Add(key, handler);
+			if (!eventHandlers.ContainsKey(key))
+			{
+				eventHandlers.Add(key, new EventMockupHandler());
+			}
+
+			var mainHandler = eventHandlers[key];
+
+			handler(mainHandler);
+
+			if (eventListeners.ContainsKey(key))
+			{
+				foreach (EventHandler evHandler in eventListeners[key])
+				{
+					mainHandler += evHandler;
+				}
+			}
+		}
+
+		public EventMockupHandler GetEvent(string key)
+		{
+			eventHandlers.TryGetValue(key, out EventMockupHandler handler);
+
+			if (handler == null)
 			{
 				throw new Exception($"No event found with key {key}");
 			}

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace OpenGameMonitorLibraries
@@ -9,9 +10,12 @@ namespace OpenGameMonitorLibraries
         public static int Version = 1;
         public static string VersionString = "1.0";
 
-        public string MySQLHost { get; set; }
-        public string MySQLPort { get; set; }
-        public string MySQLUser { get; set; }
-        public string MySQLPassword { get; set; }
+        public static Dictionary<string, object> DefaultConfig = new Dictionary<string, object>()
+        {
+            { "DefaultInstallDir", RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "C:/Servers/" : "/opt/servers/" },
+            //{ "InstallSeparateGameDirs", true }, // Replaced by DefaultServerDir
+            { "DefaultServerDir", "{GameID}/{ServerID}" }
+            //{ "", true }
+        };
     }
 }

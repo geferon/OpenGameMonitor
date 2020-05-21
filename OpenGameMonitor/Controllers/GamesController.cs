@@ -46,7 +46,7 @@ namespace OpenGameMonitorWeb.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
-        [Authorize(Policy = "ServerModify")]
+        [Authorize(Policy = "ServerModifyAll")]
         public async Task<IActionResult> PutGame(string id, Game game)
         {
             if (id != game.Id)
@@ -79,7 +79,7 @@ namespace OpenGameMonitorWeb.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        [Authorize(Policy = "ServerModify")]
+        [Authorize(Policy = "ServerModifyAll")]
         public async Task<ActionResult<Game>> PostGame(Game game)
         {
             _context.Games.Add(game);
@@ -104,7 +104,7 @@ namespace OpenGameMonitorWeb.Controllers
 
         // DELETE: api/Games/5
         [HttpDelete("{id}")]
-        [Authorize(Policy = "ServerModify")]
+        [Authorize(Policy = "ServerModifyAll")]
         public async Task<ActionResult<Game>> DeleteGame(string id)
         {
             var game = await _context.Games.FindAsync(id);

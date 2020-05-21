@@ -4,7 +4,7 @@ import { Observable, Subject, BehaviorSubject } from 'rxjs';
 import { Server, Game } from '../definitions/interfaces';
 import { APIPaths } from './services.constants';
 import { SignalRService } from './signal-r.service';
-import { share, finalize } from 'rxjs/operators';
+import { share, finalize, map } from 'rxjs/operators';
 
 @Injectable({
 	providedIn: 'root'
@@ -57,7 +57,7 @@ export class ServerService {
 
 					console.log("WS - Server deleted!", serverId, index);
 
-					if (index > 0) {
+					if (index >= 0) {
 						currentServers.splice(index, 1);
 
 						subject.next(currentServers);
@@ -75,6 +75,39 @@ export class ServerService {
 		);
 
 		return subject.asObservable();
+	}
+
+	// Sub parts
+	unsubscribeFromServers(): Observable<any> {
+		return this.signalR.sendEvent("StopListenServerConsole");
+	}
+
+	subscribeToServer(server: Server | number): Observable<any> {
+		const id = typeof server === 'number' ? server : server.Id;
+		return this.signalR.sendEvent("ListenServerConsole", id);
+	}
+
+	// Gets
+	getServerUpdated(): Observable<Server> {
+		return this.signalR.listenToEvent("Server:Updated").pipe(map(([server]: [Server]) => server));
+	}
+	getServerInserted(): Observable<Server> {
+		return this.signalR.listenToEvent("Server:Inserted").pipe(map(([server]: [Server]) => server));
+	}
+	getServerDeleted(): Observable<number> {
+		return this.signalR.listenToEvent("Server:Deleted").pipe(map(([serverId]: [number]) => serverId));
+	}
+
+	getServersConsoleMessages(): Observable<any> {
+		return this.signalR.listenToEvent("Server:ConsoleMessage");
+	}
+
+	getServersUpdateMessages(): Observable<any> {
+		return this.signalR.listenToEvent("Server:UpdateMessage");
+	}
+
+	getServersUpdateProgress(): Observable<any> {
+		return this.signalR.listenToEvent("Server:UpdateProgress");
 	}
 
 	getServer(id: number): Observable<Server> {
@@ -96,6 +129,25 @@ export class ServerService {
 		const id = typeof server === 'number' ? server : server.Id;
 
 		return this.http.delete<Server>(`${APIPaths.Servers}/${id}`, this.httpOptions);
+	}
+
+	// Do action
+	startServer(server: Server | number): Observable<any> {
+		const id = typeof server === 'number' ? server : server.Id;
+
+		return this.http.post<boolean>(`${APIPaths.Servers}/${id}/start`, this.httpOptions);
+	}
+
+	stopServer(server: Server | number): Observable<any> {
+		const id = typeof server === 'number' ? server : server.Id;
+
+		return this.http.post<boolean>(`${APIPaths.Servers}/${id}/stop`, this.httpOptions);
+	}
+
+	startServerUpdate(server: Server | number): Observable<any> {
+		const id = typeof server === 'number' ? server : server.Id;
+
+		return this.http.post<boolean>(`${APIPaths.Servers}/${id}/update`, this.httpOptions);
 	}
 
 

@@ -220,4 +220,22 @@ export class AuthorizeService {
 			catchError((err, caught) => of(this.error(err)))
 		);
 	}
+
+	public getUserPermissions(): Observable<string> {
+		return concat(
+			this.userSubject.pipe(take(1), filter(u => !!u)),
+			this.getUserFromStorage().pipe(filter(u => !!u), tap(u => this.userSubject.next(u))),
+			this.userSubject.asObservable()
+			)
+			.pipe(
+				map(u => u['Permission'] && u['Permission'])
+			);
+	}
+
+	public hasUserPermission(permission: string): Observable<boolean> {
+		return this.getUserPermissions()
+			.pipe(
+				map(perms => perms.includes(permission))
+			);
+	}
 }

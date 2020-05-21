@@ -13,6 +13,13 @@ export enum ProcessPriorityClass {
 	AboveNormal = 32768
 }
 
+export enum ProcessStatus {
+	Stopped = 1,
+	Started = 2,
+	//Starting = 3,
+	Updating = 4
+}
+
 export class ServerEnvironmentVariable {
 	Key: string;
 	Value: string;
@@ -34,6 +41,7 @@ export class Server implements Trackable {
 	StartParamsHidden?: string;
 	StartParamsModifyAllowed: boolean = true;
 	ProcessPriority: ProcessPriorityClass = ProcessPriorityClass.Normal;
+	ProcessStatus: ProcessStatus = ProcessStatus.Stopped;
 	EnvironmentVariables: ServerEnvironmentVariable[] = [];
 
 	IP?: string;

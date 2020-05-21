@@ -1,0 +1,10 @@
+x86-uwp-mixed/
+x86-uwp-mixed/include/
+x86-uwp-mixed/include/boost/
+x86-uwp-mixed/include/boost/exception/
+x86-uwp-mixed/include/boost/exception/exception.hpp
+x86-uwp-mixed/include/boost/throw_exception.hpp
+x86-uwp-mixed/share/
+x86-uwp-mixed/share/boost-throw-exception/
+x86-uwp-mixed/share/boost-throw-exception/copyright
+x86-uwp-mixed/share/boost-throw-exception/vcpkg_abi_info.txt

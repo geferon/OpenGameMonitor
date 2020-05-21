@@ -1,0 +1,14 @@
+arm64-uwp-mixed/
+arm64-uwp-mixed/debug/
+arm64-uwp-mixed/debug/lib/
+arm64-uwp-mixed/debug/lib/zlibd.lib
+arm64-uwp-mixed/include/
+arm64-uwp-mixed/include/zconf.h
+arm64-uwp-mixed/include/zlib.h
+arm64-uwp-mixed/lib/
+arm64-uwp-mixed/lib/zlib.lib
+arm64-uwp-mixed/share/
+arm64-uwp-mixed/share/zlib/
+arm64-uwp-mixed/share/zlib/copyright
+arm64-uwp-mixed/share/zlib/usage
+arm64-uwp-mixed/share/zlib/vcpkg_abi_info.txt

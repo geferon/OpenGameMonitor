@@ -1,9 +1,12 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenGameMonitorLibraries;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
@@ -21,6 +24,20 @@ namespace OpenGameMonitorWorker.Handlers
 		public string NewLine { get; set; }
 		public bool IsError { get; set; } = false;
 	}
+	public class ServerUpdateProgressEventArgs : EventArgs
+	{
+		public float Progress { get; set; } // From 0 to 100
+	}
+	public class ServerParameters
+	{
+		public string GameID { get; set; }
+		public string GameName { get; set; }
+		public uint? GameSteamID { get; set; }
+		public int ServerID { get; set; }
+		public string ServerName { get; set; }
+		public string ServerIP { get; set; }
+		public int ServerPort { get; set; }
+	}
 	public interface IGameHandlerBase
 	{
 		string Engine { get; }
@@ -29,6 +46,7 @@ namespace OpenGameMonitorWorker.Handlers
 		Task InitServer(Server server);
 		Task<bool> CheckUpdate(Server server);
 		Task<bool> UpdateServer(Server server);
+		Task<bool> InitialInstall(Server server);
 		Task<bool> IsOpen(Server server);
 		Task CloseServer(Server server);
 		Task OpenServer(Server server);
@@ -38,9 +56,48 @@ namespace OpenGameMonitorWorker.Handlers
 
 		event EventHandler<ConsoleEventArgs> ConsoleMessage;
 		event EventHandler<ConsoleEventArgs> UpdateMessage;
+		event EventHandler<ServerUpdateProgressEventArgs> UpdateProgress;
 		event EventHandler ServerClosed;
 		event EventHandler ServerOpened;
+		event EventHandler ServerUpdateStart;
 		event EventHandler<ServerUpdateEventArgs> ServerUpdated;
+
+		private string getLocalIP()
+		{
+			var hostname = Dns.GetHostName();
+			var ipEntry = Dns.GetHostEntry(hostname);
+			var addr = ipEntry.AddressList;
+			return addr.First().ToString();
+		}
+
+		ServerParameters GetParameters(Server server)
+		{
+			return new ServerParameters()
+			{
+				GameID = server.Game.Id,
+				GameName = server.Game.Name,
+				GameSteamID = server.Game.SteamID,
+				ServerID = server.Id,
+				ServerName = server.Name,
+				ServerIP = server?.IP ?? getLocalIP(),
+				ServerPort = server.Port
+			};
+		}
+
+		List<string> ServerStartParameters(Server server)
+		{
+			var parms = GetParameters(server);
+			List<string> startParameters = new List<string>();
+			if (!String.IsNullOrWhiteSpace(server.StartParamsHidden)) startParameters.Add(SmartFormat.Smart.Format(server.StartParamsHidden, parms));
+			if (!String.IsNullOrWhiteSpace(server.StartParams)) startParameters.Add(SmartFormat.Smart.Format(server.StartParams, parms));
+
+			return startParameters;
+		}
+
+		string ServerStartParametersFormed(Server server)
+		{
+			return String.Join(" ", ServerStartParameters(server));
+		}
 	}
 
 	public class GameHandler
@@ -93,6 +150,9 @@ namespace OpenGameMonitorWorker.Handlers
 			{
 				List<Server> servers = db.Servers
 					.Where(r => r.PID != null && r.PID != default)
+					.Include(s => s.Game)
+					.Include(s => s.Owner)
+					.Include(s => s.Group)
 					.ToList();
 
 
@@ -101,6 +161,26 @@ namespace OpenGameMonitorWorker.Handlers
 					IGameHandlerBase handler = GetServerHandler(server);
 					handler.InitServer(server);
 				}
+
+				// Check updates
+				List<Server> serversUpdates = db.Servers
+					.Where(r => r.UpdatePID != null && r.UpdatePID != default)
+					.Include(s => s.Game)
+					.Include(s => s.Owner)
+					.Include(s => s.Group)
+					.ToList();
+
+				// TODO: Attach it if it exists (for events and such)!
+				foreach (Server server in serversUpdates)
+				{
+					
+					if (!Process.GetProcesses().Any(x => x.Id == server.UpdatePID))
+					{
+						server.UpdatePID = null;
+					}
+				}
+
+				db.SaveChanges();
 			}
 		}
 
@@ -125,8 +205,11 @@ namespace OpenGameMonitorWorker.Handlers
 			// Small quirk, will try to change on later updates...
 			_eventHandlerService.RegisterHandler("Server:ConsoleMessage", (handler) => gameHandler.ConsoleMessage += handler.Listener);
 			_eventHandlerService.RegisterHandler("Server:UpdateMessage", (handler) => gameHandler.UpdateMessage += handler.Listener);
+			_eventHandlerService.RegisterHandler("Server:UpdateProgress", (handler) => gameHandler.UpdateProgress += handler.Listener);
 			_eventHandlerService.RegisterHandler("Server:Closed", (handler) => gameHandler.ServerClosed += handler.Listener);
 			_eventHandlerService.RegisterHandler("Server:Opened", (handler) => gameHandler.ServerOpened += handler.Listener);
+			_eventHandlerService.RegisterHandler("Server:UpdateStart", (handler) => gameHandler.ServerUpdateStart += handler.Listener);
+			_eventHandlerService.RegisterHandler("Server:Updated", (handler) => gameHandler.ServerUpdated += handler.Listener);
 
 
 			_logger.LogInformation("Registered game handler {0}", identifier);
@@ -151,6 +234,18 @@ namespace OpenGameMonitorWorker.Handlers
 				throw new Exception($"Engine {engine} doesn't have a proper handler!");
 
 			return handler;
+		}
+
+		public async Task InstallServer(Server server)
+		{
+			IGameHandlerBase handler = GetServerHandler(server);
+
+			if (!String.IsNullOrEmpty(server.Path) && File.Exists(server.Path))
+			{
+				throw new Exception("Can't install the server, it already has been installed!");
+			}
+
+			await handler.InitialInstall(server);
 		}
 
 		public async Task UpdateServer(Server server)
