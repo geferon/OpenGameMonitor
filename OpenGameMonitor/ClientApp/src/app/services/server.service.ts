@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, Subject, BehaviorSubject } from 'rxjs';
-import { Server, Game } from '../definitions/interfaces';
+import { Server, Game, ServerResourceMonitoringRegistry } from '../definitions/interfaces';
 import { APIPaths } from './services.constants';
 import { SignalRService } from './signal-r.service';
 import { share, finalize, map } from 'rxjs/operators';
@@ -110,8 +110,17 @@ export class ServerService {
 		return this.signalR.listenToEvent("Server:UpdateProgress");
 	}
 
+	getServersRecordsAdded(): Observable<any> {
+		return this.signalR.listenToEvent("Server:RecordAdded");
+	}
+
 	getServer(id: number): Observable<Server> {
 		return this.http.get<Server>(`${APIPaths.Servers}/${id}`);
+	}
+
+	getServersResourceMonitoringRegistries(server: Server | number, page?: number): Observable<ServerResourceMonitoringRegistry[]> {
+		const id = typeof server === 'number' ? server : server.Id;
+		return this.http.get<ServerResourceMonitoringRegistry[]>(`${APIPaths.Servers}/${id}/tracking` + (page ? `/${page}` : ''));
 	}
 
 	// Insert

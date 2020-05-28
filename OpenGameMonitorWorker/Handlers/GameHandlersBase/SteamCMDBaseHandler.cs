@@ -394,8 +394,8 @@ namespace OpenGameMonitorWorker.Handlers
 		public abstract Task OpenServer(Server server);
 		public abstract Task<bool> IsOpen(Server server);
 		public abstract Task InitServer(Server server);
-		public abstract Task<ServerInformation> GetServerInfo(Server server);
-		public abstract Task<ServerQueryPlayer[]> GetServerPlayers(Server server);
+		public abstract Task<ServerInformation> GetServerInfo(Server server, System.Threading.CancellationToken? token);
+		public abstract Task<ServerQueryPlayer[]> GetServerPlayers(Server server, System.Threading.CancellationToken? token);
 	}
 }
 

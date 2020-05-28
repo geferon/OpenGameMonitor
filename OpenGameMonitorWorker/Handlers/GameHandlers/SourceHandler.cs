@@ -353,11 +353,18 @@ namespace OpenGameMonitorWorker.Handlers
 			//ServerClosed?.Invoke(server, new EventArgs());
 		}
 
-		public override async Task<ServerInformation> GetServerInfo(Server server)
+		public override async Task<ServerInformation> GetServerInfo(Server server, System.Threading.CancellationToken? token)
 		{
 			var endpoint = GetServerEndpoint(server);
 
-			var info = await ServerQuery.Info(endpoint, ServerQuery.ServerType.Source) as SourceQueryInfo;
+			var infoTask = ServerQuery.Info(endpoint, ServerQuery.ServerType.Source);
+
+			if (token.HasValue)
+			{
+				infoTask = infoTask.WithCancellation(token.Value);
+			}
+
+			var info = await infoTask as SourceQueryInfo;
 
 			return new ServerInformation()
 			{
@@ -368,7 +375,7 @@ namespace OpenGameMonitorWorker.Handlers
 			};
 		}
 		
-		public override async Task<ServerQueryPlayer[]> GetServerPlayers(Server server)
+		public override async Task<ServerQueryPlayer[]> GetServerPlayers(Server server, System.Threading.CancellationToken? token)
 		{
 			var endpoint = GetServerEndpoint(server);
 

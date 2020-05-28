@@ -95,7 +95,7 @@ namespace OpenGameMonitorWeb.Controllers
 		// more details see https://aka.ms/RazorPagesCRUD.
 		[HttpPut("{id}")]
 		//[Authorize(Policy = "ServerPolicy")]
-		public async Task<IActionResult> PutServer(int id, DTOServer dtoserver)
+		public async Task<ActionResult> PutServer(int id, DTOServer dtoserver)
 		{
 			if (id != dtoserver.Id)
 			{
@@ -160,7 +160,7 @@ namespace OpenGameMonitorWeb.Controllers
 		[HttpPatch("{id}")]
 		//[Authorize(Policy = "ServerPolicy")]
 		[Authorize(Roles = "Admin")]
-		public async Task<IActionResult> PatchServer(int id, DTOServer dtoserver)
+		public async Task<ActionResult> PatchServer(int id, DTOServer dtoserver)
 		{
 			if (id != dtoserver.Id)
 			{
@@ -222,6 +222,38 @@ namespace OpenGameMonitorWeb.Controllers
 			}
 
 			return NoContent();
+		}
+
+		[HttpGet("{id}/tracking/{page=0}")]
+		public async Task<ActionResult<IEnumerable<ServerResourceMonitoringRegistry>>> GetServerTrackingRecords(int id, int page)
+		{
+			var server = await _context.Servers
+				.FirstOrDefaultAsync(s => s.Id == id);
+
+			if (server == null)
+			{
+				return NotFound();
+			}
+
+			var user = await _userManager.GetUserAsync(User);
+
+			var authResult = await _authorizationService.AuthorizeAsync(User, server, "ServersInteract");
+
+			if (!authResult.Succeeded)
+			{
+				return Forbid();
+			}
+
+			var recordsPerPage = 10;
+
+			var trackingRecords = _context.ServerResourceMonitoring
+				.Include(r => r.Server)
+				.Where(r => r.Server.Id == server.Id)
+				.OrderByDescending(r => r.TakenAt)
+				.Skip(recordsPerPage * page)
+				.Take(recordsPerPage);
+
+			return await trackingRecords.ToListAsync();
 		}
 
 		[HttpPost("{id}/{function}")]

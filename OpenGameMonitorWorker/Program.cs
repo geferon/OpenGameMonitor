@@ -143,6 +143,8 @@ namespace OpenGameMonitorWorker
 
                     services.AddHostedService<HostedFTPService>();
 
+                    services.AddHostedService<ServerTracker>();
+
                 });
                 /*
                 .ConfigureWebHostDefaults(webBuilder =>

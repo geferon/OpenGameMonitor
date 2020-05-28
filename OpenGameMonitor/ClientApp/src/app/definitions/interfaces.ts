@@ -108,3 +108,11 @@ export class Setting {
 	Value: any;
 }
 
+export class ServerResourceMonitoringRegistry {
+	Id: number;
+	Server: Server;
+	TakenAt: Date;
+	CPUUsage: number;
+	MemoryUsage: number;
+	ActivePlayers: number;
+}

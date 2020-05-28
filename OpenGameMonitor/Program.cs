@@ -34,14 +34,18 @@ namespace OpenGameMonitor
 				host.Services.CreateRoles().Wait();
 
 				//host.Run();
+#if !DEBUG
 				if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 				{
 					host.RunAsService();
 				}
 				else
 				{
+#endif
 					host.Run();
+#if !DEBUG
 				}
+#endif
 			}
 			catch (Exception err)
 			{

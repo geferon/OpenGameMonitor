@@ -23,6 +23,11 @@ import { MaterialModule } from '../../material.module';
 				path: ':id',
 				children: [
 					{
+						path: '',
+						pathMatch: 'full',
+						loadChildren: () => import('./server-info/server-info.module').then(m => m.ServerInfoModule)
+					},
+					{
 						path: 'details',
 						loadChildren: () => import('./server-details/server-details.module').then(m => m.ServerDetailsModule)
 					},

@@ -57,8 +57,8 @@ namespace OpenGameMonitorWorker.Handlers
 		Task CloseServer(Server server);
 		Task OpenServer(Server server);
 
-		Task<ServerInformation> GetServerInfo(Server server);
-		Task<ServerQueryPlayer[]> GetServerPlayers(Server server);
+		Task<ServerInformation> GetServerInfo(Server server, System.Threading.CancellationToken? token);
+		Task<ServerQueryPlayer[]> GetServerPlayers(Server server, System.Threading.CancellationToken? token);
 
 		event EventHandler<ConsoleEventArgs> ConsoleMessage;
 		event EventHandler<ConsoleEventArgs> UpdateMessage;
@@ -378,7 +378,7 @@ namespace OpenGameMonitorWorker.Handlers
 			await handler.OpenServer(server);
 		}
 
-		public async Task<ServerInformation> GetServerInfo(Server server)
+		public async Task<ServerInformation> GetServerInfo(Server server, System.Threading.CancellationToken? cancellationToken)
 		{
 			if (server == null)
 				throw new ArgumentNullException(nameof(server));
@@ -390,10 +390,10 @@ namespace OpenGameMonitorWorker.Handlers
 				throw new Exception("Can't get the status of a closed server");
 			}
 
-			return await handler.GetServerInfo(server);
+			return await handler.GetServerInfo(server, cancellationToken);
 		}
 
-		public async Task<ServerQueryPlayer[]> GetServerPlayers(Server server)
+		public async Task<ServerQueryPlayer[]> GetServerPlayers(Server server, System.Threading.CancellationToken? cancellationToken)
 		{
 			if (server == null)
 				throw new ArgumentNullException(nameof(server));
@@ -405,7 +405,7 @@ namespace OpenGameMonitorWorker.Handlers
 				throw new Exception("Can't get the status of a closed server");
 			}
 
-			return await handler.GetServerPlayers(server);
+			return await handler.GetServerPlayers(server, cancellationToken);
 		}
 
 		public async Task CloseServer(Server server)

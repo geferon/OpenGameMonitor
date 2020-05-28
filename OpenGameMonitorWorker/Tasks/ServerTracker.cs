@@ -30,32 +30,33 @@ namespace OpenGameMonitorWorker.Tasks
 
 	class ServerTracker : BackgroundService
 	{
-		private readonly ServiceProvider _serviceProvider;
+		private readonly ILogger<ServerTracker> _logger;
+		private readonly IServiceProvider _serviceProvider;
 		private readonly GameHandlerService _gameHandler;
 		private readonly EventHandlerService _eventHandler;
-		private readonly ILogger<ServerTracker> _logger;
 		private readonly Microsoft.Extensions.Configuration.IConfiguration _configuration;
 
 		private event EventHandler<ServerRecordsEventArgs> ServersMonitorRecorded;
 
 		public ServerTracker(
-			ServiceProvider serviceProvider,
+			ILogger<ServerTracker> logger,
+			IServiceProvider serviceProvider,
 			GameHandlerService gameHandler,
 			EventHandlerService eventHandler,
-			ILogger<ServerTracker> logger,
 			Microsoft.Extensions.Configuration.IConfiguration configuration
-		) {
+		)
+		{
+			_logger = logger;
 			_serviceProvider = serviceProvider;
 			_gameHandler = gameHandler;
 			_eventHandler = eventHandler;
-			_logger = logger;
 			_configuration = configuration;
-
-			_eventHandler.RegisterHandler("Monitor:ServersMonitorRecordAdded", (handler) => ServersMonitorRecorded += handler.Listener);
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
+			_eventHandler.RegisterHandler("Monitor:ServersMonitorRecordAdded", (handler) => ServersMonitorRecorded += handler.Listener);
+
 			while (!stoppingToken.IsCancellationRequested)
 			{
 				var timerSeconds = _configuration.GetValue<int>("MonitorSettings:TrackerTimer", 15);
@@ -75,17 +76,23 @@ namespace OpenGameMonitorWorker.Tasks
 				using (var db = scope.ServiceProvider.GetService<MonitorDBContext>())
 				{
 					var servers = db.Servers
-						.Where(s => s.ProcessStatus == ServerProcessStatus.Started);
+						.Include(s => s.Game)
+						.Include(s => s.Owner)
+						.Include(s => s.Group)
+						.Where(s => s.PID.HasValue);
 					//.ToListAsync();
 
 					List<ServerResourceMonitoringRegistry> monitoringEntries = new List<ServerResourceMonitoringRegistry>();
+
+					var cancellationToken = new CancellationTokenSource();
+					cancellationToken.CancelAfter(5000); // 5 seconds max
 
 					var writeCustomerBlock = new ActionBlock<Server>(async s =>
 					{
 						try
 						{
 							var usageTask = GetServerUsage(s);
-							var infoTask = _gameHandler.GetServerInfo(s);
+							var infoTask = _gameHandler.GetServerInfo(s, cancellationToken.Token);
 
 							await Task.WhenAll(usageTask, infoTask);
 
