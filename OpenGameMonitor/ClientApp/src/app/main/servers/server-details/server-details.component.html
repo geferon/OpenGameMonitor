@@ -81,7 +81,7 @@
 				<mat-form-field>
 					<mat-label>Executable</mat-label>
 					<input matInput placeholder="C:\Servers\Server 1\server.exe" formControlName="Executable" />
-					<mat-hint><b>Full</b> path to the server executable. Leave empty if you want it to be installed automatically.</mat-hint>
+					<mat-hint><b>Relative</b> path of the server executable. Leave empty if you want it to be installed automatically.</mat-hint>
 				</mat-form-field>
 			</p>
 			<p>
@@ -150,7 +150,7 @@
 				</mat-form-field>
 			</p>
 		</mat-tab>
-		<mat-tab label="Options">
+		<mat-tab label="Miscellaneous">
 			<h4>Environment Variables</h4>
 			<div formArrayName="EnvironmentVariables">
 				<mat-card *ngFor="let variable of getEnvVariables().controls; index as i" [formGroupName]="i" style="margin-bottom: 12px;">
@@ -199,6 +199,7 @@
 					<mat-label>Port</mat-label>
 					<input matInput placeholder="27015" formControlName="Port" type="number" required />
 					<mat-hint>Port that the server will use.</mat-hint>
+					<mat-error *ngIf="hasError('Port', 'numberLimit')">The port should be a number between 0 and 65535.</mat-error>
 				</mat-form-field>
 			</p>
 		</mat-tab>

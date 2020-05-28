@@ -1,7 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ServerConsoleComponent } from './server-console.component';
 import { RouterModule } from '@angular/router';
+import { ScrollingModule } from '@angular/cdk/scrolling';
+import { ServerConsoleComponent } from './server-console.component';
 import { MaterialModule } from '../../../material.module';
 
 
@@ -11,6 +12,7 @@ import { MaterialModule } from '../../../material.module';
 	imports: [
 		CommonModule,
 		MaterialModule,
+		ScrollingModule,
 		RouterModule.forChild([
 			{
 				path: '',

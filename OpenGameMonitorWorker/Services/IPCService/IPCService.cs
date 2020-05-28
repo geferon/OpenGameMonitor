@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.VisualBasic;
 using OpenGameMonitorLibraries;
 using OpenGameMonitorWorker.Handlers;
+using OpenGameMonitorWorker.Tasks;
 using Xeeny.Api.Server;
 using Xeeny.Connections;
 using Xeeny.Dispatching;
@@ -84,7 +85,7 @@ namespace OpenGameMonitorWorker.Services
     {
         private IServiceProvider _serviceProvider;
         private HostBuilderContext _hostBuilderContext;
-        private GameHandler _gameHandler;
+        private GameHandlerService _gameHandler;
         private EventHandlerService _eventHandlerService;
         private ILogger<IPCService> _logger;
 
@@ -102,7 +103,7 @@ namespace OpenGameMonitorWorker.Services
 
         public MonitorComsService(IServiceProvider serviceProvider,
             HostBuilderContext hostBuilderContext,
-            GameHandler gameHandler,
+            GameHandlerService gameHandler,
             EventHandlerService eventHandlerService,
             ILogger<IPCService> logger)
         {
@@ -126,7 +127,7 @@ namespace OpenGameMonitorWorker.Services
 
             _serviceProvider = services;
             _hostBuilderContext = services.GetService<HostBuilderContext>();
-            _gameHandler = services.GetService<GameHandler>();
+            _gameHandler = services.GetService<GameHandlerService>();
             _eventHandlerService = services.GetService<EventHandlerService>();
             _logger = services.GetService<ILogger<IPCService>>();
 
@@ -137,54 +138,70 @@ namespace OpenGameMonitorWorker.Services
 
         private void Init()
         {
-            _eventHandlerService.ListenForEventType<ConsoleEventArgs>("Server:ConsoleMessage", async (Object serverObj, ConsoleEventArgs args) =>
+            _eventHandlerService.ListenForEventType<ConsoleEventArgs>("Server:ConsoleMessage", async (object serverObj, ConsoleEventArgs args) =>
             {
-                foreach (KeyValuePair<string, IMonitorComsCallback> client in _clients)
-                {
-                    await client.Value.ServerMessageConsole(((Server)serverObj).Id, args.NewLine ?? (args.IsError ? "Error" : ""));
-                }
+                await Task.WhenAll(
+                    _clients.Select(client =>
+                        client.Value.ServerMessageConsole(((Server)serverObj).Id, args.NewLine ?? (args.IsError ? "Error" : ""))
+                    )
+                );
             });
-            _eventHandlerService.ListenForEventType<ConsoleEventArgs>("Server:UpdateMessage", async (Object serverObj, ConsoleEventArgs args) =>
+            _eventHandlerService.ListenForEventType<ConsoleEventArgs>("Server:UpdateMessage", async (object serverObj, ConsoleEventArgs args) =>
             {
-                foreach (KeyValuePair<string, IMonitorComsCallback> client in _clients)
-                {
-                    await client.Value.ServerMessageUpdate(((Server)serverObj).Id, args.NewLine ?? (args.IsError ? "Error" : ""));
-                }
+                await Task.WhenAll(
+                    _clients.Select(client =>
+                        client.Value.ServerMessageUpdate(((Server)serverObj).Id, args.NewLine ?? (args.IsError ? "Error" : ""))
+                    )
+                );
             });
-            _eventHandlerService.ListenForEventType<ServerUpdateProgressEventArgs>("Server:UpdateProgress", async (Object serverObj, ServerUpdateProgressEventArgs args) =>
+            _eventHandlerService.ListenForEventType<ServerUpdateProgressEventArgs>("Server:UpdateProgress", async (object serverObj, ServerUpdateProgressEventArgs args) =>
             {
-                foreach (KeyValuePair<string, IMonitorComsCallback> client in _clients)
-                {
-                    await client.Value.ServerUpdateProgress(((Server)serverObj).Id, args.Progress);
-                }
+                await Task.WhenAll(
+                    _clients.Select(client =>
+                        client.Value.ServerUpdateProgress(((Server)serverObj).Id, args.Progress)
+                    )
+                );
             });
-            _eventHandlerService.ListenForEvent("Server:Opened", async (Object serverObj, EventArgs e) =>
+            _eventHandlerService.ListenForEvent("Server:Opened", async (object serverObj, EventArgs e) =>
             {
-                foreach (KeyValuePair<string, IMonitorComsCallback> client in _clients)
-                {
-                    await client.Value.ServerOpened(((Server) serverObj).Id);
-                }
+                await Task.WhenAll(
+                    _clients.Select(client =>
+                        client.Value.ServerOpened(((Server)serverObj).Id)
+                    )
+                );
             });
-            _eventHandlerService.ListenForEvent("Server:Closed", async (Object serverObj, EventArgs e) =>
+            _eventHandlerService.ListenForEvent("Server:Closed", async (object serverObj, EventArgs e) =>
             {
-                foreach (KeyValuePair<string, IMonitorComsCallback> client in _clients)
-                {
-                    await client.Value.ServerClosed(((Server) serverObj).Id);
-                }
+                await Task.WhenAll(
+                    _clients.Select(client =>
+                        client.Value.ServerClosed(((Server)serverObj).Id)
+                    )
+                );
             });
-            _eventHandlerService.ListenForEvent("Server:UpdateStart", async (Object serverObj, EventArgs e) =>
+            _eventHandlerService.ListenForEvent("Server:UpdateStart", async (object serverObj, EventArgs e) =>
             {
-                foreach (KeyValuePair<string, IMonitorComsCallback> client in _clients)
-                {
-                    await client.Value.ServerUpdateStart(((Server)serverObj).Id);
-                }
+                await Task.WhenAll(
+                    _clients.Select(client =>
+                        client.Value.ServerUpdateStart(((Server)serverObj).Id)
+                    )
+                );
             });
-            _eventHandlerService.ListenForEvent("Server:Updated", async (Object serverObj, EventArgs e) =>
+            _eventHandlerService.ListenForEvent("Server:Updated", async (object serverObj, EventArgs e) =>
             {
-                foreach (KeyValuePair<string, IMonitorComsCallback> client in _clients)
-                {
-                    await client.Value.ServerUpdated(((Server)serverObj).Id);
-                }
+                await Task.WhenAll(
+                    _clients.Select(client =>
+                        client.Value.ServerUpdated(((Server)serverObj).Id)
+                    )
+                );
+            });
+
+            _eventHandlerService.ListenForEventType<ServerRecordsEventArgs>("Monitor:ServersMonitorRecordAdded", async (object _, ServerRecordsEventArgs args) =>
+            {
+                await Task.WhenAll(
+                    _clients.Select(client =>
+                        client.Value.ServersMonitorRecordAdded(args.RowsInserted)
+                    )
+                );
             });
         }
 
@@ -261,8 +278,9 @@ namespace OpenGameMonitorWorker.Services
             {
                 await svHandler.OpenServer(server);
             }
-            catch
+            catch (Exception err)
             {
+                _logger.LogError(err, "There has been an error while opening the server {0}", serverId);
                 return false;
             }
 
@@ -278,8 +296,9 @@ namespace OpenGameMonitorWorker.Services
             {
                 await svHandler.CloseServer(server);
             }
-            catch
+            catch (Exception err)
             {
+                _logger.LogError(err, "There has been an error while closing the server {0}", serverId);
                 return false;
             }
 
@@ -295,8 +314,9 @@ namespace OpenGameMonitorWorker.Services
             {
                 return await svHandler.InitialInstall(server);
             }
-            catch
+            catch (Exception err)
             {
+                _logger.LogError(err, "There has been an error while installing the server {0}", serverId);
                 return false;
             }
         }
@@ -310,8 +330,9 @@ namespace OpenGameMonitorWorker.Services
             {
                 return await svHandler.UpdateServer(server);
             }
-            catch
+            catch (Exception err)
             {
+                _logger.LogError(err, "There has been an error while updating the server {0}", serverId);
                 return false;
             }
         }

@@ -20,10 +20,9 @@ using SmartFormat;
 
 namespace OpenGameMonitorWorker.Handlers
 {
-	internal class SourceHandler : SteamCMDBaseHandler
+	[GameHandlerAttribute("Source")]
+	internal class SourceHandler : SteamCMDBaseHandler, IGameHandlerBase
 	{
-		public override string Engine => "Source";
-
 		public override event EventHandler ServerClosed;
 		public override event EventHandler ServerOpened;
 		public override event EventHandler<ConsoleEventArgs> ConsoleMessage;
@@ -48,7 +47,7 @@ namespace OpenGameMonitorWorker.Handlers
 		private IPEndPoint GetServerEndpoint(Server server)
 		{
 			var endpoint = new IPEndPoint(
-				IPAddress.Parse(GameHandler.GetServerIP(server)),
+				IPAddress.Parse(GameHandlerService.GetServerIP(server)),
 				server.Port
 			);
 
@@ -248,8 +247,6 @@ namespace OpenGameMonitorWorker.Handlers
 			//serverProcess[server.Id] = new Tuple<Process, IPtyConnection>(procObj, proc);
 			serverProcess[server.Id] = proc;
 
-			ServerOpened?.Invoke(server, new EventArgs());
-
 
 			using (var scope = _serviceScopeFactory.CreateScope())
 			using (var db = scope.ServiceProvider.GetRequiredService<MonitorDBContext>())
@@ -259,6 +256,8 @@ namespace OpenGameMonitorWorker.Handlers
 				db.Update(server);
 				await db.SaveChangesAsync();
 			}
+
+			ServerOpened?.Invoke(server, new EventArgs());
 		}
 
 		public async override Task CloseServer(Server server)
@@ -268,6 +267,17 @@ namespace OpenGameMonitorWorker.Handlers
 			Process serverProc = serverProcess[server.Id];
 
 			bool succesfulShutdown = false;
+
+			// Remove the PID and save
+			using (var scope = _serviceScopeFactory.CreateScope())
+			using (var db = scope.ServiceProvider.GetRequiredService<MonitorDBContext>())
+			{
+				server.PID = null;
+
+				db.Update(server);
+				await db.SaveChangesAsync();
+			}
+
 
 			if (server.Graceful)
 			{
@@ -311,33 +321,54 @@ namespace OpenGameMonitorWorker.Handlers
 
 				if (success)
 				{
-					using (var cts = new CancellationTokenSource())
+					try
 					{
-						cts.CancelAfter(10 * 1000);
+						using (var cts = new CancellationTokenSource())
+						{
+							cts.CancelAfter(10 * 1000);
 
-						await serverProc.WaitForExitAsync(cts.Token);
+							await serverProc.WaitForExitAsync(cts.Token);
+						}
+					}
+					catch (OperationCanceledException)
+					{
+						// Do nothing, this is intended
 					}
 				}
 
-				if (!serverProc.HasExited)
+				try
 				{
-					serverProc.Kill();
+					if (!serverProc.HasExited)
+					{
+						serverProc.Kill();
+					}
+				}
+				catch
+				{
+					// Ignore, process has finished
 				}
 			}
 
-			
+			// Automatically called by close event!
+			//ServerClosed?.Invoke(server, new EventArgs());
 		}
 
-		public override async Task<object> GetServerInfo(Server server)
+		public override async Task<ServerInformation> GetServerInfo(Server server)
 		{
 			var endpoint = GetServerEndpoint(server);
 
 			var info = await ServerQuery.Info(endpoint, ServerQuery.ServerType.Source) as SourceQueryInfo;
 
-			return info;
+			return new ServerInformation()
+			{
+				Name = info.Name,
+				Map = info.Map,
+				Players = info.Players,
+				MaxPlayers = info.MaxPlayers
+			};
 		}
 		
-		public override async Task<object> GetServerPlayers(Server server)
+		public override async Task<ServerQueryPlayer[]> GetServerPlayers(Server server)
 		{
 			var endpoint = GetServerEndpoint(server);
 

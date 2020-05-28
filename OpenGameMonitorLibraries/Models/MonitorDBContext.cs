@@ -100,6 +100,8 @@ namespace OpenGameMonitorLibraries
 		public DbSet<Group> Groups { get; set; }
 		public DbSet<Setting> Settings { get; set; }
 
+		public DbSet<ServerResourceMonitoringRegistry> ServerResourceMonitoring { get; set; }
+
 		/*protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
 			optionsBuilder.UseMySql("");

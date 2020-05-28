@@ -19,14 +19,14 @@ namespace OpenGameMonitorWorker.Tasks
 		private readonly IServiceProvider _serviceProvider;
 		private readonly ILogger _logger;
 		private readonly IConfiguration _config;
-		private readonly GameHandler _gameHandler;
+		private readonly GameHandlerService _gameHandler;
 
 		private List<Server> serversToUpdate = new List<Server>();
 
 		public ServerUpdater(IServiceProvider serviceProvider,
 			ILogger logger,
 			IConfiguration config,
-			GameHandler gameHandler)
+			GameHandlerService gameHandler)
 		{
 			_serviceProvider = serviceProvider;
 			_logger = logger;
@@ -57,12 +57,12 @@ namespace OpenGameMonitorWorker.Tasks
 
 					try
 					{
-                        if (await _gameHandler.IsServerOpen(server))
-                        {
-                            await _gameHandler.CloseServer(server);
+						if (await _gameHandler.IsServerOpen(server))
+						{
+							await _gameHandler.CloseServer(server);
 
-                            await Task.Delay(2000);
-                        }
+							await Task.Delay(2000);
+						}
 
 						await _gameHandler.UpdateServer(server);
 
@@ -77,15 +77,16 @@ namespace OpenGameMonitorWorker.Tasks
 
 					server.LastUpdate = DateTime.Now;
 
-					using (var db = _serviceProvider.GetService<MonitorDBContext>())
+					using (var scope = _serviceProvider.CreateScope())
+					using (var db = scope.ServiceProvider.GetService<MonitorDBContext>())
 					{
 						db.Update(server);
 					}
 
 					serversToUpdate.RemoveAt(0);
 
-                    await Task.Delay(2000);
-                }
+					await Task.Delay(2000);
+				}
 				else
 				{
 					serversToUpdate = await _gameHandler.CheckServerUpdates();

@@ -223,4 +223,16 @@ namespace OpenGameMonitorLibraries
 		[Required]
 		public object Value { get; set; }
 	}
+
+	public class ServerResourceMonitoringRegistry
+	{
+		[Key]
+		public int Id { get; set; }
+
+		public Server Server { get; set; }
+		public DateTime TakenAt { get; set; }
+		public double CPUUsage { get; set; }
+		public long MemoryUsage { get; set; }
+		public int ActivePlayers { get; set; }
+	}
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CoreRCON.PacketFormats;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenGameMonitorLibraries;
@@ -38,10 +39,15 @@ namespace OpenGameMonitorWorker.Handlers
 		public string ServerIP { get; set; }
 		public int ServerPort { get; set; }
 	}
+	public class ServerInformation
+	{
+		public string Name { get; set; }
+		public string Map { get; set; }
+		public byte Players { get; set; }
+		public byte MaxPlayers { get; set; }
+	}
 	public interface IGameHandlerBase
 	{
-		string Engine { get; }
-		string Game { get; }
 		bool CanUpdate(Server server);
 		Task InitServer(Server server);
 		Task<bool> CheckUpdate(Server server);
@@ -51,8 +57,8 @@ namespace OpenGameMonitorWorker.Handlers
 		Task CloseServer(Server server);
 		Task OpenServer(Server server);
 
-		Task<object> GetServerInfo(Server server);
-		Task<object> GetServerPlayers(Server server);
+		Task<ServerInformation> GetServerInfo(Server server);
+		Task<ServerQueryPlayer[]> GetServerPlayers(Server server);
 
 		event EventHandler<ConsoleEventArgs> ConsoleMessage;
 		event EventHandler<ConsoleEventArgs> UpdateMessage;
@@ -62,7 +68,7 @@ namespace OpenGameMonitorWorker.Handlers
 		event EventHandler ServerUpdateStart;
 		event EventHandler<ServerUpdateEventArgs> ServerUpdated;
 
-		private string getLocalIP()
+		private static string GetLocalIP()
 		{
 			var hostname = Dns.GetHostName();
 			var ipEntry = Dns.GetHostEntry(hostname);
@@ -79,7 +85,7 @@ namespace OpenGameMonitorWorker.Handlers
 				GameSteamID = server.Game.SteamID,
 				ServerID = server.Id,
 				ServerName = server.Name,
-				ServerIP = server?.IP ?? getLocalIP(),
+				ServerIP = server?.IP ?? GetLocalIP(),
 				ServerPort = server.Port
 			};
 		}
@@ -100,7 +106,24 @@ namespace OpenGameMonitorWorker.Handlers
 		}
 	}
 
-	public class GameHandler
+	public class GameHandlerAttribute : System.Attribute
+	{
+		public string engine;
+		public string game = null;
+
+		public GameHandlerAttribute(string engine)
+		{
+			this.engine = engine;
+		}
+
+		public GameHandlerAttribute(string engine, string game) : this(engine)
+		{
+			this.game = game;
+		}
+	}
+
+
+	public class GameHandlerService
 	{
 		private readonly Dictionary<string, IGameHandlerBase> gameHandlers = new Dictionary<string, IGameHandlerBase>();
 		private readonly ILogger _logger;
@@ -108,7 +131,7 @@ namespace OpenGameMonitorWorker.Handlers
 		private readonly IServiceScopeFactory _serviceScope;
 		private readonly EventHandlerService _eventHandlerService;
 
-		public GameHandler(ILogger<GameHandler> logger,
+		public GameHandlerService(ILogger<GameHandlerService> logger,
 			IServiceProvider serviceProvider,
 			IServiceScopeFactory serviceScope,
 			EventHandlerService eventHandlerService)
@@ -133,14 +156,24 @@ namespace OpenGameMonitorWorker.Handlers
 			// Listen to Server:Closed and check if the server should be restarted upon close
 			_eventHandlerService.ListenForEvent("Server:Closed", async (Object serverObj, EventArgs e) =>
 			{
-				Server server = (Server)serverObj;
+				Server serverOrig = (Server)serverObj;
 
-				if (server.RestartOnClose)
+				using (var scope = _serviceScope.CreateScope())
+				using (var db = scope.ServiceProvider.GetRequiredService<MonitorDBContext>())
 				{
-					await Task.Delay(1000);
+					var currentServer = db.Servers
+						.Include(s => s.Game)
+						.Include(s => s.Group)
+						.Include(s => s.Owner)
+						.FirstOrDefault(s => s.Id == serverOrig.Id);
 
-					IGameHandlerBase handler = GetServerHandler(server);
-					await handler.OpenServer(server);
+					if (currentServer.RestartOnClose && currentServer.PID != null) // If server has to restart and it crashed
+					{
+						await Task.Delay(1000);
+
+						IGameHandlerBase handler = GetServerHandler(currentServer);
+						await handler.OpenServer(currentServer);
+					}
 				}
 			});
 
@@ -186,18 +219,32 @@ namespace OpenGameMonitorWorker.Handlers
 
 		public void RegisterGameHandler<TGameHandler>() where TGameHandler : IGameHandlerBase
 		{
+			var gameHandlerProperties = Attribute.GetCustomAttributes(typeof(TGameHandler)).First(a => a is GameHandlerAttribute) as GameHandlerAttribute;
+			if (gameHandlerProperties == null)
+			{
+				throw new ArgumentException("The GameHandler that was supplied has no GameHandler attribute assigned to it!");
+			}
+
 			IGameHandlerBase gameHandler = (IGameHandlerBase)ActivatorUtilities.CreateInstance<TGameHandler>(_serviceProvider);
 
 			string identifier;
-			try
+
+			if (!String.IsNullOrEmpty(gameHandlerProperties.game))
 			{
-				identifier = string.Format(CultureInfo.CurrentCulture, "{0}:{1}", gameHandler.Engine, gameHandler.Game);
-			}
+				try
+				{
+					identifier = string.Format(CultureInfo.CurrentCulture, "{0}:{1}", gameHandlerProperties.engine, gameHandlerProperties.game);
+				}
 #pragma warning disable CA1031 // No capture tipos de excepción generales.
-			catch
+				catch
 #pragma warning restore CA1031 // No capture tipos de excepción generales.
+				{
+					identifier = gameHandlerProperties.engine;
+				}
+			}
+			else
 			{
-				identifier = gameHandler.Engine;
+				identifier = gameHandlerProperties.engine;
 			}
 
 			gameHandlers.Add(identifier, gameHandler);
@@ -277,9 +324,9 @@ namespace OpenGameMonitorWorker.Handlers
 			using (var scope = _serviceScope.CreateScope())
 			using (var db = scope.ServiceProvider.GetRequiredService<MonitorDBContext>())
 			{
-				List<Server> servers = db.Servers
-					.Where(r => r.Enabled == true)
-					.ToList();
+				List<Server> servers = await db.Servers
+					.Where(r => r.Enabled == true && r.ProcessStatus != ServerProcessStatus.Updating)
+					.ToListAsync();
 
 
 				foreach (Server server in servers)
@@ -330,7 +377,37 @@ namespace OpenGameMonitorWorker.Handlers
 
 			await handler.OpenServer(server);
 		}
-  
+
+		public async Task<ServerInformation> GetServerInfo(Server server)
+		{
+			if (server == null)
+				throw new ArgumentNullException(nameof(server));
+
+			IGameHandlerBase handler = GetServerHandler(server);
+
+			if (!await handler.IsOpen(server))
+			{
+				throw new Exception("Can't get the status of a closed server");
+			}
+
+			return await handler.GetServerInfo(server);
+		}
+
+		public async Task<ServerQueryPlayer[]> GetServerPlayers(Server server)
+		{
+			if (server == null)
+				throw new ArgumentNullException(nameof(server));
+
+			IGameHandlerBase handler = GetServerHandler(server);
+
+			if (!await handler.IsOpen(server))
+			{
+				throw new Exception("Can't get the status of a closed server");
+			}
+
+			return await handler.GetServerPlayers(server);
+		}
+
 		public async Task CloseServer(Server server)
 		{
 			// This is stupid, it should be able to be closed even if it's disabled

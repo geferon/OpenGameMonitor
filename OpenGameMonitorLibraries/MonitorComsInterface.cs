@@ -25,5 +25,6 @@ namespace OpenGameMonitorLibraries
         Task ServerMessageConsole(int server, string message);
         Task ServerMessageUpdate(int server, string message);
         Task ServerUpdateProgress(int server, float progress);
+        Task ServersMonitorRecordAdded(int[] records);
     }
 }

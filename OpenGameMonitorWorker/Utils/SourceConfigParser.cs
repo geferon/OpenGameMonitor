@@ -23,7 +23,8 @@ namespace OpenGameMonitorWorker.Utils
             string startParams = String.Join(" ", startParamsUnparsed.Where(s => !String.IsNullOrEmpty(s)));
 
             ParseCommandline(startParams);
-            ParseConfigFile(Path.Combine(server.Path, server.Game.Id, "cfg", "server.cfg"));
+            var serverCfgFile = Path.Combine(server.Path, server.Game.Id, "cfg", "server.cfg");
+            if (File.Exists(serverCfgFile)) ParseConfigFile(serverCfgFile);
         }
 
         public void ParseConfigFile(string file)

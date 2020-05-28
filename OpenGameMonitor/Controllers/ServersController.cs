@@ -227,7 +227,7 @@ namespace OpenGameMonitorWeb.Controllers
 		[HttpPost("{id}/{function}")]
 		public async Task<ActionResult> PostServerAction(int id, string function)
 		{
-			var server = await _context.Servers.FindAsync(id);
+			var server = await _context.Servers.FirstOrDefaultAsync(s => s.Id == id);
 
 			if (server == null)
 			{
@@ -324,7 +324,7 @@ namespace OpenGameMonitorWeb.Controllers
 		[Authorize(Policy = "ServersCreate")]
 		public async Task<ActionResult<DTOServer>> DeleteServer(int id)
 		{
-			var server = await _context.Servers.FindAsync(id);
+			var server = await _context.Servers.FirstOrDefaultAsync(s => s.Id == id);
 			if (server == null)
 			{
 				return NotFound();

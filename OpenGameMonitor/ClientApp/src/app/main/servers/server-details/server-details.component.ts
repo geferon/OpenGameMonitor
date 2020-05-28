@@ -107,7 +107,15 @@ export class ServerDetailsComponent implements OnInit {
 				return null;
 			}),
 			DisplayIP: new FormControl(),
-			Port: new FormControl('', [Validators.required]),
+			Port: new FormControl('', [Validators.required, (control: FormControl) => {
+				let val: number = control.value;
+				if (!isNaN(val)) {
+					return (val >= 0 && val <= 65535) ? null : {
+						numberLimit: true
+					};
+				}
+				return null;
+			}]),
 
 			Game: new FormControl('', [Validators.required]),
 			Branch: new FormControl(),

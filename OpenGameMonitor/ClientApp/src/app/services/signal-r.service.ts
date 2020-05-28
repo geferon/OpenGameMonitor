@@ -1,7 +1,8 @@
 import { Injectable, isDevMode } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
-import { Subject, Observable, from } from 'rxjs';
+import { Subject, Observable, from, BehaviorSubject, ReplaySubject } from 'rxjs';
 import { AuthorizeService } from '../../api-authorization/authorize.service';
+import { mergeMap, take } from 'rxjs/operators';
 
 @Injectable({
 	providedIn: 'root'
@@ -16,6 +17,8 @@ export class SignalRService {
 
 	private hubConnection: signalR.HubConnection;
 	private cachedListeners: { [key: string]: Subject<any[]> } = {};
+
+	private hubConnectionEstablished: ReplaySubject<any> = new ReplaySubject<any>(1);
 
 	private async initConnection(): Promise<void> {
 		console.log("Initiating SignalR connection!");
@@ -32,6 +35,8 @@ export class SignalRService {
 		} catch (err) {
 			console.error("There has been an error while trying to initiate the SignalR connection!", err);
 		}
+
+		this.hubConnectionEstablished.next(true);
 	}
 
 	public listenToEvent(event: string): Observable<any[]> {
@@ -48,6 +53,10 @@ export class SignalRService {
 	}
 
 	sendEvent(method: string, ...data: any[]): Observable<any> {
-		return from(this.hubConnection.send(method, ...data));
+		return from(this.hubConnectionEstablished)
+			.pipe(
+				take(1),
+				mergeMap(() => this.hubConnection.send(method, ...data))
+			);
 	}
 }

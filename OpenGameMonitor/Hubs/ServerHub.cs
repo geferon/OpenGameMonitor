@@ -7,6 +7,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
 namespace OpenGameMonitorWeb.Hubs
 {
@@ -52,7 +53,7 @@ namespace OpenGameMonitorWeb.Hubs
             Server foundServer;
             using (var db = _serviceProvider.GetService<MonitorDBContext>())
             {
-                var server = await db.Servers.FindAsync(serverId);
+                var server = await db.Servers.FirstOrDefaultAsync(s => s.Id == serverId);
                 if (server == null)
                 {
                     throw new KeyNotFoundException();

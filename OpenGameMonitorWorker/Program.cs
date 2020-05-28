@@ -61,7 +61,8 @@ namespace OpenGameMonitorWorker
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .UseWindowsService()
+                .UseWindowsService() // Both Windows and SystemD support
+                .UseSystemd()
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
                     var env = hostingContext.HostingEnvironment;
@@ -124,7 +125,7 @@ namespace OpenGameMonitorWorker
 
                     services.AddSingleton<SteamAPIService>();
                     services.AddSingleton<SteamCMDService>();
-                    services.AddSingleton<GameHandler>();
+                    services.AddSingleton<GameHandlerService>();
 
                     // FTP Server
                     services.AddFtpServer(builder =>

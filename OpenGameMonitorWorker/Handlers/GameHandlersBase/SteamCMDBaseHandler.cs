@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using CoreRCON.PacketFormats;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenGameMonitorLibraries;
@@ -12,6 +13,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -49,9 +51,6 @@ namespace OpenGameMonitorWorker.Handlers
 		public event EventHandler<ServerUpdateEventArgs> ServerUpdated;
 		public event EventHandler<ServerUpdateProgressEventArgs> UpdateProgress;
 
-		public abstract string Engine { get; }
-		string IGameHandlerBase.Game => throw new NotImplementedException();
-
 		public SteamCMDBaseHandler(IServiceProvider serviceProvider,
 			IServiceScopeFactory serviceScopeFactory,
 			SteamCMDService steamCMDServ,
@@ -75,6 +74,14 @@ namespace OpenGameMonitorWorker.Handlers
 			return tcs.Task;
 		}
 
+		private string getLocalIP()
+		{
+			var hostname = Dns.GetHostName();
+			var ipEntry = Dns.GetHostEntry(hostname);
+			var addr = ipEntry.AddressList;
+			return addr.First().ToString();
+		}
+
 
 
 		public async Task<bool> InitialInstall(Server server)
@@ -93,6 +100,11 @@ namespace OpenGameMonitorWorker.Handlers
 				{
 					serverRootPath = Path.Join(serverRootPath, server.Game.Id);
 				}*/
+
+				if (server.IP == null)
+				{
+					server.IP = getLocalIP();
+				}
 
 				server.Path = serverRootPath;
 				server.Executable = this.GetServerExecutable(server);
@@ -328,13 +340,13 @@ namespace OpenGameMonitorWorker.Handlers
 				{
 					_logger.LogInformation("Update finished for server {0}!", server.Id);
 
-
-					ServerUpdated?.Invoke(server, new ServerUpdateEventArgs() { Error = hasErrored });
-
 					server.UpdatePID = null;
 					db.Update(server);
 
 					await db.SaveChangesAsync();
+
+
+					ServerUpdated?.Invoke(server, new ServerUpdateEventArgs() { Error = hasErrored });
 
 					if (steamCMDProc != null)
 					{
@@ -382,8 +394,8 @@ namespace OpenGameMonitorWorker.Handlers
 		public abstract Task OpenServer(Server server);
 		public abstract Task<bool> IsOpen(Server server);
 		public abstract Task InitServer(Server server);
-		public abstract Task<object> GetServerInfo(Server server);
-		public abstract Task<object> GetServerPlayers(Server server);
+		public abstract Task<ServerInformation> GetServerInfo(Server server);
+		public abstract Task<ServerQueryPlayer[]> GetServerPlayers(Server server);
 	}
 }
 
