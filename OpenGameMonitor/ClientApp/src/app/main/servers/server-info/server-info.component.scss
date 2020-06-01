@@ -11,3 +11,28 @@ p>mat-form-field {
 :host ::ng-deep .mat-tab-body-content {
 	padding: 0 12px;
 }
+
+:host > div {
+	margin-bottom: 12px;
+}
+
+.console {
+	display: flex;
+	height: 450px;
+
+	server-console {
+		flex: 1;
+	}
+}
+
+.stat-containers {
+	margin: -12px;
+}
+.stat-containers mat-card {
+	flex: 1;
+	margin: 12px;
+	// max-height: 265px;
+	// canvas {
+	// 	max-height: 250px;
+	// }
+}

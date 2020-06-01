@@ -129,21 +129,26 @@ namespace OpenGameMonitorWorker.Handlers
 		private readonly ILogger _logger;
 		private readonly IServiceProvider _serviceProvider;
 		private readonly IServiceScopeFactory _serviceScope;
-		private readonly EventHandlerService _eventHandlerService;
 
 		public GameHandlerService(ILogger<GameHandlerService> logger,
 			IServiceProvider serviceProvider,
-			IServiceScopeFactory serviceScope,
-			EventHandlerService eventHandlerService)
+			IServiceScopeFactory serviceScope)
 		{
 			_logger = logger;
 			_serviceProvider = serviceProvider;
 			_serviceScope = serviceScope;
-			_eventHandlerService = eventHandlerService;
 
 			RegisterGameHandlers();
 			InitGameHandlerBase();
 		}
+
+		public event EventHandler<ConsoleEventArgs> ConsoleMessage;
+		public event EventHandler<ConsoleEventArgs> UpdateMessage;
+		public event EventHandler<ServerUpdateProgressEventArgs> UpdateProgress;
+		public event EventHandler ServerClosed;
+		public event EventHandler ServerOpened;
+		public event EventHandler ServerUpdateStart;
+		public event EventHandler<ServerUpdateEventArgs> ServerUpdated;
 
 
 		public void RegisterGameHandlers()
@@ -154,7 +159,7 @@ namespace OpenGameMonitorWorker.Handlers
 		public void InitGameHandlerBase()
 		{
 			// Listen to Server:Closed and check if the server should be restarted upon close
-			_eventHandlerService.ListenForEvent("Server:Closed", async (Object serverObj, EventArgs e) =>
+			ServerClosed += async (Object serverObj, EventArgs e) =>
 			{
 				Server serverOrig = (Server)serverObj;
 
@@ -175,7 +180,7 @@ namespace OpenGameMonitorWorker.Handlers
 						await handler.OpenServer(currentServer);
 					}
 				}
-			});
+			};
 
 			// Init every server and it's config, and check if the server is open and assign the PID and process to it
 			using (var scope = _serviceScope.CreateScope())
@@ -249,14 +254,13 @@ namespace OpenGameMonitorWorker.Handlers
 
 			gameHandlers.Add(identifier, gameHandler);
 
-			// Small quirk, will try to change on later updates...
-			_eventHandlerService.RegisterHandler("Server:ConsoleMessage", (handler) => gameHandler.ConsoleMessage += handler.Listener);
-			_eventHandlerService.RegisterHandler("Server:UpdateMessage", (handler) => gameHandler.UpdateMessage += handler.Listener);
-			_eventHandlerService.RegisterHandler("Server:UpdateProgress", (handler) => gameHandler.UpdateProgress += handler.Listener);
-			_eventHandlerService.RegisterHandler("Server:Closed", (handler) => gameHandler.ServerClosed += handler.Listener);
-			_eventHandlerService.RegisterHandler("Server:Opened", (handler) => gameHandler.ServerOpened += handler.Listener);
-			_eventHandlerService.RegisterHandler("Server:UpdateStart", (handler) => gameHandler.ServerUpdateStart += handler.Listener);
-			_eventHandlerService.RegisterHandler("Server:Updated", (handler) => gameHandler.ServerUpdated += handler.Listener);
+			gameHandler.ConsoleMessage += (object obj, ConsoleEventArgs e) => ConsoleMessage?.Invoke(obj, e);
+			gameHandler.UpdateMessage += (object obj, ConsoleEventArgs e) => UpdateMessage?.Invoke(obj, e);
+			gameHandler.UpdateProgress += (object obj, ServerUpdateProgressEventArgs e) => UpdateProgress?.Invoke(obj, e);
+			gameHandler.ServerClosed += (object obj, EventArgs e) => ServerClosed?.Invoke(obj, e);
+			gameHandler.ServerOpened += (object obj, EventArgs e) => ServerOpened?.Invoke(obj, e);
+			gameHandler.ServerUpdateStart += (object obj, EventArgs e) => ServerUpdateStart?.Invoke(obj, e);
+			gameHandler.ServerUpdated += (object obj, ServerUpdateEventArgs e) => ServerUpdated?.Invoke(obj, e);
 
 
 			_logger.LogInformation("Registered game handler {0}", identifier);

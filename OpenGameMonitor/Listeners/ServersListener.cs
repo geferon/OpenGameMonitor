@@ -23,33 +23,33 @@ namespace OpenGameMonitorWeb.Listeners
 		private readonly IMapper _mapper;
 		private readonly IServiceProvider _serviceProvider;
 		//private readonly IAuthorizationService _authorizationService;
-		private readonly EventHandlerService _eventHandlerService;
+		private readonly MonitorComsCallback _monitorComsCallback;
 		public ServersListener(IHubContext<ServersHub> hub,
 			HubConnectionManager hubConnectionManager,
 			IMapper mapper,
 			IServiceProvider serviceProvider,
 			//IAuthorizationService authorizationService,
-			EventHandlerService eventHandlerService)
+			MonitorComsCallback monitorComsCallback)
 		{
 			_hub = hub;
 			_hubConnectionManager = hubConnectionManager;
 			_mapper = mapper;
 			_serviceProvider = serviceProvider;
 			//_authorizationService = authorizationService;
-			_eventHandlerService = eventHandlerService;
+			_monitorComsCallback = monitorComsCallback;
 		}
 
 		//protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		public async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
-			_eventHandlerService.ListenForEventType<ServerEventArgs>("Monitor:ServerClosed", ServerClosed);
-			_eventHandlerService.ListenForEventType<ServerEventArgs>("Monitor:ServerOpened", ServerOpened);
-			_eventHandlerService.ListenForEventType<ServerEventArgs>("Monitor:ServerUpdated", ServerMonitorUpdated);
-			_eventHandlerService.ListenForEventType<ServerEventArgs>("Monitor:ServerUpdateStarted", ServerMonitorUpdateStarted);
-			_eventHandlerService.ListenForEventType<ServerMessageEventArgs>("Monitor:ServerMessageConsole", ServerMessageConsole);
-			_eventHandlerService.ListenForEventType<ServerMessageEventArgs>("Monitor:ServerMessageUpdate", ServerMessageUpdate);
-			_eventHandlerService.ListenForEventType<ServerUpdateProgressEventArgs>("Monitor:ServerUpdateProgress", ServerUpdateProgress);
-			_eventHandlerService.ListenForEventType<ServersMonitorRecordsAddedArgs>("Monitor:ServersMonitorRecordAdded", ServersMonitorRecordAdded);
+			_monitorComsCallback.ServerClosedEvent += ServerClosed;
+			_monitorComsCallback.ServerOpenedEvent += ServerOpened;
+			_monitorComsCallback.ServerUpdatedEvent += ServerMonitorUpdated;
+			_monitorComsCallback.ServerUpdateStartedEvent += ServerMonitorUpdateStarted;
+			_monitorComsCallback.ServerMessageConsoleEvent += ServerMessageConsole;
+			_monitorComsCallback.ServerMessageUpdateEvent += ServerMessageUpdate;
+			_monitorComsCallback.ServerUpdateProgressEvent += ServerUpdateProgress;
+			_monitorComsCallback.ServersMonitorRecordAddedEvent += ServersMonitorRecordAdded;
 
 			Triggers<Server>.Inserted += ServerInserted;
 			Triggers<Server>.Updating += ServerUpdated;
@@ -58,7 +58,7 @@ namespace OpenGameMonitorWeb.Listeners
 			/*
 			while (!stoppingToken.IsCancellationRequested)
 			{
-				await Task.Delay(5000, stoppingToken);
+				await Task.Delay(60000, stoppingToken);
 			}
 			*/
 		}
@@ -71,7 +71,19 @@ namespace OpenGameMonitorWeb.Listeners
 
 		public async Task StopAsync(CancellationToken cancellationToken)
 		{
-			// TODO: UnRegister events
+			_monitorComsCallback.ServerClosedEvent -= ServerClosed;
+			_monitorComsCallback.ServerOpenedEvent -= ServerOpened;
+			_monitorComsCallback.ServerUpdatedEvent -= ServerMonitorUpdated;
+			_monitorComsCallback.ServerUpdateStartedEvent -= ServerMonitorUpdateStarted;
+			_monitorComsCallback.ServerMessageConsoleEvent -= ServerMessageConsole;
+			_monitorComsCallback.ServerMessageUpdateEvent -= ServerMessageUpdate;
+			_monitorComsCallback.ServerUpdateProgressEvent -= ServerUpdateProgress;
+			_monitorComsCallback.ServersMonitorRecordAddedEvent -= ServersMonitorRecordAdded;
+
+			Triggers<Server>.Inserted -= ServerInserted;
+			Triggers<Server>.Updating -= ServerUpdated;
+			Triggers<Server>.Deleted -= ServerDeleted;
+
 		}
 
 		private async void ServerClosed(object sender, ServerEventArgs args)

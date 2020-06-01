@@ -286,5 +286,12 @@ namespace OpenGameMonitorLibraries
 					.ContinueWith(task => new { Predicate = task.Result, Value = v })))
 				).Where(a => a.Predicate).Select(a => a.Value).ToArray();
 		}
+
+		public static IServiceCollection AddHostedSingleton<THostedService>(this IServiceCollection services) where THostedService : class, IHostedService
+		{
+			services.AddSingleton<THostedService>();
+			services.AddSingleton<IHostedService, THostedService>(serviceProvider => serviceProvider.GetService<THostedService>());
+			return services;
+		}
 	}
 }

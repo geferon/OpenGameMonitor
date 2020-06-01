@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using OpenGameMonitorLibraries;
 using System;
 using System.Collections.Generic;
@@ -18,16 +19,19 @@ namespace OpenGameMonitor.Services
 		private readonly ILogger<IPCClient> _logger;
 		private readonly IConfiguration _config;
 		private readonly EventHandlerService _eventHandlerService;
+		private readonly IServiceProvider _serviceProvider;
 
 		private static double RetryTime = 10;
 
 		public IPCClient(ILogger<IPCClient> logger,
 			IConfiguration config,
-			EventHandlerService eventHandlerService)
+			EventHandlerService eventHandlerService,
+			IServiceProvider serviceProvider)
 		{
 			_logger = logger;
 			_config = config;
 			_eventHandlerService = eventHandlerService;
+			_serviceProvider = serviceProvider;
 		}
 
 		public IMonitorComsInterface ComsClient;
@@ -44,7 +48,9 @@ namespace OpenGameMonitor.Services
 			var ip = _config.GetValue<String>("MonitorConnection:Address", "localhost");
 			var port = _config.GetValue<int>("MonitorConnection:Port", 5010);
 			var address = $"tcp://{ip}:{port}/opengameserver";
-			var builder = new DuplexConnectionBuilder<IMonitorComsInterface, MonitorComsCallback>(Xeeny.Dispatching.InstanceMode.Single)
+
+			//var builder = new DuplexConnectionBuilder<IMonitorComsInterface, MonitorComsCallback>(Xeeny.Dispatching.InstanceMode.Single)
+			var builder = new DuplexConnectionBuilder<IMonitorComsInterface, MonitorComsCallback>(_serviceProvider.GetService<MonitorComsCallback>())
 				.WithTcpTransport(address, options => {
 					options.Timeout = TimeSpan.FromSeconds(RetryTime);
 				});
@@ -52,7 +58,6 @@ namespace OpenGameMonitor.Services
 			builder.CallbackInstanceCreated += (callback) =>
 			{
 				callback.eventHandlerService = _eventHandlerService;
-				callback.Init();
 			};
 
 			_logger.LogInformation("Trying to connect to the monitor.");
@@ -125,16 +130,17 @@ namespace OpenGameMonitor.Services
 	{
 		public EventHandlerService eventHandlerService;
 
-		private event EventHandler panelConfigReloadedEvent;
-		private event EventHandler<ServerEventArgs> serverClosedEvent;
-		private event EventHandler<ServerEventArgs> serverOpenedEvent;
-		private event EventHandler<ServerEventArgs> serverUpdatedEvent;
-		private event EventHandler<ServerEventArgs> serverUpdateStartedEvent;
-		private event EventHandler<ServerMessageEventArgs> serverMessageConsoleEvent;
-		private event EventHandler<ServerMessageEventArgs> serverMessageUpdateEvent;
-		private event EventHandler<ServerUpdateProgressEventArgs> serverUpdateProgressEvent;
-		private event EventHandler<ServersMonitorRecordsAddedArgs> serversMonitorRecordsAddedEvent;
+		public event EventHandler PanelConfigReloadedEvent;
+		public event EventHandler<ServerEventArgs> ServerClosedEvent;
+		public event EventHandler<ServerEventArgs> ServerOpenedEvent;
+		public event EventHandler<ServerEventArgs> ServerUpdatedEvent;
+		public event EventHandler<ServerEventArgs> ServerUpdateStartedEvent;
+		public event EventHandler<ServerMessageEventArgs> ServerMessageConsoleEvent;
+		public event EventHandler<ServerMessageEventArgs> ServerMessageUpdateEvent;
+		public event EventHandler<ServerUpdateProgressEventArgs> ServerUpdateProgressEvent;
+		public event EventHandler<ServersMonitorRecordsAddedArgs> ServersMonitorRecordAddedEvent;
 
+		/*
 		public void Init()
 		{
 			eventHandlerService.RegisterHandler("Monitor:PanelConfigReloaded", (handler) => panelConfigReloadedEvent += handler.Listener);
@@ -147,22 +153,23 @@ namespace OpenGameMonitor.Services
 			eventHandlerService.RegisterHandler("Monitor:ServerUpdateProgress", (handler) => serverUpdateProgressEvent += handler.Listener);
 			eventHandlerService.RegisterHandler("Monitor:ServersMonitorRecordAdded", (handler) => serversMonitorRecordsAddedEvent += handler.Listener);
 		}
+		*/
 
 		public async Task PanelConfigReloaded()
 		{
-			panelConfigReloadedEvent?.Invoke(this, new EventArgs());
+			PanelConfigReloadedEvent?.Invoke(this, new EventArgs());
 		}
 
 		public async Task ServerClosed(int server)
 		{
-			serverClosedEvent?.Invoke(this, new ServerEventArgs()
+			ServerClosedEvent?.Invoke(this, new ServerEventArgs()
 			{
 				ServerID = server
 			});
 		}
 		public async Task ServerOpened(int server)
 		{
-			serverOpenedEvent?.Invoke(this, new ServerEventArgs()
+			ServerOpenedEvent?.Invoke(this, new ServerEventArgs()
 			{
 				ServerID = server
 			});
@@ -170,7 +177,7 @@ namespace OpenGameMonitor.Services
 
 		public async Task ServerUpdated(int server)
 		{
-			serverUpdatedEvent?.Invoke(this, new ServerEventArgs()
+			ServerUpdatedEvent?.Invoke(this, new ServerEventArgs()
 			{
 				ServerID = server
 			});
@@ -178,7 +185,7 @@ namespace OpenGameMonitor.Services
 
 		public async Task ServerUpdateStart(int server)
 		{
-			serverUpdateStartedEvent?.Invoke(this, new ServerEventArgs()
+			ServerUpdateStartedEvent?.Invoke(this, new ServerEventArgs()
 			{
 				ServerID = server
 			});
@@ -186,7 +193,7 @@ namespace OpenGameMonitor.Services
 
 		public async Task ServerMessageConsole(int server, string message)
 		{
-			serverMessageConsoleEvent?.Invoke(this, new ServerMessageEventArgs()
+			ServerMessageConsoleEvent?.Invoke(this, new ServerMessageEventArgs()
 			{
 				ServerID = server,
 				Message = message
@@ -195,7 +202,7 @@ namespace OpenGameMonitor.Services
 
 		public async Task ServerMessageUpdate(int server, string message)
 		{
-			serverMessageUpdateEvent?.Invoke(this, new ServerMessageEventArgs()
+			ServerMessageUpdateEvent?.Invoke(this, new ServerMessageEventArgs()
 			{
 				ServerID = server,
 				Message = message
@@ -204,7 +211,7 @@ namespace OpenGameMonitor.Services
 
 		public async Task ServerUpdateProgress(int server, float progress)
 		{
-			serverUpdateProgressEvent?.Invoke(this, new ServerUpdateProgressEventArgs()
+			ServerUpdateProgressEvent?.Invoke(this, new ServerUpdateProgressEventArgs()
 			{
 				ServerID = server,
 				Progress = progress
@@ -213,7 +220,7 @@ namespace OpenGameMonitor.Services
 
 		public async Task ServersMonitorRecordAdded(int[] recordsAdded)
 		{
-			serversMonitorRecordsAddedEvent?.Invoke(this, new ServersMonitorRecordsAddedArgs()
+			ServersMonitorRecordAddedEvent?.Invoke(this, new ServersMonitorRecordsAddedArgs()
 			{
 				RowsInserted = recordsAdded
 			});

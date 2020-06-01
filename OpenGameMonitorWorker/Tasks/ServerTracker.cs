@@ -23,20 +23,19 @@ namespace OpenGameMonitorWorker.Tasks
 		public long MemoryUsage;
 	}
 
-	internal class ServerRecordsEventArgs : EventArgs
+	public class ServerRecordsEventArgs : EventArgs
 	{
 		public int[] RowsInserted;
 	}
 
-	class ServerTracker : BackgroundService
+	public class ServerTracker : BackgroundService
 	{
 		private readonly ILogger<ServerTracker> _logger;
 		private readonly IServiceProvider _serviceProvider;
 		private readonly GameHandlerService _gameHandler;
-		private readonly EventHandlerService _eventHandler;
 		private readonly Microsoft.Extensions.Configuration.IConfiguration _configuration;
 
-		private event EventHandler<ServerRecordsEventArgs> ServersMonitorRecorded;
+		public event EventHandler<ServerRecordsEventArgs> ServersMonitorRecorded;
 
 		public ServerTracker(
 			ILogger<ServerTracker> logger,
@@ -49,13 +48,12 @@ namespace OpenGameMonitorWorker.Tasks
 			_logger = logger;
 			_serviceProvider = serviceProvider;
 			_gameHandler = gameHandler;
-			_eventHandler = eventHandler;
 			_configuration = configuration;
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
-			_eventHandler.RegisterHandler("Monitor:ServersMonitorRecordAdded", (handler) => ServersMonitorRecorded += handler.Listener);
+			//_eventHandler.RegisterHandler("Monitor:ServersMonitorRecordAdded", (handler) => ServersMonitorRecorded += handler.Listener);
 
 			while (!stoppingToken.IsCancellationRequested)
 			{

@@ -1,0 +1,19 @@
+:host {
+	display: flex;
+	font-family: 'Source Code Pro', monospace;
+	color: rgb(223, 223, 223);
+	background: rgb(26, 26, 26);
+	border-radius: 5px;
+
+	padding: 10px;
+}
+
+.console-viewport {
+	// height: 100%;
+	// width: 100%;
+	flex: 1;
+
+	.console-line {
+		height: 20px;
+	}
+}

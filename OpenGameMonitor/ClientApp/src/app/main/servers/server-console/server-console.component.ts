@@ -12,43 +12,16 @@ import { VIRTUAL_SCROLL_STRATEGY } from '@angular/cdk/scrolling';
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	// providers: [{provide: VIRTUAL_SCROLL_STRATEGY, useClass:  }]
 })
-export class ServerConsoleComponent implements OnInit, OnDestroy {
+export class ServerConsoleComponent implements OnInit {
 
 	constructor(
-		private route: ActivatedRoute,
-		private servers: ServerService,
-		private cdRef: ChangeDetectorRef
+		private route: ActivatedRoute
 	) { }
 
 	public Id: number;
-	public Lines: string[] = [];
-
-	private readonly onDestroy = new Subject();
 
 	ngOnInit(): void {
 		this.Id = +this.route.snapshot.paramMap.get('id');
-
-		from(this.servers.subscribeToServer(this.Id))
-			.pipe(
-				mergeMap(() => this.servers.getServersConsoleMessages()),
-				takeUntil(this.onDestroy),
-				filter(([serverId, line]: [number, string]) => {
-					return serverId == this.Id;
-				})
-			)
-			.subscribe(([serverId, line]: [number, string]) => {
-				// this.Lines.push(line);
-				this.Lines = [...this.Lines, line];
-				// console.log(this.Lines);
-				this.cdRef.detectChanges();
-			});
-	}
-
-	ngOnDestroy(): void {
-		this.onDestroy.next();
-		this.onDestroy.complete();
-
-		let subs = this.servers.unsubscribeFromServers().subscribe(() => subs.unsubscribe());
 	}
 
 }

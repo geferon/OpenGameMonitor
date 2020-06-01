@@ -86,6 +86,7 @@ namespace OpenGameMonitorWorker.Services
         private IServiceProvider _serviceProvider;
         private HostBuilderContext _hostBuilderContext;
         private GameHandlerService _gameHandler;
+        private ServerTracker _serverTracker;
         private EventHandlerService _eventHandlerService;
         private ILogger<IPCService> _logger;
 
@@ -95,7 +96,7 @@ namespace OpenGameMonitorWorker.Services
 
         IMonitorComsCallback GetCaller() => OperationContext.Current.GetCallback<IMonitorComsCallback>();
 
-        // Gotta make a constructor with cero parameters... even tho I create the object myself :/
+        // Gotta make a constructor with zero parameters... even tho I create the object myself :/
         public MonitorComsService()
         {
             //throw new Exception("Unsupported constructor");
@@ -104,6 +105,7 @@ namespace OpenGameMonitorWorker.Services
         public MonitorComsService(IServiceProvider serviceProvider,
             HostBuilderContext hostBuilderContext,
             GameHandlerService gameHandler,
+            ServerTracker serverTracker,
             EventHandlerService eventHandlerService,
             ILogger<IPCService> logger)
         {
@@ -111,6 +113,7 @@ namespace OpenGameMonitorWorker.Services
             _serviceProvider = serviceProvider;
             _hostBuilderContext = hostBuilderContext;
             _gameHandler = gameHandler;
+            _serverTracker = serverTracker;
             _eventHandlerService = eventHandlerService;
             _logger = logger;
             parametersInit = true;
@@ -128,6 +131,7 @@ namespace OpenGameMonitorWorker.Services
             _serviceProvider = services;
             _hostBuilderContext = services.GetService<HostBuilderContext>();
             _gameHandler = services.GetService<GameHandlerService>();
+            _serverTracker = services.GetService<ServerTracker>();
             _eventHandlerService = services.GetService<EventHandlerService>();
             _logger = services.GetService<ILogger<IPCService>>();
 
@@ -138,71 +142,70 @@ namespace OpenGameMonitorWorker.Services
 
         private void Init()
         {
-            _eventHandlerService.ListenForEventType<ConsoleEventArgs>("Server:ConsoleMessage", async (object serverObj, ConsoleEventArgs args) =>
+            _gameHandler.ConsoleMessage += async (object serverObj, ConsoleEventArgs args) =>
             {
                 await Task.WhenAll(
                     _clients.Select(client =>
                         client.Value.ServerMessageConsole(((Server)serverObj).Id, args.NewLine ?? (args.IsError ? "Error" : ""))
                     )
                 );
-            });
-            _eventHandlerService.ListenForEventType<ConsoleEventArgs>("Server:UpdateMessage", async (object serverObj, ConsoleEventArgs args) =>
+            };
+            _gameHandler.UpdateMessage += async (object serverObj, ConsoleEventArgs args) =>
             {
                 await Task.WhenAll(
                     _clients.Select(client =>
                         client.Value.ServerMessageUpdate(((Server)serverObj).Id, args.NewLine ?? (args.IsError ? "Error" : ""))
                     )
                 );
-            });
-            _eventHandlerService.ListenForEventType<ServerUpdateProgressEventArgs>("Server:UpdateProgress", async (object serverObj, ServerUpdateProgressEventArgs args) =>
+            };
+            _gameHandler.UpdateProgress += async (object serverObj, ServerUpdateProgressEventArgs args) =>
             {
                 await Task.WhenAll(
                     _clients.Select(client =>
                         client.Value.ServerUpdateProgress(((Server)serverObj).Id, args.Progress)
                     )
                 );
-            });
-            _eventHandlerService.ListenForEvent("Server:Opened", async (object serverObj, EventArgs e) =>
+            };
+            _gameHandler.ServerOpened +=  async (object serverObj, EventArgs e) =>
             {
                 await Task.WhenAll(
                     _clients.Select(client =>
                         client.Value.ServerOpened(((Server)serverObj).Id)
                     )
                 );
-            });
-            _eventHandlerService.ListenForEvent("Server:Closed", async (object serverObj, EventArgs e) =>
+            };
+            _gameHandler.ServerClosed += async (object serverObj, EventArgs e) =>
             {
                 await Task.WhenAll(
                     _clients.Select(client =>
                         client.Value.ServerClosed(((Server)serverObj).Id)
                     )
                 );
-            });
-            _eventHandlerService.ListenForEvent("Server:UpdateStart", async (object serverObj, EventArgs e) =>
+            };
+            _gameHandler.ServerUpdateStart += async (object serverObj, EventArgs e) =>
             {
                 await Task.WhenAll(
                     _clients.Select(client =>
                         client.Value.ServerUpdateStart(((Server)serverObj).Id)
                     )
                 );
-            });
-            _eventHandlerService.ListenForEvent("Server:Updated", async (object serverObj, EventArgs e) =>
+            };
+            _gameHandler.ServerUpdated += async (object serverObj, ServerUpdateEventArgs e) =>
             {
                 await Task.WhenAll(
                     _clients.Select(client =>
                         client.Value.ServerUpdated(((Server)serverObj).Id)
                     )
                 );
-            });
-
-            _eventHandlerService.ListenForEventType<ServerRecordsEventArgs>("Monitor:ServersMonitorRecordAdded", async (object _, ServerRecordsEventArgs args) =>
+            };
+            _serverTracker.ServersMonitorRecorded += async (object _, ServerRecordsEventArgs args) =>
             {
                 await Task.WhenAll(
                     _clients.Select(client =>
                         client.Value.ServersMonitorRecordAdded(args.RowsInserted)
                     )
                 );
-            });
+            };
         }
 
         public async Task Connected()

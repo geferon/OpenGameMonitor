@@ -1,41 +1,52 @@
-<mat-grid-list cols="2">
-	<mat-grid-tile>
-		<mat-card>
-			<h3>Memory Usage</h3>
-			<canvas
-				baseChart
-				[data]="memoryChartData"
-				[options]="memoryChartOptions"
-				[chartType]="'line'"
-				[legend]="false">
+<h2>{{(Server$ | async).Name}}</h2>
 
-			</canvas>
-		</mat-card>
-	</mat-grid-tile>
-	<mat-grid-tile>
-		<mat-card>
-			<h3>CPU Usage</h3>
-			<canvas
-				baseChart
-				[data]="cpuChartData"
-				[options]="cpuChartOptions"
-				[chartType]="'line'"
-				[legend]="false">
+<div class="console">
+	<server-console [server]="Id"></server-console>
+</div>
 
-			</canvas>
-		</mat-card>
-	</mat-grid-tile>
-	<mat-grid-tile>
-		<mat-card>
-			<h3>Active Players</h3>
-			<canvas
-				baseChart
-				[data]="playerChartData"
-				[options]="playerChartOptions"
-				[chartType]="'line'"
-				[legend]="false">
+<div class="stat-containers" fxLayout="row">
+	<mat-card>
+		<mat-card-title>Memory Usage</mat-card-title>
+		<mat-card-content>
+		<canvas
+			height="220px"
+			baseChart
+			[data]="memoryChartData"
+			[options]="memoryChartOptions"
+			[chartType]="'line'"
+			[legend]="false">
 
-			</canvas>
-		</mat-card>
-	</mat-grid-tile>
-</mat-grid-list>
+		</canvas>
+		</mat-card-content>
+	</mat-card>
+	<mat-card>
+		<mat-card-title>CPU Usage</mat-card-title>
+		<mat-card-content>
+		<canvas
+			height="220px"
+			baseChart
+			[data]="cpuChartData"
+			[options]="cpuChartOptions"
+			[chartType]="'line'"
+			[legend]="false">
+
+		</canvas>
+		</mat-card-content>
+	</mat-card>
+</div>
+<div class="stat-containers" fxLayout="row">
+	<mat-card>
+		<mat-card-title>Active Players</mat-card-title>
+		<mat-card-content>
+		<canvas
+			height="220px"
+			baseChart
+			[data]="playerChartData"
+			[options]="playerChartOptions"
+			[chartType]="'line'"
+			[legend]="false">
+
+		</canvas>
+		</mat-card-content>
+	</mat-card>
+</div>

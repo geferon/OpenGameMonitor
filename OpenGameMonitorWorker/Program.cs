@@ -117,7 +117,8 @@ namespace OpenGameMonitorWorker
                     services.AddSingleton<SteamCMDService>();
                     services.AddSingleton<GameHandlerService>();
 
-                    services.AddHostedService<ServerTracker>();
+                    //services.AddHostedService<ServerTracker>();
+                    services.AddHostedSingleton<ServerTracker>();
 
                     // Identity
                     services.AddIdentityCore<MonitorUser>(options => options.SignIn.RequireConfirmedAccount = true)

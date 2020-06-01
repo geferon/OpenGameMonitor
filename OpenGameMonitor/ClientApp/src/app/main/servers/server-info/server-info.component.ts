@@ -46,6 +46,7 @@ export class ServerInfoComponent implements OnInit, OnDestroy {
 	// Config
 	public playerChartOptions: ChartOptions = {
 		responsive: true,
+		maintainAspectRatio: false,
 		scales: {
 			yAxes: [{
 				ticks: {
@@ -64,6 +65,7 @@ export class ServerInfoComponent implements OnInit, OnDestroy {
 	};
 	public memoryChartOptions: ChartOptions = {
 		responsive: true,
+		maintainAspectRatio: false,
 		scales: {
 			yAxes: [{
 				ticks: {
@@ -89,6 +91,7 @@ export class ServerInfoComponent implements OnInit, OnDestroy {
 	};
 	public cpuChartOptions: ChartOptions = {
 		responsive: true,
+		maintainAspectRatio: false,
 		scales: {
 			yAxes: [{
 				ticks: {
@@ -166,7 +169,7 @@ export class ServerInfoComponent implements OnInit, OnDestroy {
 						r.TakenAt = new Date(r.TakenAt);
 						return r;
 					})
-					.sort((a, b) => a.TakenAt.getDate() - b.TakenAt.getDate())
+					.sort((a, b) => a.TakenAt.getTime() - b.TakenAt.getTime())
 				)
 			);
 	}

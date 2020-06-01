@@ -51,8 +51,8 @@ namespace OpenGameMonitor
         {
             // Gotta add this service as a singleton
             //services.AddHostedService<IPCClient>();
-            services.AddSingleton<IPCClient>();
-            services.AddSingleton<IHostedService, IPCClient>(serviceProvider => serviceProvider.GetService<IPCClient>());
+            services.AddSingleton<MonitorComsCallback>();
+            services.AddHostedSingleton<IPCClient>();
 
             services.AddSingleton<EventHandlerService>();
 
