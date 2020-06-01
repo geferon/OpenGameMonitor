@@ -23,6 +23,7 @@ using FubarDev.FtpServer.FileSystem.DotNet;
 using OpenGameMonitorWorker.Services;
 using OpenGameMonitorWorker.Tasks;
 using OpenGameMonitorWorker.Handlers;
+using FubarDev.FtpServer.AccountManagement;
 
 namespace OpenGameMonitorWorker
 {
@@ -101,17 +102,6 @@ namespace OpenGameMonitorWorker
 
                     services.AddDbContext<MonitorDBContext>(options => options.UseMySql(connectionStr));
 
-                    // Identity is only for ASP.NET :/
-                    /*
-                    services.AddDefaultIdentity<MonitorUser>()
-                        .AddRoles<MonitorRole>()
-                        .AddRoleManager<Microsoft.AspNetCore.Identity.RoleManager<MonitorRole>>()
-                        .AddEntityFrameworkStores<MonitorDBContext>();
-
-                    services.AddIdentityServer()
-                        .AddApiAuthorization<MonitorUser, MonitorDBContext>();
-                        */
-
 
                     services.AddHostedService<IPCService>();
 
@@ -127,9 +117,17 @@ namespace OpenGameMonitorWorker
                     services.AddSingleton<SteamCMDService>();
                     services.AddSingleton<GameHandlerService>();
 
+                    services.AddHostedService<ServerTracker>();
+
+                    // Identity
+                    services.AddIdentityCore<MonitorUser>(options => options.SignIn.RequireConfirmedAccount = true)
+                        .AddRoles<MonitorRole>()
+                        .AddEntityFrameworkStores<MonitorDBContext>();
+
                     // FTP Server
-                    services.AddFtpServer(builder =>
-                        builder.UseDotNetFileSystem());
+                    services.AddSingleton<IMembershipProvider, FTPMembershipProvider>();
+
+                    services.AddFtpServer(options => options.Services.AddSingleton<FubarDev.FtpServer.FileSystem.IFileSystemClassFactory, ServerManagerFileSystemProvider>());
 
                     services.Configure<FtpServerOptions>(config => {
                         config.ServerAddress = "*";
@@ -142,8 +140,6 @@ namespace OpenGameMonitorWorker
                     });
 
                     services.AddHostedService<HostedFTPService>();
-
-                    services.AddHostedService<ServerTracker>();
 
                 });
                 /*

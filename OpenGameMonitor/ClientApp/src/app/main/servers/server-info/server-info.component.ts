@@ -7,6 +7,21 @@ import { filter, takeUntil, mergeMap } from 'rxjs/operators';
 import { ServerService } from '../../../services/server.service';
 import { EventService } from '../../../services/event.service';
 import { Server, MonitorUser, ProcessPriorityClass, ProcessStatus, ServerResourceMonitoringRegistry } from '../../../definitions/interfaces';
+import { ChartOptions } from 'chart.js';
+import { SingleDataSet } from 'ng2-charts';
+
+
+let formatKilobytes = function(label: number, format: boolean = false) {
+	if (label == 0) return '';
+
+	var s = ['KB', 'MB', 'GB', 'TB', 'PB'];
+	var e = Math.floor(Math.log(label) / Math.log(1024));
+	var value = ((label / Math.pow(1024, Math.floor(e))).toFixed(2));
+	e = (e < 0) ? (-e) : e;
+
+	if (format) value += ' ' + s[e];
+	return value;
+};
 
 @Component({
 	selector: 'app-server-info',
@@ -28,6 +43,73 @@ export class ServerInfoComponent implements OnInit, OnDestroy {
 	public Server$: Observable<Server>;
 	public Registries$ = new BehaviorSubject<ServerResourceMonitoringRegistry[]>([]);
 
+	// Config
+	public playerChartOptions: ChartOptions = {
+		responsive: true,
+		scales: {
+			yAxes: [{
+				ticks: {
+					min: 0,
+					beginAtZero: true,
+					stepSize: 1
+				}
+			}],
+			xAxes: [{
+				type: 'time',
+				time: {
+					unit: 'minute'
+				}
+			}]
+		}
+	};
+	public memoryChartOptions: ChartOptions = {
+		responsive: true,
+		scales: {
+			yAxes: [{
+				ticks: {
+					min: 0,
+					beginAtZero: true,
+					stepSize: 1024,
+					callback: function (label, index, labels) {
+						return formatKilobytes(label as number, true);
+					}
+				},
+				scaleLabel: {
+					display: true,
+
+				}
+			}],
+			xAxes: [{
+				type: 'time',
+				time: {
+					unit: 'minute'
+				}
+			}]
+		}
+	};
+	public cpuChartOptions: ChartOptions = {
+		responsive: true,
+		scales: {
+			yAxes: [{
+				ticks: {
+					min: 0,
+					max: 100,
+					beginAtZero: true,
+					stepSize: 10
+				}
+			}],
+			xAxes: [{
+				type: 'time',
+				time: {
+					unit: 'minute'
+				}
+			}]
+		}
+	};
+	public playerChartData: SingleDataSet = [];
+	public memoryChartData: SingleDataSet = [];
+	public cpuChartData: SingleDataSet = [];
+
 	private readonly onDestroy = new Subject();
 
 	ngOnInit(): void {
@@ -41,9 +123,28 @@ export class ServerInfoComponent implements OnInit, OnDestroy {
 					return serverId == this.Id;
 				})
 			)
-			.subscribe(([serverId, record]: [number, object]) => {
-				console.log(record);
+			.subscribe(([serverId, record]: [number, ServerResourceMonitoringRegistry]) => {
+				let regs = this.Registries$.getValue();
+				regs.shift();
+				record.TakenAt = new Date(record.TakenAt);
+				regs.push(record);
+				this.Registries$.next(regs);
 			});
+
+		this.Registries$.subscribe((regs) => {
+			this.playerChartData = regs.map(r => ({
+				x: r.TakenAt,
+				y: r.ActivePlayers
+			}));
+			this.memoryChartData = regs.map(r => ({
+				x: r.TakenAt,
+				y: r.MemoryUsage
+			}));
+			this.cpuChartData = regs.map(r => ({
+				x: r.TakenAt,
+				y: r.CPUUsage
+			}));
+		});
 
 		this.fetchDetails();
 	}
@@ -57,7 +158,17 @@ export class ServerInfoComponent implements OnInit, OnDestroy {
 
 	private fetchDetails() {
 		this.Server$ = this.servers.getServer(this.Id);
-		this.servers.getServersResourceMonitoringRegistries(this.Id).subscribe(regs => this.Registries$.next(regs));
+		this.servers.getServersResourceMonitoringRegistries(this.Id)
+			.subscribe(regs =>
+				this.Registries$.next(
+					regs
+					.map(r => {
+						r.TakenAt = new Date(r.TakenAt);
+						return r;
+					})
+					.sort((a, b) => a.TakenAt.getDate() - b.TakenAt.getDate())
+				)
+			);
 	}
 
 }

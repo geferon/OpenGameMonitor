@@ -154,13 +154,13 @@ namespace OpenGameMonitorWeb.Listeners
 			using (var scope = _serviceProvider.CreateScope())
 			using (var db = scope.ServiceProvider.GetService<MonitorDBContext>())
 			{
-				var records = await db.ServerResourceMonitoring.Include(r => r.Server).Where(r => args.RowsInserted.Contains(r.Server.Id)).ToListAsync();
+				var records = await db.ServerResourceMonitoring.Include(r => r.Server).Where(r => args.RowsInserted.Contains(r.Id)).ToListAsync();
 
 				// Send them to all the subbed ones
-				foreach (var record in records)
-				{
-					_hub.Clients.Group($"Server:{record.Server.Id}").SendAsync("Server:RecordAdded", record.Server.Id, record);
-				}
+
+				await Task.WhenAll(records.Select(record =>
+					_hub.Clients.Group($"Server:{record.Server.Id}").SendAsync("Server:RecordAdded", record.Server.Id, record)
+				));
 
 				/*
 				var authService = scope.ServiceProvider.GetService<IAuthorizationService>();
@@ -186,7 +186,8 @@ namespace OpenGameMonitorWeb.Listeners
 				var authService = scope.ServiceProvider.GetService<IAuthorizationService>();
 
 				List<string> connections = new List<string>();
-				foreach (var connection in _hubConnectionManager.GetConnectedUsers<ServersHub>())
+
+				await Task.WhenAll(_hubConnectionManager.GetConnectedUsers<ServersHub>().Select(async connection =>
 				{
 					var authResult = await authService.AuthorizeAsync(connection.Value, server.Entity, "ServerPolicy");
 					if (authResult.Succeeded)
@@ -194,7 +195,7 @@ namespace OpenGameMonitorWeb.Listeners
 						if (!connections.Contains(connection.Key))
 							connections.Add(connection.Key);
 					}
-				}
+				}));
 
 				await NotifyServerInserted(server.Entity, connections.ToArray());
 			}
@@ -206,26 +207,29 @@ namespace OpenGameMonitorWeb.Listeners
 			{
 				var authService = scope.ServiceProvider.GetService<IAuthorizationService>();
 
-				Dictionary<string, bool[]> connections = new Dictionary<string, bool[]>();
-				foreach (var connection in _hubConnectionManager.GetConnectedUsers<ServersHub>())
-				{
-					if (!connections.ContainsKey(connection.Key))
-						connections.Add(connection.Key, new bool[2]);
-
-					connections[connection.Key][0] = (await authService.AuthorizeAsync(connection.Value, server.Original, "ServerPolicy")).Succeeded;
-					connections[connection.Key][1] = (await authService.AuthorizeAsync(connection.Value, server.Entity, "ServerPolicy")).Succeeded;
-				}
+				//Dictionary<string, bool[]> connections = new Dictionary<string, bool[]>();
+				var connections = (await Task.WhenAll(
+					_hubConnectionManager.GetConnectedUsers<ServersHub>().Select(async connection =>
+					{
+						return new KeyValuePair<string, bool[]>(connection.Key,
+							(await Task.WhenAll(
+								authService.AuthorizeAsync(connection.Value, server.Original, "ServerPolicy"),
+								authService.AuthorizeAsync(connection.Value, server.Entity, "ServerPolicy")
+							)).Select<AuthorizationResult, bool>(a => a.Succeeded).ToArray()
+						);
+					})
+				)).ToDictionary(r => r.Key, r => r.Value);
 
 				var allowedConnections = connections.Where(v => v.Value[0] && v.Value[1]).Select(v => v.Key).ToArray();
 				var disallowedConnections = connections.Where(v => v.Value[0] && !v.Value[1]).Select(v => v.Key).ToArray();
 				var newConnections = connections.Where(v => !v.Value[0] && v.Value[1]).Select(v => v.Key).ToArray();
 
-				List<Task> tasks = new List<Task>();
 
-				tasks.Add(Task.Run(() => NotifyServerUpdated(server.Entity, allowedConnections)));
-				tasks.Add(Task.Run(() => NotifyServerDeleted(server.Entity, disallowedConnections)));
-				tasks.Add(Task.Run(() => NotifyServerInserted(server.Entity, disallowedConnections)));
-				await Task.WhenAll(tasks);
+				await Task.WhenAll(
+					NotifyServerUpdated(server.Entity, allowedConnections),
+					NotifyServerDeleted(server.Entity, disallowedConnections),
+					NotifyServerInserted(server.Entity, disallowedConnections)
+				);
 			}
 		}
 
@@ -235,16 +239,10 @@ namespace OpenGameMonitorWeb.Listeners
 			{
 				var authService = scope.ServiceProvider.GetService<IAuthorizationService>();
 
-				List<string> connections = new List<string>();
-				foreach (var connection in _hubConnectionManager.GetConnectedUsers<ServersHub>())
-				{
-					var authResult = await authService.AuthorizeAsync(connection.Value, server.Entity, "ServerPolicy");
-					if (authResult.Succeeded)
-					{
-						if (!connections.Contains(connection.Key))
-							connections.Add(connection.Key);
-					}
-				}
+				var connections = (await _hubConnectionManager.GetConnectedUsers<ServersHub>()
+					.FilterAsync(async c => (await authService.AuthorizeAsync(c.Value, server.Entity, "ServerPolicy")).Succeeded))
+					.Select(c => c.Key)
+					.Distinct();
 
 				await NotifyServerDeleted(server.Entity, connections.ToArray());
 			}
@@ -315,16 +313,10 @@ namespace OpenGameMonitorWeb.Listeners
 			{
 				var authService = scope.ServiceProvider.GetService<IAuthorizationService>();
 
-				List<string> connections = new List<string>();
-				foreach (var connection in _hubConnectionManager.GetConnectedUsers<ServersHub>())
-				{
-					var authResult = await authService.AuthorizeAsync(connection.Value, server, "ServerPolicy");
-					if (authResult.Succeeded)
-					{
-						if (!connections.Contains(connection.Key))
-							connections.Add(connection.Key);
-					}
-				}
+				var connections = (await _hubConnectionManager.GetConnectedUsers<ServersHub>()
+					.FilterAsync(async c => (await authService.AuthorizeAsync(c.Value, server, "ServerPolicy")).Succeeded))
+					.Select(c => c.Key)
+					.Distinct();
 
 				return connections.ToArray();
 			}

@@ -15,6 +15,7 @@ import { ApiAuthorizationModule } from '../api-authorization/api-authorization.m
 import { AuthorizeGuard } from '../api-authorization/authorize.guard';
 import { AuthorizeInterceptor } from '../api-authorization/authorize.interceptor';
 import { DialogsModule } from './main/dialogs/dialogs.module';
+import { ChartsModule } from 'ng2-charts';
 
 @NgModule({
 	declarations: [
@@ -33,6 +34,7 @@ import { DialogsModule } from './main/dialogs/dialogs.module';
 		BrowserAnimationsModule,
 		LayoutModule,
 		MaterialModule,
+		ChartsModule,
 
 		DialogsModule
 	],

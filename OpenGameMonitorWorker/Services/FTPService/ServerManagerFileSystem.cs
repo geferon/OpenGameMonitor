@@ -28,7 +28,7 @@ namespace OpenGameMonitorWorker.Services
         private readonly bool _flushStream;
 
         private readonly IServiceProvider _serviceProvider;
-        private readonly UserManager<MonitorUser> _userManager;
+        //private readonly UserManager<MonitorUser> _userManager;
         private IAccountInformation _account;
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace OpenGameMonitorWorker.Services
             //_userManager = _serviceProvider.GetService<UserManager<MonitorUser>>();
 
             FileSystemEntryComparer = StringComparer.OrdinalIgnoreCase;
-            Root = new ServerManagerDirectoryEntry(allowNonEmptyDirectoryDelete);
+            Root = new ServerManagerDirectoryEntry(Directory.CreateDirectory(rootPath), allowNonEmptyDirectoryDelete);
             SupportsNonEmptyDirectoryDelete = allowNonEmptyDirectoryDelete;
             _streamBufferSize = streamBufferSize;
             _flushStream = flushStream;
@@ -92,11 +92,13 @@ namespace OpenGameMonitorWorker.Services
             if (managerDirEntry.IsRoot)
             {
                 List<Server> servers;
-                using (var db = _serviceProvider.GetService<MonitorDBContext>())
+                using (var scope = _serviceProvider.CreateScope())
+                using (var db = scope.ServiceProvider.GetService<MonitorDBContext>())
+                using (var userManager = scope.ServiceProvider.GetService<UserManager<MonitorUser>>())
                 {
                     IQueryable<Server> serversQuery = db.Servers;
                     var User = _account.FtpUser;
-                    var user = await _userManager.GetUserAsync(User);
+                    var user = await userManager.GetUserAsync(User);
 
                     if (!User.IsInRole("Admin"))
                     {
@@ -113,7 +115,7 @@ namespace OpenGameMonitorWorker.Services
 
                 foreach (var server in servers)
                 {
-                    result.Add(new ServerManagerDirectoryEntry(server, new DirectoryInfo(server.Path), SupportsNonEmptyDirectoryDelete));
+                    result.Add(new ServerManagerDirectoryEntry(server, new DirectoryInfo(server.Path), SupportsNonEmptyDirectoryDelete, true));
                 }
             }
             else if (managerDirEntry.Info != null)
@@ -139,14 +141,36 @@ namespace OpenGameMonitorWorker.Services
         }
 
         /// <inheritdoc/>
-        public Task<IUnixFileSystemEntry?> GetEntryByNameAsync(IUnixDirectoryEntry directoryEntry, string name, CancellationToken cancellationToken)
+        public async Task<IUnixFileSystemEntry?> GetEntryByNameAsync(IUnixDirectoryEntry directoryEntry, string name, CancellationToken cancellationToken)
         {
             var managerDirEntry = (ServerManagerDirectoryEntry)directoryEntry;
             IUnixFileSystemEntry? result = null;
 
             if (managerDirEntry.IsRoot || managerDirEntry.Info == null)
             {
-                result = null;
+                using (var scope = _serviceProvider.CreateScope())
+                using (var db = scope.ServiceProvider.GetService<MonitorDBContext>())
+                using (var userManager = scope.ServiceProvider.GetService<UserManager<MonitorUser>>())
+                {
+                    IQueryable<Server> serversQuery = db.Servers;
+                    var User = _account.FtpUser;
+                    var user = await userManager.GetUserAsync(User);
+
+                    if (!User.IsInRole("Admin"))
+                    {
+                        serversQuery = serversQuery.Where((server) =>
+                            user == server.Owner ||
+                            (server.Group != null
+                            ? server.Group.Members.Any((group) => group.User == user)
+                            : false)
+                        );
+                    }
+
+                    var server = await serversQuery.FirstOrDefaultAsync(s => s.Name == name, cancellationToken);
+
+                    if (server != null)
+                        result = new ServerManagerDirectoryEntry(server, new DirectoryInfo(server.Path), SupportsNonEmptyDirectoryDelete, true);
+                }
             }
             else
             {
@@ -158,11 +182,11 @@ namespace OpenGameMonitorWorker.Services
                 }
                 else if (Directory.Exists(fullPath))
                 {
-                    result = new ServerManagerDirectoryEntry(managerDirEntry.Server, new DirectoryInfo(fullPath), SupportsNonEmptyDirectoryDelete);
+                    result = new ServerManagerDirectoryEntry(managerDirEntry.Server, new DirectoryInfo(fullPath), SupportsNonEmptyDirectoryDelete, false);
                 }
             }
 
-            return Task.FromResult(result);
+            return result;
         }
 
         /// <inheritdoc/>
@@ -185,7 +209,7 @@ namespace OpenGameMonitorWorker.Services
 
             var sourceDirEntry = (ServerManagerDirectoryEntry)source;
             ((DirectoryInfo)sourceDirEntry.Info).MoveTo(targetName);
-            return Task.FromResult<IUnixFileSystemEntry>(new ServerManagerDirectoryEntry(targetEntry.Server, new DirectoryInfo(targetName), SupportsNonEmptyDirectoryDelete));
+            return Task.FromResult<IUnixFileSystemEntry>(new ServerManagerDirectoryEntry(targetEntry.Server, new DirectoryInfo(targetName), SupportsNonEmptyDirectoryDelete, targetEntry.IsRoot));
         }
 
         /// <inheritdoc/>
@@ -214,7 +238,7 @@ namespace OpenGameMonitorWorker.Services
             var targetEntry = (ServerManagerDirectoryEntry)targetDirectory;
 
             // Do not allow directory creation on root
-            if (targetEntry.Info == null || targetEntry.IsRoot)
+            if (targetEntry.Info == null || targetEntry.IsRoot || targetEntry.Server == null)
             {
                 throw new InvalidOperationException();
             }

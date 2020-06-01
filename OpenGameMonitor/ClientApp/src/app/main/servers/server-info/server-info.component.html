@@ -1,1 +1,41 @@
-<p>server-info works!</p>
+<mat-grid-list cols="2">
+	<mat-grid-tile>
+		<mat-card>
+			<h3>Memory Usage</h3>
+			<canvas
+				baseChart
+				[data]="memoryChartData"
+				[options]="memoryChartOptions"
+				[chartType]="'line'"
+				[legend]="false">
+
+			</canvas>
+		</mat-card>
+	</mat-grid-tile>
+	<mat-grid-tile>
+		<mat-card>
+			<h3>CPU Usage</h3>
+			<canvas
+				baseChart
+				[data]="cpuChartData"
+				[options]="cpuChartOptions"
+				[chartType]="'line'"
+				[legend]="false">
+
+			</canvas>
+		</mat-card>
+	</mat-grid-tile>
+	<mat-grid-tile>
+		<mat-card>
+			<h3>Active Players</h3>
+			<canvas
+				baseChart
+				[data]="playerChartData"
+				[options]="playerChartOptions"
+				[chartType]="'line'"
+				[legend]="false">
+
+			</canvas>
+		</mat-card>
+	</mat-grid-tile>
+</mat-grid-list>

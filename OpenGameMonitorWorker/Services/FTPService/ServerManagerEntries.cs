@@ -11,15 +11,12 @@ namespace OpenGameMonitorWorker.Services
 {
     class ServerManagerFileSystemEntry : IUnixFileSystemEntry
     {
-        public ServerManagerFileSystemEntry()
-        {
-        }
-        
         public ServerManagerFileSystemEntry(FileSystemInfo fsInfo)
         {
             Info = fsInfo;
             LastWriteTime = new DateTimeOffset(Info.LastWriteTime);
             CreatedTime = new DateTimeOffset(Info.CreationTimeUtc);
+
             var accessMode = new GenericAccessMode(true, true, true);
             Permissions = new GenericUnixPermissions(accessMode, accessMode, accessMode);
         }
@@ -44,8 +41,8 @@ namespace OpenGameMonitorWorker.Services
             CreatedTime = server.Inserted;
             LastWriteTime = server.Updated;
 
-            var accessMode = new GenericAccessMode(true, true, true);
-            Permissions = new GenericUnixPermissions(accessMode, accessMode, accessMode);
+            //var accessMode = new GenericAccessMode(true, true, true);
+            //Permissions = new GenericUnixPermissions(accessMode, accessMode, accessMode);
         }
 
         public Server? Server { get; set; }
@@ -71,12 +68,6 @@ namespace OpenGameMonitorWorker.Services
     {
         private readonly bool _allowDeleteIfNotEmpty;
 
-        public ServerManagerDirectoryEntry(bool allowDeleteIfNotEmpty) : base()
-        {
-            IsRoot = true;
-            _allowDeleteIfNotEmpty = allowDeleteIfNotEmpty;
-        }
-
         public ServerManagerDirectoryEntry(DirectoryInfo dirInfo, bool allowDeleteIfNotEmpty) : base(dirInfo)
         {
             IsRoot = true;
@@ -92,15 +83,19 @@ namespace OpenGameMonitorWorker.Services
         }
         */
 
-        public ServerManagerDirectoryEntry(Server server, DirectoryInfo dirInfo, bool allowDeleteIfNotEmpty) : base(server, dirInfo)
+        public ServerManagerDirectoryEntry(Server server, DirectoryInfo dirInfo, bool allowDeleteIfNotEmpty, bool isSubRoot = false) : base(server, dirInfo)
         {
             IsRoot = false;
+            IsSubRoot = isSubRoot;
             _allowDeleteIfNotEmpty = allowDeleteIfNotEmpty;
         }
 
         public bool IsRoot { get; }
+        public bool IsSubRoot { get; }
 
         public bool IsDeletable => CheckIfDeletable();
+
+        public new string Name => IsSubRoot ? Server?.Name : Info?.Name ?? Server?.Name ?? "";
 
         private static bool? HasChildEntries(DirectoryInfo directoryInfo)
         {

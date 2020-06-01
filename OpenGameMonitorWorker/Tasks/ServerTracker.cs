@@ -61,11 +61,11 @@ namespace OpenGameMonitorWorker.Tasks
 			{
 				var timerSeconds = _configuration.GetValue<int>("MonitorSettings:TrackerTimer", 15);
 				var nextTime = DateTime.Now;
-				var secondsLeft = timerSeconds + (nextTime.Second % timerSeconds);
-				nextTime.AddTicks(-(nextTime.Ticks % TimeSpan.TicksPerSecond)); // We truncate it
-				nextTime.AddSeconds(secondsLeft); // And we add the seconds left
+				var secondsLeft = timerSeconds - (nextTime.Second % timerSeconds);
+				nextTime = nextTime.AddTicks(-(nextTime.Ticks % TimeSpan.TicksPerSecond)); // We truncate it
+				nextTime = nextTime.AddSeconds(secondsLeft); // And we add the seconds left
 
-				TimeSpan difference = DateTime.Now - nextTime;
+				TimeSpan difference = nextTime - DateTime.Now;
 
 				await Task.Delay(difference, stoppingToken);
 
@@ -130,11 +130,15 @@ namespace OpenGameMonitorWorker.Tasks
 					await db.SaveChangesAsync();
 
 					_logger.LogDebug("All servers information fetched and saved!");
+					cancellationToken.Dispose();
 
-					ServersMonitorRecorded?.Invoke(this, new ServerRecordsEventArgs()
+					if (monitoringEntries.Count > 0)
 					{
-						RowsInserted = monitoringEntries.Select(e => e.Id).ToArray()
-					});
+						ServersMonitorRecorded?.Invoke(this, new ServerRecordsEventArgs()
+						{
+							RowsInserted = monitoringEntries.Select(e => e.Id).ToArray()
+						});
+					}
 				}
 			}
 		}
