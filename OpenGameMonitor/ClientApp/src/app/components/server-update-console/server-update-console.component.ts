@@ -7,13 +7,13 @@ import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 // import { VirtualScrollerComponent } from 'ngx-virtual-scroller';
 
 @Component({
-	selector: 'server-console',
-	templateUrl: './server-console.component.html',
-	styleUrls: ['./server-console.component.scss'],
+	selector: 'server-update-console',
+	templateUrl: './server-update-console.component.html',
+	styleUrls: ['./server-update-console.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	// providers: [{provide: VIRTUAL_SCROLL_STRATEGY, useClass:  }]
 })
-export class ServerConsoleComponent implements OnInit {
+export class ServerUpdateConsoleComponent implements OnInit {
 	constructor(
 		private servers: ServerService,
 		private cdRef: ChangeDetectorRef
@@ -34,7 +34,7 @@ export class ServerConsoleComponent implements OnInit {
 
 		from(this.servers.subscribeToServer(id))
 			.pipe(
-				mergeMap(() => this.servers.getServersConsoleMessages()),
+				mergeMap(() => this.servers.getServersUpdateMessages()),
 				takeUntil(this.onDestroy),
 				filter(([serverId, line]: [number, string]) => {
 					return serverId == id;
@@ -48,10 +48,6 @@ export class ServerConsoleComponent implements OnInit {
 
 				if (this.virtualScrollViewport.measureScrollOffset('bottom') <= 20) {
 					this.virtualScrollViewport.scrollTo({bottom: 0});
-					// this.virtualScrollViewport.scrollToOffset(
-					// 	this.virtualScrollViewport.measureScrollOffset('bottom') +
-					// 	this.virtualScrollViewport.measureScrollOffset('top')
-					// );
 				}
 				// if (this.virtualScrollComponent.viewPortInfo.endIndex >= this.Lines.length - 1) {
 				// 	this.virtualScrollComponent.scrollInto(line);

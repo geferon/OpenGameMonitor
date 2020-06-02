@@ -51,10 +51,10 @@ const isValidString = function(variable?: string) {
 })
 export class MainComponent implements OnInit, OnDestroy {
 	SidebarItems: TabItem[] = [
-		{
-			title: 'Home',
-			path: 'home'
-		},
+		// {
+		// 	title: 'Home',
+		// 	path: 'home'
+		// },
 		{
 			title: 'Servers',
 			path: 'servers'

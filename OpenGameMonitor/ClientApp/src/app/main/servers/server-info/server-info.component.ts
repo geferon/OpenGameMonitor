@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Observable, BehaviorSubject, Subject, from } from 'rxjs';
+import { Observable, BehaviorSubject, Subject, from, Subscription } from 'rxjs';
 import { filter, takeUntil, mergeMap } from 'rxjs/operators';
 
 import { ServerService } from '../../../services/server.service';
@@ -40,8 +40,11 @@ export class ServerInfoComponent implements OnInit, OnDestroy {
 	) { }
 
 	public Id: number;
-	public Server$: Observable<Server>;
+	public Server$ = new Subject<Server>();
 	public Registries$ = new BehaviorSubject<ServerResourceMonitoringRegistry[]>([]);
+
+	public ActionLoading$: Subscription;
+	public ProcessStatusEnum = ProcessStatus;
 
 	// Config
 	public playerChartOptions: ChartOptions = {
@@ -118,7 +121,7 @@ export class ServerInfoComponent implements OnInit, OnDestroy {
 	ngOnInit(): void {
 		this.Id = +this.route.snapshot.paramMap.get('id');
 
-		from(this.servers.subscribeToServer(this.Id))
+		this.servers.subscribeToServer(this.Id)
 			.pipe(
 				mergeMap(() => this.servers.getServersRecordsAdded()),
 				takeUntil(this.onDestroy),
@@ -160,7 +163,12 @@ export class ServerInfoComponent implements OnInit, OnDestroy {
 	}
 
 	private fetchDetails() {
-		this.Server$ = this.servers.getServer(this.Id);
+		this.servers.getServerRealtime(this.Id)
+			.pipe(takeUntil(this.onDestroy))
+			.subscribe(server => {
+				this.Server$.next(server);
+			});
+
 		this.servers.getServersResourceMonitoringRegistries(this.Id)
 			.subscribe(regs =>
 				this.Registries$.next(
@@ -172,6 +180,24 @@ export class ServerInfoComponent implements OnInit, OnDestroy {
 					.sort((a, b) => a.TakenAt.getTime() - b.TakenAt.getTime())
 				)
 			);
+	}
+
+	public startServer() {
+		this.ActionLoading$ = this.servers.startServer(this.Id)
+			.subscribe();
+	}
+	public restartServer() {
+		this.ActionLoading$ = this.servers.stopServer(this.Id)
+			.pipe(mergeMap(() => this.servers.startServer(this.Id)))
+				.subscribe();
+	}
+	public stopServer() {
+		this.ActionLoading$ = this.servers.stopServer(this.Id)
+			.subscribe();
+	}
+	public updateServer() {
+		this.ActionLoading$ = this.servers.startServerUpdate(this.Id)
+			.subscribe();
 	}
 
 }

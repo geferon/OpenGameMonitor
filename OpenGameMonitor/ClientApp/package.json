@@ -16,6 +16,7 @@
     "@angular-eslint/schematics": "0.0.1-alpha.29",
     "@angular/animations": "^9.1.4",
     "@angular/cdk": "^9.2.4",
+    "@angular/cdk-experimental": "^9.2.4",
     "@angular/common": "^9.1.4",
     "@angular/compiler": "^9.1.4",
     "@angular/core": "^9.1.4",

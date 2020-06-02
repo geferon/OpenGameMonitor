@@ -9,14 +9,15 @@ export interface RouteItem extends Route {
 }
 
 export const appRoutes: RouteItem[] = [
-	{
-		path: 'home',
-		loadChildren: () => import('./home/home.module').then(mod => mod.HomeModule),
-		main: true
-	},
+	// {
+	// 	path: 'home',
+	// 	loadChildren: () => import('./home/home.module').then(mod => mod.HomeModule),
+	// 	main: true
+	// },
 	{
 		path: 'servers',
-		loadChildren: () => import('./servers/servers.module').then(mod => mod.ServersModule)
+		loadChildren: () => import('./servers/servers.module').then(mod => mod.ServersModule),
+		main: true
 	},
 	{
 		path: 'settings',

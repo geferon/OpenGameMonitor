@@ -16,13 +16,30 @@ p>mat-form-field {
 	margin-bottom: 12px;
 }
 
-.console {
-	display: flex;
-	height: 450px;
+.update-button {
+	background-color: #76ff03;
+}
 
-	server-console {
-		flex: 1;
+.button-row {
+	display: table-cell;
+
+	button {
+		display: table-cell;
+		margin-right: 8px;
 	}
+}
+
+.server-info-box {
+	h3 {
+		margin-bottom: 0;
+		font-weight: bold;
+	}
+}
+
+server-console {
+	// display: flex;
+	height: 400px;
+	width: 100%;
 }
 
 .stat-containers {

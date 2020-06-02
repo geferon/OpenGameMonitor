@@ -1,52 +1,100 @@
-<h2>{{(Server$ | async).Name}}</h2>
+<div *ngIf="(Server$ | async) as server">
+	<h1 class="mat-h1">{{server.Name}}</h1>
 
-<div class="console">
-	<server-console [server]="Id"></server-console>
-</div>
+	<section class="server-info mat-typography" fxLayout="row wrap">
+		<h2 fxFlex="100%">Server Information</h2>
 
-<div class="stat-containers" fxLayout="row">
-	<mat-card>
-		<mat-card-title>Memory Usage</mat-card-title>
-		<mat-card-content>
-		<canvas
-			height="220px"
-			baseChart
-			[data]="memoryChartData"
-			[options]="memoryChartOptions"
-			[chartType]="'line'"
-			[legend]="false">
+		<div class="server-info-box" fxFlex>
+			<h3>Server Address</h3>
+			<p>{{server.DisplayIP ? server.DisplayIP : server.IP}}:{{server.Port}}</p>
 
-		</canvas>
-		</mat-card-content>
-	</mat-card>
-	<mat-card>
-		<mat-card-title>CPU Usage</mat-card-title>
-		<mat-card-content>
-		<canvas
-			height="220px"
-			baseChart
-			[data]="cpuChartData"
-			[options]="cpuChartOptions"
-			[chartType]="'line'"
-			[legend]="false">
+			<h3>FTP Info</h3>
+			<p>TODO</p>
 
-		</canvas>
-		</mat-card-content>
-	</mat-card>
-</div>
-<div class="stat-containers" fxLayout="row">
-	<mat-card>
-		<mat-card-title>Active Players</mat-card-title>
-		<mat-card-content>
-		<canvas
-			height="220px"
-			baseChart
-			[data]="playerChartData"
-			[options]="playerChartOptions"
-			[chartType]="'line'"
-			[legend]="false">
+			<h3>Current Status</h3>
+			<ng-container [ngSwitch]="server.ProcessStatus">
+				<p *ngSwitchCase="ProcessStatusEnum.Started">Started</p>
+				<p *ngSwitchCase="ProcessStatusEnum.Stopped">Stopped</p>
+				<p *ngSwitchCase="ProcessStatusEnum.Updating">Updating</p>
+			</ng-container>
 
-		</canvas>
-		</mat-card-content>
-	</mat-card>
+			<h3>Actions</h3>
+			<p class="button-row">
+				<button mat-raised-button color="primary"
+					[disabled]="server.ProcessStatus != ProcessStatusEnum.Stopped || (ActionLoading$ && !ActionLoading$.closed)"
+					(click)="startServer()">
+					Start
+				</button>
+				<button mat-raised-button color="accent"
+					[disabled]="server.ProcessStatus != ProcessStatusEnum.Started || (ActionLoading$ && !ActionLoading$.closed)"
+					(click)="restartServer()">
+					Restart
+				</button>
+				<button mat-raised-button color="warn"
+					[disabled]="server.ProcessStatus != ProcessStatusEnum.Started || (ActionLoading$ && !ActionLoading$.closed)"
+					(click)="stopServer()">
+					Stop
+				</button>
+				<button mat-raised-button class="update-button"
+					[disabled]="server.ProcessStatus != ProcessStatusEnum.Stopped || (ActionLoading$ && !ActionLoading$.closed)"
+					(click)="updateServer()">
+					Update
+				</button>
+			</p>
+		</div>
+
+		<div class="stat-containers" fxLayout="column">
+			<mat-card>
+				<mat-card-title>Memory Usage</mat-card-title>
+				<mat-card-content>
+				<canvas
+					height="150px"
+					baseChart
+					[data]="memoryChartData"
+					[options]="memoryChartOptions"
+					[chartType]="'line'"
+					[legend]="false">
+
+				</canvas>
+				</mat-card-content>
+			</mat-card>
+			<mat-card>
+				<mat-card-title>CPU Usage</mat-card-title>
+				<mat-card-content>
+				<canvas
+					height="150px"
+					baseChart
+					[data]="cpuChartData"
+					[options]="cpuChartOptions"
+					[chartType]="'line'"
+					[legend]="false">
+
+				</canvas>
+				</mat-card-content>
+			</mat-card>
+			<mat-card>
+				<mat-card-title>Active Players</mat-card-title>
+				<mat-card-content>
+				<canvas
+					height="150px"
+					baseChart
+					[data]="playerChartData"
+					[options]="playerChartOptions"
+					[chartType]="'line'"
+					[legend]="false">
+
+				</canvas>
+				</mat-card-content>
+			</mat-card>
+		</div>
+	</section>
+
+	<section class="console mat-typography" *ngIf="server.ProcessStatus == ProcessStatusEnum.Started">
+		<h2>Console</h2>
+		<server-console [server]="Id"></server-console>
+	</section>
+	<section class="console mat-typography" *ngIf="server.ProcessStatus == ProcessStatusEnum.Updating">
+		<h2>Update Console</h2>
+		<server-update-console [server]="Id"></server-update-console>
+	</section>
 </div>

@@ -8,9 +8,7 @@ import { VIRTUAL_SCROLL_STRATEGY } from '@angular/cdk/scrolling';
 @Component({
 	selector: 'app-server-console',
 	templateUrl: './server-console.component.html',
-	styleUrls: ['./server-console.component.scss'],
-	changeDetection: ChangeDetectionStrategy.OnPush,
-	// providers: [{provide: VIRTUAL_SCROLL_STRATEGY, useClass:  }]
+	styleUrls: ['./server-console.component.scss']
 })
 export class ServerConsoleComponent implements OnInit {
 

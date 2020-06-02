@@ -4,7 +4,7 @@ import { Observable, Subject, BehaviorSubject } from 'rxjs';
 import { Server, Game, ServerResourceMonitoringRegistry } from '../definitions/interfaces';
 import { APIPaths } from './services.constants';
 import { SignalRService } from './signal-r.service';
-import { share, finalize, map } from 'rxjs/operators';
+import { share, finalize, map, filter } from 'rxjs/operators';
 
 @Injectable({
 	providedIn: 'root'
@@ -116,6 +116,37 @@ export class ServerService {
 
 	getServer(id: number): Observable<Server> {
 		return this.http.get<Server>(`${APIPaths.Servers}/${id}`);
+	}
+
+	getServerRealtime(id: number): Observable<Server> {
+		let subject = new Subject<Server>();
+
+		this.getServer(id).subscribe((server) => {
+			subject.next(server);
+		});
+
+		let subscriptions = [
+			this.signalR.listenToEvent("Server:Updated")
+				.pipe(
+					filter(([server]: [Server]) => server.Id == id)
+				)
+				.subscribe(([server]: [Server]) => {
+					console.log("WS - Server updated!", server);
+
+					subject.next(server);
+				})
+		];
+
+		subject.pipe(
+			finalize(() => {
+				for (let sub of subscriptions) {
+					sub.unsubscribe();
+				}
+			}),
+			share()
+		);
+
+		return subject.asObservable();
 	}
 
 	getServersResourceMonitoringRegistries(server: Server | number, page?: number): Observable<ServerResourceMonitoringRegistry[]> {
