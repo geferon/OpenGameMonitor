@@ -41,10 +41,8 @@ namespace OpenGameMonitorWorker.Tasks
 			ILogger<ServerTracker> logger,
 			IServiceProvider serviceProvider,
 			GameHandlerService gameHandler,
-			EventHandlerService eventHandler,
 			Microsoft.Extensions.Configuration.IConfiguration configuration
-		)
-		{
+		) {
 			_logger = logger;
 			_serviceProvider = serviceProvider;
 			_gameHandler = gameHandler;

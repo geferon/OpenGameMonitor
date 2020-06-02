@@ -106,7 +106,7 @@ namespace OpenGameMonitorWorker
                     services.AddHostedService<IPCService>();
 
                     // Basic server services
-                    services.AddSingleton<EventHandlerService>();
+                    //services.AddSingleton<EventHandlerService>();
 
                     // services.AddHostedService<Worker>();
 

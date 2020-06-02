@@ -54,7 +54,7 @@ namespace OpenGameMonitor
             services.AddSingleton<MonitorComsCallback>();
             services.AddHostedSingleton<IPCClient>();
 
-            services.AddSingleton<EventHandlerService>();
+            //services.AddSingleton<EventHandlerService>();
 
             // DB
             services.AddEntityFrameworkMySql();

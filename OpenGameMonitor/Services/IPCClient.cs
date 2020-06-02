@@ -18,19 +18,19 @@ namespace OpenGameMonitor.Services
 	{
 		private readonly ILogger<IPCClient> _logger;
 		private readonly IConfiguration _config;
-		private readonly EventHandlerService _eventHandlerService;
+		//private readonly EventHandlerService _eventHandlerService;
 		private readonly IServiceProvider _serviceProvider;
 
 		private static double RetryTime = 10;
 
 		public IPCClient(ILogger<IPCClient> logger,
 			IConfiguration config,
-			EventHandlerService eventHandlerService,
+			//EventHandlerService eventHandlerService,
 			IServiceProvider serviceProvider)
 		{
 			_logger = logger;
 			_config = config;
-			_eventHandlerService = eventHandlerService;
+			//_eventHandlerService = eventHandlerService;
 			_serviceProvider = serviceProvider;
 		}
 
@@ -57,7 +57,7 @@ namespace OpenGameMonitor.Services
 
 			builder.CallbackInstanceCreated += (callback) =>
 			{
-				callback.eventHandlerService = _eventHandlerService;
+				//callback.eventHandlerService = _eventHandlerService;
 			};
 
 			_logger.LogInformation("Trying to connect to the monitor.");
@@ -128,7 +128,7 @@ namespace OpenGameMonitor.Services
 
 	public class MonitorComsCallback : IMonitorComsCallback
 	{
-		public EventHandlerService eventHandlerService;
+		//public EventHandlerService eventHandlerService;
 
 		public event EventHandler PanelConfigReloadedEvent;
 		public event EventHandler<ServerEventArgs> ServerClosedEvent;

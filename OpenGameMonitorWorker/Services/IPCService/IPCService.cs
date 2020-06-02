@@ -87,7 +87,7 @@ namespace OpenGameMonitorWorker.Services
         private HostBuilderContext _hostBuilderContext;
         private GameHandlerService _gameHandler;
         private ServerTracker _serverTracker;
-        private EventHandlerService _eventHandlerService;
+        //private EventHandlerService _eventHandlerService;
         private ILogger<IPCService> _logger;
 
         private bool parametersInit = false;
@@ -106,7 +106,7 @@ namespace OpenGameMonitorWorker.Services
             HostBuilderContext hostBuilderContext,
             GameHandlerService gameHandler,
             ServerTracker serverTracker,
-            EventHandlerService eventHandlerService,
+            //EventHandlerService eventHandlerService,
             ILogger<IPCService> logger)
         {
 
@@ -114,7 +114,7 @@ namespace OpenGameMonitorWorker.Services
             _hostBuilderContext = hostBuilderContext;
             _gameHandler = gameHandler;
             _serverTracker = serverTracker;
-            _eventHandlerService = eventHandlerService;
+            //_eventHandlerService = eventHandlerService;
             _logger = logger;
             parametersInit = true;
 
@@ -132,7 +132,7 @@ namespace OpenGameMonitorWorker.Services
             _hostBuilderContext = services.GetService<HostBuilderContext>();
             _gameHandler = services.GetService<GameHandlerService>();
             _serverTracker = services.GetService<ServerTracker>();
-            _eventHandlerService = services.GetService<EventHandlerService>();
+            //_eventHandlerService = services.GetService<EventHandlerService>();
             _logger = services.GetService<ILogger<IPCService>>();
 
             parametersInit = true;
