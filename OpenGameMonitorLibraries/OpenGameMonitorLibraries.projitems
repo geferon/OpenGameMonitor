@@ -15,7 +15,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\MonitorDBContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MonitorComsInterface.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MonitorConfig.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)SharedServices\EventHandlerService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -23,6 +22,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)Protos\" />
+    <Folder Include="$(MSBuildThisFileDirectory)SharedServices\" />
   </ItemGroup>
   <ItemGroup>
     <AdditionalFiles Include="$(MSBuildThisFileDirectory).editorconfig" />
